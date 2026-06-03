@@ -1,0 +1,24 @@
+{
+  "name": "gosthshop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "GosthShop — storefront de lujo, dashboard administrativo y API de inventario",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev --workspace @gosthshop/api",
+    "dev:store": "npm run dev --workspace @gosthshop/storefront",
+    "dev:admin": "npm run dev --workspace @gosthshop/admin",
+    "build:api": "npm run build --workspace @gosthshop/api",
+    "build:store": "npm run build --workspace @gosthshop/storefront",
+    "build:admin": "npm run build --workspace @gosthshop/admin",
+    "prisma:migrate": "npm run prisma:migrate --workspace @gosthshop/api",
+    "prisma:seed": "npm run prisma:seed --workspace @gosthshop/api",
+    "prisma:studio": "npm run prisma:studio --workspace @gosthshop/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
