@@ -156,11 +156,58 @@ export class OrdersService {
 
     const products = await this.prisma.product.count();
 
+    const paidCount = byStatus
+      .filter((s) => s.status === OrderStatus.PAID || s.status === OrderStatus.FULFILLED)
+      .reduce((n, s) => n + s._count._all, 0);
+    const revenue = paidAgg._sum.totalCents ?? 0;
+
     return {
       totalOrders: orders,
       totalProducts: products,
-      revenueCents: paidAgg._sum.totalCents ?? 0,
+      revenueCents: revenue,
+      avgOrderCents: paidCount ? Math.round(revenue / paidCount) : 0,
       ordersByStatus: byStatus.map((s) => ({ status: s.status, count: s._count._all })),
     };
+  }
+
+  // Productos más vendidos (por unidades en pedidos pagados/enviados)
+  async bestSellers(limit = 6) {
+    const items = await this.prisma.orderItem.findMany({
+      where: { order: { status: { in: [OrderStatus.PAID, OrderStatus.FULFILLED] } } },
+      select: { productId: true, productName: true, quantity: true, unitPriceCents: true },
+    });
+
+    const map = new Map<
+      string,
+      { productId: string; name: string; units: number; revenueCents: number }
+    >();
+    for (const it of items) {
+      const cur =
+        map.get(it.productId) ?? {
+          productId: it.productId,
+          name: it.productName,
+          units: 0,
+          revenueCents: 0,
+        };
+      cur.units += it.quantity;
+      cur.revenueCents += it.quantity * it.unitPriceCents;
+      map.set(it.productId, cur);
+    }
+
+    const ranked = [...map.values()].sort((a, b) => b.units - a.units).slice(0, limit);
+
+    // Adjuntar imagen actual del producto si existe
+    const ids = ranked.map((r) => r.productId);
+    const products = ids.length
+      ? await this.prisma.product.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, slug: true, images: { orderBy: { position: 'asc' }, take: 1 } },
+        })
+      : [];
+
+    return ranked.map((r) => {
+      const p = products.find((x) => x.id === r.productId);
+      return { ...r, slug: p?.slug ?? null, image: p?.images[0]?.url ?? null };
+    });
   }
 }

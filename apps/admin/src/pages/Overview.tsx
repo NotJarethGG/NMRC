@@ -9,7 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 import { api, formatCRC } from '../lib/api';
-import type { LowStockRow, Order, Stats } from '../lib/types';
+import type { BestSeller, LowStockRow, Order, Stats } from '../lib/types';
 
 const STATUS_COLOR: Record<string, string> = {
   PENDING: '#C9C1B4',
@@ -38,6 +38,10 @@ export function Overview() {
     queryKey: ['stats'],
     queryFn: async () => (await api.get<Stats>('/orders/stats')).data,
   });
+  const { data: best } = useQuery({
+    queryKey: ['best-sellers'],
+    queryFn: async () => (await api.get<BestSeller[]>('/orders/best-sellers')).data,
+  });
   const { data: lowStock } = useQuery({
     queryKey: ['low-stock'],
     queryFn: async () => (await api.get<LowStockRow[]>('/products/low-stock')).data,
@@ -54,6 +58,8 @@ export function Overview() {
       count: s.count,
     })) ?? [];
 
+  const maxUnits = Math.max(1, ...(best?.map((b) => b.units) ?? [1]));
+
   return (
     <div>
       <header className="mb-8">
@@ -61,15 +67,16 @@ export function Overview() {
         <h1 className="font-display text-4xl mt-1">Resumen</h1>
       </header>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Metric label="Ingresos confirmados" value={formatCRC(stats?.revenueCents ?? 0)} />
+        <Metric label="Ticket promedio" value={formatCRC(stats?.avgOrderCents ?? 0)} />
         <Metric label="Pedidos totales" value={String(stats?.totalOrders ?? 0)} />
         <Metric label="Productos" value={String(stats?.totalProducts ?? 0)} />
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-3 gap-6 mb-6">
         {/* CHART */}
-        <div className="card p-6">
+        <div className="card p-6 lg:col-span-2">
           <p className="eyebrow mb-6">Pedidos por estado</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -109,8 +116,42 @@ export function Overview() {
         </div>
       </div>
 
+      {/* BEST SELLERS */}
+      <div className="card p-6 mb-6">
+        <p className="eyebrow mb-5">Productos más vendidos</p>
+        {best && best.length > 0 ? (
+          <ul className="space-y-4">
+            {best.map((b, i) => (
+              <li key={b.productId} className="flex items-center gap-4">
+                <span className="font-display text-2xl w-7 text-stone">{i + 1}</span>
+                <div className="w-11 h-14 bg-sand overflow-hidden shrink-0">
+                  {b.image && <img src={b.image} alt="" className="w-full h-full object-cover" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{b.name}</p>
+                  <div className="mt-1.5 h-1.5 bg-line rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-ink rounded-full"
+                      style={{ width: `${(b.units / maxUnits) * 100}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-medium">{b.units} uds</p>
+                  <p className="text-xs text-stone">{formatCRC(b.revenueCents)}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-stone">
+            Aún no hay ventas confirmadas. Marca pedidos como pagados para ver el ranking.
+          </p>
+        )}
+      </div>
+
       {/* RECENT ORDERS */}
-      <div className="card mt-6">
+      <div className="card">
         <div className="px-6 py-4 border-b border-line">
           <p className="eyebrow">Pedidos recientes</p>
         </div>

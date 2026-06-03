@@ -71,7 +71,16 @@ export interface Stats {
   totalOrders: number;
   totalProducts: number;
   revenueCents: number;
+  avgOrderCents: number;
   ordersByStatus: { status: OrderStatus; count: number }[];
+}
+export interface BestSeller {
+  productId: string;
+  name: string;
+  units: number;
+  revenueCents: number;
+  slug: string | null;
+  image: string | null;
 }
 export interface LowStockRow {
   id: string;

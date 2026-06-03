@@ -40,6 +40,7 @@ export interface Product {
   collection?: Collection | null;
   images: ProductImage[];
   variants: ProductVariant[];
+  createdAt?: string;
 }
 
 export interface User {

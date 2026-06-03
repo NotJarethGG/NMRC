@@ -52,7 +52,7 @@ export function ProductDetail() {
   };
 
   return (
-    <div className="pt-20 md:pt-24">
+    <div className="pt-28 md:pt-32">
       <div className="max-w-editorial mx-auto md:px-10">
         <div className="grid md:grid-cols-2 gap-0 md:gap-12">
           {/* GALERÍA */}

@@ -35,3 +35,6 @@ apps/api/uploads/*
 
 # vite
 *.local
+
+# typescript build info
+*.tsbuildinfo

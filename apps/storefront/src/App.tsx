@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { AnnouncementBar } from './components/AnnouncementBar';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
@@ -46,6 +47,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <AnnouncementBar />
       <Header />
       <CartDrawer />
       <AnimatePresence mode="wait">

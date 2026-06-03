@@ -3,14 +3,18 @@ import { motion } from 'framer-motion';
 import { useProducts, useCollections } from '../hooks/useCatalog';
 import { ProductCard } from '../components/ProductCard';
 import { Reveal } from '../components/Reveal';
+import { BenefitsBar } from '../components/BenefitsBar';
+import { CategoryMosaic } from '../components/CategoryMosaic';
+import { Newsletter } from '../components/Newsletter';
 
 const HERO =
   'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?auto=format&fit=crop&w=2000&q=80';
 
 export function Home() {
-  const { data: featured } = useProducts({ featured: true });
+  const { data: products } = useProducts();
   const { data: collections } = useCollections();
   const lead = collections?.[0];
+  const novedades = products?.slice(0, 8) ?? [];
 
   return (
     <div>
@@ -26,19 +30,11 @@ export function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-noir/70 via-noir/40 to-noir/80" />
         <div className="relative h-full flex flex-col items-center justify-center text-center text-bone px-6">
-          <motion.span
-            className="eyebrow text-bone/70 mb-6"
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4 }}
-          >
-            Edición Limitada — Otoño
-          </motion.span>
           <motion.h1
             className="font-display text-5xl md:text-8xl leading-[0.95] max-w-4xl"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.1, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
             Lujo en silencio
           </motion.h1>
@@ -57,8 +53,14 @@ export function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 1.1 }}
           >
-            <Link to="/shop" className="btn-ink bg-bone text-ink hover:bg-bone/90 hover:text-ink">
-              Explorar la colección
+            <Link to="/shop" className="btn-ink">
+              Comprar ahora
+            </Link>
+            <Link
+              to="/collections"
+              className="btn-outline border-bone/40 text-bone hover:bg-bone hover:text-noir"
+            >
+              Ver colecciones
             </Link>
           </motion.div>
         </div>
@@ -67,17 +69,44 @@ export function Home() {
         </div>
       </section>
 
-      {/* MANIFESTO */}
-      <section className="max-w-editorial mx-auto px-5 md:px-10 py-28 md:py-40">
-        <Reveal>
-          <p className="font-display text-3xl md:text-5xl leading-tight max-w-4xl mx-auto text-center">
-            Cada pieza nace de una obsesión por el detalle. Materiales nobles, siluetas
-            atemporales, números contados.
-          </p>
+      {/* BENEFICIOS */}
+      <BenefitsBar />
+
+      {/* COMPRAR POR CATEGORÍA */}
+      <CategoryMosaic />
+
+      {/* NOVEDADES */}
+      <section className="max-w-editorial mx-auto px-5 md:px-10 pb-24 md:pb-32">
+        <Reveal className="flex items-end justify-between mb-12">
+          <div>
+            <span className="eyebrow">Recién llegado</span>
+            <h2 className="font-display text-4xl md:text-5xl mt-3">Novedades</h2>
+          </div>
+          <Link to="/shop" className="hidden md:inline text-[11px] uppercase tracking-luxe link-underline">
+            Ver todo
+          </Link>
         </Reveal>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-12">
+          {novedades.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} />
+          ))}
+        </div>
       </section>
 
-      {/* FEATURED COLLECTION */}
+      {/* MANIFESTO */}
+      <section className="bg-coal border-y border-bone/10">
+        <div className="max-w-editorial mx-auto px-5 md:px-10 py-24 md:py-36">
+          <Reveal>
+            <p className="font-display text-3xl md:text-5xl leading-tight max-w-4xl mx-auto text-center">
+              Cada pieza nace de una obsesión por el detalle. Materiales nobles, siluetas atemporales,
+              números contados.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* COLECCIÓN DESTACADA */}
       {lead && (
         <section className="relative">
           <div className="grid md:grid-cols-2">
@@ -93,7 +122,7 @@ export function Home() {
                 <p className="text-bone/70 leading-relaxed max-w-md mb-10">{lead.description}</p>
                 <Link
                   to={`/shop?collection=${lead.slug}`}
-                  className="btn-outline border-bone/40 text-bone hover:bg-bone hover:text-ink"
+                  className="btn-outline border-bone/40 text-bone hover:bg-bone hover:text-noir"
                 >
                   Ver la colección
                 </Link>
@@ -103,24 +132,8 @@ export function Home() {
         </section>
       )}
 
-      {/* FEATURED PRODUCTS */}
-      <section className="max-w-editorial mx-auto px-5 md:px-10 py-28 md:py-36">
-        <Reveal className="flex items-end justify-between mb-12">
-          <div>
-            <span className="eyebrow">Selección</span>
-            <h2 className="font-display text-4xl md:text-5xl mt-3">Piezas destacadas</h2>
-          </div>
-          <Link to="/shop" className="hidden md:inline text-[11px] uppercase tracking-luxe link-underline">
-            Ver todo
-          </Link>
-        </Reveal>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-12">
-          {featured?.slice(0, 4).map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} />
-          ))}
-        </div>
-      </section>
+      {/* NEWSLETTER */}
+      <Newsletter />
     </div>
   );
 }

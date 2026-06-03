@@ -40,6 +40,13 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'STAFF')
+  @Get('best-sellers')
+  bestSellers() {
+    return this.orders.bestSellers();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'STAFF')
   @Get()
   findAll(@Query('status') status?: OrderStatus) {
     return this.orders.findAll(status);
