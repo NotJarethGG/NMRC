@@ -62,7 +62,7 @@ export function Register() {
             <input className="field" value={form.phone} onChange={set('phone')} />
           </div>
 
-          {error && <p className="text-sm text-red-700">{error}</p>}
+          {error && <p className="text-sm text-red-400">{error}</p>}
 
           <button type="submit" disabled={loading} className="btn-ink w-full">
             {loading ? 'Creando…' : 'Crear cuenta'}
@@ -71,7 +71,7 @@ export function Register() {
 
         <p className="text-center text-sm text-stone mt-8">
           ¿Ya tienes cuenta?{' '}
-          <Link to={`/login?redirect=${redirect}`} className="text-ink link-underline">
+          <Link to={`/login?redirect=${redirect}`} className="text-bone link-underline">
             Acceder
           </Link>
         </p>

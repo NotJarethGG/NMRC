@@ -29,7 +29,7 @@ export function OrderConfirmation() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="w-16 h-16 mx-auto rounded-full border border-ink/30 flex items-center justify-center mb-8"
+          className="w-16 h-16 mx-auto rounded-full border border-bone/30 flex items-center justify-center mb-8"
         >
           <span className="font-display text-2xl">✓</span>
         </motion.div>
@@ -37,7 +37,7 @@ export function OrderConfirmation() {
         <span className="eyebrow">Pedido recibido</span>
         <h1 className="font-display text-4xl md:text-5xl mt-3 mb-4">Gracias por tu compra</h1>
         <p className="text-stone">
-          Pedido <span className="text-ink font-medium">#{order.id.slice(-8).toUpperCase()}</span> ·
+          Pedido <span className="text-bone font-medium">#{order.id.slice(-8).toUpperCase()}</span> ·
           Estado: pendiente de pago
         </p>
 

@@ -46,7 +46,7 @@ export function Shop() {
         {isLoading ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-12">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] bg-sand animate-pulse" />
+              <div key={i} className="aspect-[3/4] bg-graphite animate-pulse" />
             ))}
           </div>
         ) : products && products.length > 0 ? (

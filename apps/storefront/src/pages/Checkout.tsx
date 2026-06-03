@@ -114,7 +114,7 @@ export function Checkout() {
               />
             </div>
 
-            {error && <p className="text-sm text-red-700">{error}</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
 
             <button type="submit" disabled={submitting} className="btn-ink w-full">
               {submitting ? 'Procesando…' : 'Confirmar pedido'}
@@ -127,12 +127,12 @@ export function Checkout() {
         </div>
 
         {/* SUMMARY */}
-        <div className="lg:border-l lg:border-ink/10 lg:pl-12">
+        <div className="lg:border-l lg:border-bone/10 lg:pl-12">
           <span className="eyebrow">Tu pedido</span>
           <ul className="mt-6 space-y-5">
             {lines.map((l) => (
               <li key={l.variantId} className="flex gap-4">
-                <div className="w-16 h-20 bg-sand overflow-hidden shrink-0">
+                <div className="w-16 h-20 bg-graphite overflow-hidden shrink-0">
                   {l.image && <img src={l.image} alt={l.name} className="w-full h-full object-cover" />}
                 </div>
                 <div className="flex-1 flex justify-between">
@@ -145,7 +145,7 @@ export function Checkout() {
               </li>
             ))}
           </ul>
-          <div className="mt-8 pt-6 border-t border-ink/10 flex justify-between">
+          <div className="mt-8 pt-6 border-t border-bone/10 flex justify-between">
             <span className="eyebrow">Total</span>
             <span className="text-xl">{formatCRC(totalCents())}</span>
           </div>

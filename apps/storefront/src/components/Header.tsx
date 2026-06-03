@@ -36,7 +36,7 @@ export function Header() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className={`fixed top-0 inset-x-0 z-50 transition-colors duration-700 ${
-        light ? 'text-bone' : 'text-ink bg-bone/85 backdrop-blur-md border-b border-ink/5'
+        light ? 'text-bone' : 'text-bone bg-noir/80 backdrop-blur-md border-b border-bone/10'
       }`}
     >
       <div className="max-w-editorial mx-auto px-5 md:px-10">
@@ -90,7 +90,7 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden overflow-hidden bg-bone text-ink border-t border-ink/5"
+            className="md:hidden overflow-hidden bg-noir text-bone border-t border-bone/10"
           >
             <div className="px-5 py-6 flex flex-col gap-5 text-sm uppercase tracking-luxe">
               {nav.map((n) => (

@@ -4,14 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        bone: '#F4F1EA',
-        paper: '#FBFAF6',
+        // Texto / superficies claras (crema)
+        bone: '#EDE8DD',
+        paper: '#F4F1EA',
         sand: '#E7E0D4',
-        taupe: '#C9C1B4',
-        clay: '#A89C8A',
-        stone: '#6F6557',
-        ink: '#141414',
-        smoke: '#2A2723',
+        taupe: '#B8AE9C',
+        clay: '#9A8E79',
+        stone: '#8C8576',
+        // Fondos oscuros (tema noir cálido)
+        noir: '#0B0B0A',
+        coal: '#131210',
+        graphite: '#1C1A16',
+        ink: '#0E0D0B',
+        smoke: '#17150F',
       },
       fontFamily: {
         sans: ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],

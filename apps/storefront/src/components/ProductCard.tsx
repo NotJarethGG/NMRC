@@ -16,7 +16,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: (index % 4) * 0.06 }}
     >
       <Link to={`/product/${product.slug}`} className="group block">
-        <div className="relative aspect-[3/4] overflow-hidden bg-sand">
+        <div className="relative aspect-[3/4] overflow-hidden bg-graphite">
           {primary && (
             <>
               <img
@@ -32,7 +32,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             </>
           )}
           {soldOut && (
-            <span className="absolute top-3 left-3 bg-ink/80 text-bone text-[10px] uppercase tracking-luxe px-3 py-1">
+            <span className="absolute top-3 left-3 bg-noir/80 text-bone text-[10px] uppercase tracking-luxe px-3 py-1">
               Agotado
             </span>
           )}

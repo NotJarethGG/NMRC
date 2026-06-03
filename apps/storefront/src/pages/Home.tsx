@@ -5,7 +5,7 @@ import { ProductCard } from '../components/ProductCard';
 import { Reveal } from '../components/Reveal';
 
 const HERO =
-  'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=80';
+  'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?auto=format&fit=crop&w=2000&q=80';
 
 export function Home() {
   const { data: featured } = useProducts({ featured: true });
@@ -24,7 +24,7 @@ export function Home() {
           animate={{ scale: 1 }}
           transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/10 to-ink/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-noir/70 via-noir/40 to-noir/80" />
         <div className="relative h-full flex flex-col items-center justify-center text-center text-bone px-6">
           <motion.span
             className="eyebrow text-bone/70 mb-6"
@@ -81,7 +81,7 @@ export function Home() {
       {lead && (
         <section className="relative">
           <div className="grid md:grid-cols-2">
-            <div className="relative aspect-[4/5] md:aspect-auto md:min-h-[80vh] overflow-hidden bg-sand">
+            <div className="relative aspect-[4/5] md:aspect-auto md:min-h-[80vh] overflow-hidden bg-graphite">
               {lead.heroImage && (
                 <img src={lead.heroImage} alt={lead.name} className="w-full h-full object-cover" />
               )}

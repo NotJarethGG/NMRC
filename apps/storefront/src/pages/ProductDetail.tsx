@@ -15,10 +15,10 @@ export function ProductDetail() {
   if (isLoading) {
     return (
       <div className="pt-28 md:pt-32 max-w-editorial mx-auto px-5 md:px-10 grid md:grid-cols-2 gap-12">
-        <div className="aspect-[3/4] bg-sand animate-pulse" />
+        <div className="aspect-[3/4] bg-graphite animate-pulse" />
         <div className="space-y-4 pt-10">
-          <div className="h-8 w-2/3 bg-sand animate-pulse" />
-          <div className="h-4 w-1/3 bg-sand animate-pulse" />
+          <div className="h-8 w-2/3 bg-graphite animate-pulse" />
+          <div className="h-4 w-1/3 bg-graphite animate-pulse" />
         </div>
       </div>
     );
@@ -57,7 +57,7 @@ export function ProductDetail() {
         <div className="grid md:grid-cols-2 gap-0 md:gap-12">
           {/* GALERÍA */}
           <div>
-            <div className="relative aspect-[3/4] bg-sand overflow-hidden">
+            <div className="relative aspect-[3/4] bg-graphite overflow-hidden">
               <motion.img
                 key={activeImg}
                 src={product.images[activeImg]?.url}
@@ -74,8 +74,8 @@ export function ProductDetail() {
                   <button
                     key={img.id}
                     onClick={() => setActiveImg(i)}
-                    className={`w-16 h-20 overflow-hidden bg-sand transition-opacity ${
-                      activeImg === i ? 'opacity-100 ring-1 ring-ink' : 'opacity-50 hover:opacity-100'
+                    className={`w-16 h-20 overflow-hidden bg-graphite transition-opacity ${
+                      activeImg === i ? 'opacity-100 ring-1 ring-bone' : 'opacity-50 hover:opacity-100'
                     }`}
                   >
                     <img src={img.url} alt="" className="w-full h-full object-cover" />
@@ -114,10 +114,10 @@ export function ProductDetail() {
                         onClick={() => setSelected(v.id)}
                         className={`min-w-[3.5rem] h-12 px-4 text-sm border transition-all duration-300 ${
                           selected === v.id
-                            ? 'border-ink bg-ink text-bone'
+                            ? 'border-bone bg-bone text-noir'
                             : out
-                              ? 'border-ink/10 text-ink/30 line-through cursor-not-allowed'
-                              : 'border-ink/25 hover:border-ink'
+                              ? 'border-bone/10 text-bone/25 line-through cursor-not-allowed'
+                              : 'border-bone/25 hover:border-bone'
                         }`}
                       >
                         {v.size}

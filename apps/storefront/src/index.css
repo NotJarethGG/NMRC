@@ -13,12 +13,12 @@
   }
 
   body {
-    @apply bg-bone text-ink font-sans;
+    @apply bg-noir text-bone font-sans;
     margin: 0;
   }
 
   ::selection {
-    @apply bg-ink text-bone;
+    @apply bg-bone text-noir;
   }
 
   /* Scrollbar minimalista */
@@ -26,33 +26,34 @@
     width: 9px;
   }
   ::-webkit-scrollbar-track {
-    background: #efeae0;
+    background: #0b0b0a;
   }
   ::-webkit-scrollbar-thumb {
-    background: #c9c1b4;
+    background: #2c2a24;
   }
 }
 
 @layer components {
   .eyebrow {
-    @apply text-[11px] uppercase tracking-luxe text-stone;
+    @apply text-[11px] uppercase tracking-luxe text-clay;
   }
 
+  /* Botón primario: crema sobre oscuro (alto contraste, premium) */
   .btn-ink {
-    @apply inline-flex items-center justify-center bg-ink text-bone text-[12px] uppercase tracking-luxe
-      px-8 py-4 transition-colors duration-500 ease-luxe hover:bg-smoke disabled:opacity-40
+    @apply inline-flex items-center justify-center bg-bone text-noir text-[12px] uppercase tracking-luxe
+      px-8 py-4 transition-colors duration-500 ease-luxe hover:bg-taupe disabled:opacity-40
       disabled:cursor-not-allowed;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center border border-ink/30 text-ink text-[12px] uppercase
-      tracking-luxe px-8 py-4 transition-colors duration-500 ease-luxe hover:border-ink
-      hover:bg-ink hover:text-bone;
+    @apply inline-flex items-center justify-center border border-bone/30 text-bone text-[12px] uppercase
+      tracking-luxe px-8 py-4 transition-colors duration-500 ease-luxe hover:border-bone
+      hover:bg-bone hover:text-noir;
   }
 
   .field {
-    @apply w-full bg-transparent border-b border-ink/20 py-3 text-[15px] outline-none
-      transition-colors duration-300 placeholder:text-stone/60 focus:border-ink;
+    @apply w-full bg-transparent border-b border-bone/20 py-3 text-[15px] text-bone outline-none
+      transition-colors duration-300 placeholder:text-stone/60 focus:border-bone;
   }
 
   .link-underline {

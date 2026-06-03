@@ -19,7 +19,7 @@ export function Collections() {
           <Reveal key={c.id}>
             <Link
               to={`/shop?collection=${c.slug}`}
-              className="group relative block h-[70vh] overflow-hidden bg-sand"
+              className="group relative block h-[70vh] overflow-hidden bg-graphite"
             >
               {c.heroImage && (
                 <img

@@ -19,7 +19,7 @@ export function About() {
       </div>
 
       <Reveal className="mt-20">
-        <div className="relative h-[60vh] overflow-hidden bg-sand">
+        <div className="relative h-[60vh] overflow-hidden bg-graphite">
           <img src={IMG} alt="GosthShop" className="w-full h-full object-cover" />
         </div>
       </Reveal>

@@ -46,7 +46,7 @@ export function Account() {
               logout();
               navigate('/');
             }}
-            className="text-[11px] uppercase tracking-luxe link-underline text-stone hover:text-ink"
+            className="text-[11px] uppercase tracking-luxe link-underline text-stone hover:text-bone"
           >
             Cerrar sesión
           </button>
@@ -57,7 +57,7 @@ export function Account() {
         {orders && orders.length > 0 ? (
           <ul className="space-y-4">
             {orders.map((o) => (
-              <li key={o.id} className="border border-ink/10 p-6">
+              <li key={o.id} className="border border-bone/10 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-sm font-medium">#{o.id.slice(-8).toUpperCase()}</p>
@@ -72,10 +72,10 @@ export function Account() {
                   <span
                     className={`text-[11px] uppercase tracking-luxe px-3 py-1 ${
                       o.status === 'PENDING'
-                        ? 'bg-clay/20 text-stone'
+                        ? 'bg-clay/20 text-taupe'
                         : o.status === 'CANCELLED'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-ink text-bone'
+                          ? 'bg-red-500/15 text-red-400'
+                          : 'bg-bone text-noir'
                     }`}
                   >
                     {STATUS_LABEL[o.status]}
@@ -99,7 +99,7 @@ export function Account() {
             ))}
           </ul>
         ) : (
-          <div className="border border-ink/10 p-12 text-center">
+          <div className="border border-bone/10 p-12 text-center">
             <p className="text-stone mb-6">Aún no tienes pedidos.</p>
             <Link to="/shop" className="btn-ink">Explorar la colección</Link>
           </div>

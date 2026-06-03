@@ -57,7 +57,7 @@ export function Login() {
             />
           </div>
 
-          {error && <p className="text-sm text-red-700">{error}</p>}
+          {error && <p className="text-sm text-red-400">{error}</p>}
 
           <button type="submit" disabled={loading} className="btn-ink w-full">
             {loading ? 'Accediendo…' : 'Entrar'}
@@ -66,7 +66,7 @@ export function Login() {
 
         <p className="text-center text-sm text-stone mt-8">
           ¿No tienes cuenta?{' '}
-          <Link to={`/register?redirect=${redirect}`} className="text-ink link-underline">
+          <Link to={`/register?redirect=${redirect}`} className="text-bone link-underline">
             Crear una
           </Link>
         </p>

@@ -188,12 +188,89 @@ async function main() {
         'https://images.unsplash.com/photo-1517445312882-bc9910d016b7?auto=format&fit=crop&w=1200&q=80',
       ],
     },
+
+    // --- Drop Oversize / Streetwear ---
+    {
+      name: 'Hoodie Oversize Piedra',
+      category: 'Knitwear',
+      collectionId: essentials.id,
+      price: 82000,
+      featured: true,
+      description:
+        'Hoodie de corte oversize en french terry de 500gsm. Hombros caídos, capucha amplia y puños acanalados. Volumen y peso premium.',
+      images: [
+        'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+    {
+      name: 'Camiseta Oversize Negra',
+      category: 'Tees',
+      collectionId: essentials.id,
+      price: 46000,
+      featured: true,
+      description:
+        'Tee oversize de algodón pesado 280gsm en negro profundo. Caída boxy, mangas anchas y bajo recto. El básico nocturno.',
+      images: [
+        'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+    {
+      name: 'Chaqueta Oversize de Cuero',
+      category: 'Outerwear',
+      collectionId: eighth.id,
+      price: 245000,
+      featured: true,
+      description:
+        'Chaqueta oversize en cuero napa negro con caída estructurada y cierres metálicos mate. Una pieza de declaración pura.',
+      images: [
+        'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+    {
+      name: 'Chaqueta Denim Oversize',
+      category: 'Outerwear',
+      collectionId: essentials.id,
+      price: 118000,
+      description:
+        'Trucker denim de corte oversize en lavado oscuro con cuello de contraste. Rígida al inicio, eterna con el uso.',
+      images: [
+        'https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+    {
+      name: 'Pantalón Oversize Negro',
+      category: 'Pants',
+      collectionId: eighth.id,
+      price: 96000,
+      description:
+        'Pantalón de pierna ancha en gabardina negra con pinzas y caída fluida. Volumen contundente, silueta limpia.',
+      images: [
+        'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+    {
+      name: 'Suéter Oversize Óxido',
+      category: 'Knitwear',
+      collectionId: eighth.id,
+      price: 108000,
+      description:
+        'Tejido grueso de mezcla de lana en tono óxido cálido. Cuello redondo amplio y silueta oversize relajada.',
+      images: [
+        'https://images.unsplash.com/photo-1614676471928-2ed0ad1061a4?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
   ];
 
   for (const p of products) {
     const slug = slugify(p.name);
-    // Limpiar producto previo para reseed idempotente
-    await prisma.product.deleteMany({ where: { slug } });
+    // Reseed idempotente: intenta limpiar el producto previo. Si tiene pedidos
+    // asociados (FK), lo conservamos tal cual y seguimos.
+    try {
+      await prisma.product.deleteMany({ where: { slug } });
+    } catch {
+      continue;
+    }
     await prisma.product.create({
       data: {
         name: p.name,
