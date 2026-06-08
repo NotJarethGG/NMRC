@@ -6,15 +6,18 @@ services:
     runtime: node
     plan: free
     rootDir: .
-    # Instala TODAS las deps (incluye dev: nest-cli, prisma, typescript) y compila la API.
-    # El postinstall de apps/api ejecuta `prisma generate`.
-    buildCommand: npm install --production=false && npm run build --workspace @gosthshop/api
-    # start:prod hace `prisma db push` (crea/sincroniza tablas en Supabase) y arranca el server.
-    startCommand: npm run start:prod --workspace @gosthshop/api
+    # Fuerza la instalación de dev-deps (nest-cli, prisma, typescript) aunque NODE_ENV=production,
+    # compila la API y verifica que el bundle exista (falla ruidoso si no).
+    buildCommand: npm install --include=dev && npm run build --workspace @gosthshop/api && test -f apps/api/dist/main.js
+    # Arranca el server compilado con ruta explícita (las tablas ya existen en Supabase).
+    startCommand: node apps/api/dist/main.js
     healthCheckPath: /api/products
     envVars:
       - key: NODE_VERSION
         value: "20"
+      # Asegura que npm instale las devDependencies (build tools) en Render
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
       # --- Supabase (pegar en el dashboard de Render) ---
       # DATABASE_URL: conexión POOLED (puerto 6543, ...pooler.supabase.com) + ?pgbouncer=true
       - key: DATABASE_URL
