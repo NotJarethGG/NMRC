@@ -22,13 +22,16 @@ async function bootstrap() {
     .map((o) => o.trim());
 
   app.enableCors({
-    // Permite los orígenes configurados y cualquier localhost en desarrollo
+    // Permite: orígenes configurados, comodín "*", localhost (dev) y cualquier *.vercel.app
     origin: (origin, cb) => {
-      if (!origin || origins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
-        cb(null, true);
-      } else {
-        cb(null, false);
-      }
+      const allowAll = origins.includes('*');
+      const ok =
+        !origin ||
+        allowAll ||
+        origins.includes(origin) ||
+        /^http:\/\/localhost:\d+$/.test(origin) ||
+        /\.vercel\.app$/.test(origin);
+      cb(null, ok);
     },
     credentials: true,
   });
