@@ -1,0 +1,42 @@
+# Render blueprint — API NestJS de NMRC
+# Conecta este repo en Render (New → Blueprint) y completa las variables marcadas (sync:false).
+services:
+  - type: web
+    name: nmrc-api
+    runtime: node
+    plan: free
+    rootDir: .
+    # Instala TODAS las deps (incluye dev: nest-cli, prisma, typescript) y compila la API.
+    # El postinstall de apps/api ejecuta `prisma generate`.
+    buildCommand: npm install --production=false && npm run build --workspace @gosthshop/api
+    # start:prod hace `prisma db push` (crea/sincroniza tablas en Supabase) y arranca el server.
+    startCommand: npm run start:prod --workspace @gosthshop/api
+    healthCheckPath: /api/products
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # --- Supabase (pegar en el dashboard de Render) ---
+      # DATABASE_URL: conexión POOLED (puerto 6543, ...pooler.supabase.com) + ?pgbouncer=true
+      - key: DATABASE_URL
+        sync: false
+      # DIRECT_URL: conexión DIRECTA (puerto 5432) — la usa Prisma para migraciones/db push
+      - key: DIRECT_URL
+        sync: false
+      # --- Auth ---
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # --- Pago SINPE / WhatsApp (ajusta a tus datos reales) ---
+      - key: SINPE_NUMBER
+        value: "8888-8888"
+      - key: WHATSAPP_NUMBER
+        value: "50688888888"
+      # --- Dominios del frontend en Vercel (separados por coma), p.ej.:
+      # https://nmrc-storefront.vercel.app,https://nmrc-admin.vercel.app
+      - key: CORS_ORIGINS
+        sync: false
+      # --- URL pública de esta API en Render (para las URLs de imágenes subidas), p.ej:
+      # https://nmrc-api.onrender.com
+      - key: PUBLIC_URL
+        sync: false
