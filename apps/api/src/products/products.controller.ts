@@ -9,21 +9,11 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { IsInt, IsString, Min } from 'class-validator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { ProductsService, ProductQuery } from './products.service';
 import { CreateProductDto, UpdateProductDto } from './dto';
-
-class StockDto {
-  @IsString()
-  size: string;
-
-  @IsInt()
-  @Min(0)
-  stock: number;
-}
 
 @Controller('products')
 export class ProductsController {
@@ -40,13 +30,6 @@ export class ProductsController {
   @Roles('ADMIN', 'STAFF')
   lowStock() {
     return this.products.lowStock();
-  }
-
-  @Get('id/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'STAFF')
-  findById(@Param('id') id: string) {
-    return this.products.findById(id);
   }
 
   @Get(':slug')
@@ -67,13 +50,6 @@ export class ProductsController {
   @Roles('ADMIN', 'STAFF')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.products.update(id, dto);
-  }
-
-  @Patch(':id/stock')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'STAFF')
-  setStock(@Param('id') id: string, @Body() dto: StockDto) {
-    return this.products.setVariantStock(id, dto.size, dto.stock);
   }
 
   @Delete(':id')

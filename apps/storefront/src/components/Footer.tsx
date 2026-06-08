@@ -6,9 +6,11 @@ export function Footer() {
       <div className="max-w-editorial mx-auto px-5 md:px-10 py-20 md:py-28">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           <div className="col-span-2 md:col-span-1">
-            <div className="font-display text-3xl mb-4">GosthShop</div>
+            <div className="font-varsity text-4xl uppercase tracking-[0.18em] mb-3">NMRC</div>
+            <p className="text-bone/40 text-[11px] uppercase tracking-luxe mb-4">No Mercy · Est. 2026</p>
             <p className="text-bone/50 text-sm leading-relaxed max-w-xs">
-              Prendas exclusivas en edición limitada. Diseñadas con intención, hechas para perdurar.
+              Streetwear sin concesiones. Construcción honesta, actitud sin límites. Hecho para
+              quienes no piden permiso.
             </p>
           </div>
 
@@ -39,7 +41,7 @@ export function Footer() {
         </div>
 
         <div className="mt-20 pt-8 border-t border-bone/10 flex flex-col md:flex-row justify-between gap-4 text-[11px] uppercase tracking-luxe text-bone/40">
-          <span>© {new Date().getFullYear()} GosthShop · Costa Rica</span>
+          <span>© {new Date().getFullYear()} NMRC · No Mercy · Costa Rica</span>
           <span>Edición limitada · Hecho con intención</span>
         </div>
       </div>

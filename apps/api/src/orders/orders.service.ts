@@ -68,7 +68,7 @@ export class OrdersService {
     const sinpeNumber = this.config.get<string>('SINPE_NUMBER') ?? '';
     const whatsapp = this.config.get<string>('WHATSAPP_NUMBER') ?? '';
     const totalText = `₡${(totalCents / 100).toLocaleString('es-CR')}`;
-    const message = `Hola GosthShop, acabo de realizar el pago por SINPE de mi pedido ${orderId} por un total de ${totalText}. Adjunto el comprobante.`;
+    const message = `Hola NMRC, acabo de realizar el pago por SINPE de mi pedido ${orderId} por un total de ${totalText}. Adjunto el comprobante.`;
     const whatsappUrl = `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`;
     return { sinpeNumber, whatsappNumber: whatsapp, whatsappUrl, totalText };
   }

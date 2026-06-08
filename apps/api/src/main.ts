@@ -36,6 +36,6 @@ async function bootstrap() {
   const port = config.get<number>('PORT') ?? 3000;
   await app.listen(port);
   // eslint-disable-next-line no-console
-  console.log(`GosthShop API escuchando en http://localhost:${port}/api`);
+  console.log(`NMRC API escuchando en http://localhost:${port}/api`);
 }
 bootstrap();

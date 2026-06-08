@@ -15,7 +15,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        display: ['Oswald', 'Inter', 'sans-serif'],
+        varsity: ['Anton', 'Impact', 'sans-serif'],
       },
       letterSpacing: { luxe: '0.18em' },
     },

@@ -26,6 +26,17 @@ export function Orders() {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
 
+  // Abre el detalle trayendo la orden completa desde la API (autoritativa)
+  const openOrder = async (order: Order) => {
+    setSelected(order);
+    try {
+      const { data } = await api.get<Order>(`/orders/${order.id}`);
+      setSelected(data);
+    } catch {
+      /* se mantiene el dato de la lista */
+    }
+  };
+
   const changeStatus = async (order: Order, status: OrderStatus) => {
     setBusy(true);
     try {
@@ -80,7 +91,7 @@ export function Orders() {
             {orders?.map((o) => (
               <tr
                 key={o.id}
-                onClick={() => setSelected(o)}
+                onClick={() => openOrder(o)}
                 className="border-b border-line last:border-0 hover:bg-paper cursor-pointer"
               >
                 <td className="px-6 py-3 font-medium">#{o.id.slice(-8).toUpperCase()}</td>

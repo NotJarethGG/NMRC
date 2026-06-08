@@ -26,20 +26,22 @@ export function Login() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col justify-between bg-smoke text-bone p-14">
-        <span className="font-display text-3xl">GosthShop</span>
+      <div className="hidden lg:flex flex-col justify-between bg-ink text-bone p-14">
+        <span className="font-varsity text-3xl uppercase tracking-[0.16em]">NMRC</span>
         <div>
-          <p className="font-display text-5xl leading-tight">Panel de administración</p>
-          <p className="text-bone/60 mt-4 max-w-sm">
-            Gestiona inventario, pedidos y la operación de tu tienda exclusiva.
+          <p className="font-varsity text-7xl uppercase leading-[0.85]">No<br />Mercy</p>
+          <p className="text-bone/50 mt-6 max-w-sm uppercase tracking-wide text-xs">
+            Panel de control · Inventario, pedidos y operación
           </p>
         </div>
-        <span className="text-[11px] uppercase tracking-luxe text-bone/40">Acceso restringido</span>
+        <span className="text-[11px] uppercase tracking-luxe text-bone/40">
+          Acceso restringido · Est. 2026
+        </span>
       </div>
 
       <div className="flex items-center justify-center p-8">
         <form onSubmit={submit} className="w-full max-w-sm">
-          <h1 className="font-display text-3xl mb-1">Acceder</h1>
+          <h1 className="font-display text-4xl uppercase tracking-wide mb-1">Acceder</h1>
           <p className="text-stone text-sm mb-8">Ingresa con tu cuenta de staff o administrador.</p>
 
           <div className="space-y-5">

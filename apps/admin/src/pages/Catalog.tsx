@@ -10,11 +10,19 @@ export function Catalog() {
 
   const [catName, setCatName] = useState('');
   const [col, setCol] = useState({ name: '', description: '', heroImage: '' });
+  const [editCat, setEditCat] = useState<{ id: string; name: string } | null>(null);
+  const [editCol, setEditCol] = useState<{ id: string; name: string } | null>(null);
 
   const addCategory = async () => {
     if (!catName.trim()) return;
     await api.post('/categories', { name: catName });
     setCatName('');
+    qc.invalidateQueries({ queryKey: ['categories'] });
+  };
+  const saveCategory = async () => {
+    if (!editCat || !editCat.name.trim()) return;
+    await api.patch(`/categories/${editCat.id}`, { name: editCat.name });
+    setEditCat(null);
     qc.invalidateQueries({ queryKey: ['categories'] });
   };
   const delCategory = async (id: string) => {
@@ -27,6 +35,12 @@ export function Catalog() {
     if (!col.name.trim()) return;
     await api.post('/collections', col);
     setCol({ name: '', description: '', heroImage: '' });
+    qc.invalidateQueries({ queryKey: ['collections'] });
+  };
+  const saveCollection = async () => {
+    if (!editCol || !editCol.name.trim()) return;
+    await api.patch(`/collections/${editCol.id}`, { name: editCol.name });
+    setEditCol(null);
     qc.invalidateQueries({ queryKey: ['collections'] });
   };
   const delCollection = async (id: string) => {
@@ -48,11 +62,34 @@ export function Catalog() {
           <p className="eyebrow mb-5">Categorías</p>
           <ul className="space-y-2 mb-5">
             {categories?.map((c) => (
-              <li key={c.id} className="flex items-center justify-between py-2 border-b border-line text-sm">
-                <span>{c.name}</span>
-                <button onClick={() => delCategory(c.id)} className="text-red-700 text-xs hover:underline">
-                  Eliminar
-                </button>
+              <li key={c.id} className="flex items-center justify-between gap-3 py-2 border-b border-line text-sm">
+                {editCat?.id === c.id ? (
+                  <>
+                    <input
+                      autoFocus
+                      className="field py-1.5"
+                      value={editCat.name}
+                      onChange={(e) => setEditCat({ ...editCat, name: e.target.value })}
+                      onKeyDown={(e) => e.key === 'Enter' && saveCategory()}
+                    />
+                    <div className="flex gap-3 shrink-0">
+                      <button onClick={saveCategory} className="text-ink text-xs hover:underline">Guardar</button>
+                      <button onClick={() => setEditCat(null)} className="text-stone text-xs hover:underline">Cancelar</button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span>{c.name}</span>
+                    <div className="flex gap-3 shrink-0">
+                      <button onClick={() => setEditCat({ id: c.id, name: c.name })} className="text-ink text-xs hover:underline">
+                        Editar
+                      </button>
+                      <button onClick={() => delCategory(c.id)} className="text-red-700 text-xs hover:underline">
+                        Eliminar
+                      </button>
+                    </div>
+                  </>
+                )}
               </li>
             ))}
           </ul>
@@ -75,11 +112,34 @@ export function Catalog() {
           <p className="eyebrow mb-5">Colecciones</p>
           <ul className="space-y-2 mb-5">
             {collections?.map((c) => (
-              <li key={c.id} className="flex items-center justify-between py-2 border-b border-line text-sm">
-                <span>{c.name}</span>
-                <button onClick={() => delCollection(c.id)} className="text-red-700 text-xs hover:underline">
-                  Eliminar
-                </button>
+              <li key={c.id} className="flex items-center justify-between gap-3 py-2 border-b border-line text-sm">
+                {editCol?.id === c.id ? (
+                  <>
+                    <input
+                      autoFocus
+                      className="field py-1.5"
+                      value={editCol.name}
+                      onChange={(e) => setEditCol({ ...editCol, name: e.target.value })}
+                      onKeyDown={(e) => e.key === 'Enter' && saveCollection()}
+                    />
+                    <div className="flex gap-3 shrink-0">
+                      <button onClick={saveCollection} className="text-ink text-xs hover:underline">Guardar</button>
+                      <button onClick={() => setEditCol(null)} className="text-stone text-xs hover:underline">Cancelar</button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span>{c.name}</span>
+                    <div className="flex gap-3 shrink-0">
+                      <button onClick={() => setEditCol({ id: c.id, name: c.name })} className="text-ink text-xs hover:underline">
+                        Editar
+                      </button>
+                      <button onClick={() => delCollection(c.id)} className="text-red-700 text-xs hover:underline">
+                        Eliminar
+                      </button>
+                    </div>
+                  </>
+                )}
               </li>
             ))}
           </ul>

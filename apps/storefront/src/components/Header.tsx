@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../store/cart';
 import { useAuth } from '../store/auth';
-import { useCategories, useCollections, useProducts } from '../hooks/useCatalog';
+import { useCategories, useProducts } from '../hooks/useCatalog';
 
 export function Header() {
   const count = useCart((s) => s.count());
@@ -12,25 +12,15 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [term, setTerm] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
-  const isHome = location.pathname === '/';
 
   const { data: categories } = useCategories();
-  const { data: collections } = useCollections();
   const { data: featured } = useProducts({ featured: true });
   const tile = featured?.[0];
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -42,8 +32,6 @@ export function Header() {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
 
-  const solid = !isHome || scrolled || megaOpen || searchOpen;
-
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = term.trim();
@@ -53,19 +41,13 @@ export function Header() {
     navigate(`/shop?search=${encodeURIComponent(q)}`);
   };
 
-  // Categorías destacadas para accesos directos en el nav
-  const shortcuts = ['outerwear', 'knitwear'];
-  const directLinks = (categories ?? []).filter((c) => shortcuts.includes(c.slug));
-
   return (
     <motion.header
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       onMouseLeave={() => setMegaOpen(false)}
-      className={`fixed top-9 inset-x-0 z-50 transition-colors duration-500 ${
-        solid ? 'text-bone bg-noir/90 backdrop-blur-md border-b border-bone/10' : 'text-bone'
-      }`}
+      className="fixed top-9 inset-x-0 z-50 transition-colors duration-500 text-bone bg-noir border-b border-bone/10"
     >
       <div className="max-w-editorial mx-auto px-5 md:px-10">
         <div className="h-14 md:h-16 flex items-center justify-between gap-6">
@@ -73,9 +55,9 @@ export function Header() {
           <div className="flex items-center gap-8 xl:gap-10 min-w-0">
             <Link
               to="/"
-              className="font-display text-2xl md:text-[26px] uppercase tracking-[0.12em] leading-none shrink-0"
+              className="font-varsity text-2xl md:text-[26px] uppercase tracking-[0.22em] leading-none shrink-0"
             >
-              GosthShop
+              NMRC
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 xl:gap-7 text-[11px] uppercase tracking-luxe">
@@ -93,16 +75,6 @@ export function Header() {
               >
                 Novedades
               </NavLink>
-              {directLinks.map((c) => (
-                <NavLink
-                  key={c.id}
-                  to={`/shop?category=${c.slug}`}
-                  onMouseEnter={() => setMegaOpen(false)}
-                  className="hidden lg:inline link-underline opacity-70 hover:opacity-100"
-                >
-                  {c.name}
-                </NavLink>
-              ))}
               <NavLink
                 to="/collections"
                 onMouseEnter={() => setMegaOpen(false)}
@@ -196,7 +168,7 @@ export function Header() {
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="hidden md:block absolute inset-x-0 top-full bg-noir/95 backdrop-blur-md border-b border-bone/10"
           >
-            <div className="max-w-editorial mx-auto px-10 py-10 grid grid-cols-[1fr_1fr_1.4fr] gap-12">
+            <div className="max-w-editorial mx-auto px-10 py-10 grid grid-cols-[1fr_1.8fr] gap-12">
               <div>
                 <p className="eyebrow mb-5">Categorías</p>
                 <ul className="space-y-3">
@@ -209,22 +181,6 @@ export function Header() {
                     <li key={c.id}>
                       <Link
                         to={`/shop?category=${c.slug}`}
-                        className="text-xs uppercase tracking-luxe text-bone/70 hover:text-bone link-underline"
-                      >
-                        {c.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <p className="eyebrow mb-5">Colecciones</p>
-                <ul className="space-y-3">
-                  {collections?.map((c) => (
-                    <li key={c.id}>
-                      <Link
-                        to={`/shop?collection=${c.slug}`}
                         className="text-xs uppercase tracking-luxe text-bone/70 hover:text-bone link-underline"
                       >
                         {c.name}

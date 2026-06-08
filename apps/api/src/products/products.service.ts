@@ -160,15 +160,6 @@ export class ProductsService {
     return { ok: true };
   }
 
-  async setVariantStock(productId: string, size: string, stock: number) {
-    await this.findById(productId);
-    return this.prisma.productVariant.upsert({
-      where: { productId_size: { productId, size } },
-      create: { productId, size, stock },
-      update: { stock },
-    });
-  }
-
   // Productos con bajo stock (para el dashboard)
   async lowStock(threshold = 5) {
     const variants = await this.prisma.productVariant.findMany({

@@ -7,6 +7,9 @@
     @apply bg-bone text-ink font-sans;
     margin: 0;
   }
+  h1 {
+    @apply uppercase tracking-wide;
+  }
 }
 
 @layer components {
@@ -23,15 +26,15 @@
   }
   .field {
     @apply w-full bg-paper border border-line px-3 py-2.5 text-sm outline-none transition-colors
-      focus:border-ink/50 rounded-sm;
+      focus:border-ink/50;
   }
   .label {
     @apply block text-[11px] uppercase tracking-wide text-stone mb-1.5;
   }
   .card {
-    @apply bg-paper border border-line rounded-sm;
+    @apply bg-paper border border-line;
   }
   .badge {
-    @apply inline-flex items-center text-[10px] uppercase tracking-wide px-2.5 py-1 rounded-full;
+    @apply inline-flex items-center text-[10px] uppercase tracking-wide px-2.5 py-1;
   }
 }

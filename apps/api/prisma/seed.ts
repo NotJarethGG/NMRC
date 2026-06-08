@@ -15,19 +15,19 @@ function slugify(value: string) {
 const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
 
 async function main() {
-  console.log('Sembrando datos de GosthShop...');
+  console.log('Sembrando datos de NMRC...');
 
   // --- Usuarios ---
   const passwordHash = await bcrypt.hash('password123', 10);
   await prisma.user.upsert({
     where: { email: 'admin@gosthshop.com' },
     update: {},
-    create: { name: 'Admin GosthShop', email: 'admin@gosthshop.com', passwordHash, role: 'ADMIN' },
+    create: { name: 'Admin NMRC', email: 'admin@gosthshop.com', passwordHash, role: 'ADMIN' },
   });
   await prisma.user.upsert({
     where: { email: 'staff@gosthshop.com' },
     update: {},
-    create: { name: 'Staff GosthShop', email: 'staff@gosthshop.com', passwordHash, role: 'STAFF' },
+    create: { name: 'Staff NMRC', email: 'staff@gosthshop.com', passwordHash, role: 'STAFF' },
   });
   await prisma.user.upsert({
     where: { email: 'cliente@gosthshop.com' },
@@ -72,7 +72,7 @@ async function main() {
     create: {
       name: 'Essentials',
       slug: 'essentials',
-      description: 'Los fundamentos del guardarropa GosthShop. Construcción elevada, uso diario.',
+      description: 'Los fundamentos del guardarropa NMRC. Construcción elevada, uso diario.',
       heroImage:
         'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80',
     },
@@ -258,6 +258,33 @@ async function main() {
         'Tejido grueso de mezcla de lana en tono óxido cálido. Cuello redondo amplio y silueta oversize relajada.',
       images: [
         'https://images.unsplash.com/photo-1614676471928-2ed0ad1061a4?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+
+    // --- Línea NMRC · No Mercy (varsity / streetwear) ---
+    {
+      name: 'NMRC Varsity Tee — No Mercy',
+      category: 'Tees',
+      collectionId: essentials.id,
+      price: 42000,
+      featured: true,
+      description:
+        'Camiseta oversize de algodón pesado 280gsm con estampado varsity "NMRC · No Mercy" en tinta plastisol de alta calidad. Print frontal y posterior. Est. 2026.',
+      images: [
+        'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=1200&q=80',
+      ],
+    },
+    {
+      name: 'NMRC Hoodie — No Mercy',
+      category: 'Knitwear',
+      collectionId: essentials.id,
+      price: 88000,
+      featured: true,
+      description:
+        'Hoodie oversize en french terry de 500gsm con bordado varsity "NMRC · No Mercy". Máxima durabilidad y definición. Para entrenar, crear y no pedir permiso.',
+      images: [
+        'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1620799139507-2a76f79a2f4d?auto=format&fit=crop&w=1200&q=80',
       ],
     },
   ];

@@ -7,8 +7,7 @@ import { BenefitsBar } from '../components/BenefitsBar';
 import { CategoryMosaic } from '../components/CategoryMosaic';
 import { Newsletter } from '../components/Newsletter';
 
-const HERO =
-  'https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?auto=format&fit=crop&w=2000&q=80';
+const HERO = '/NMRC.png';
 
 export function Home() {
   const { data: products } = useProducts();
@@ -22,7 +21,7 @@ export function Home() {
       <section className="relative h-[100svh] w-full overflow-hidden">
         <motion.img
           src={HERO}
-          alt="GosthShop"
+          alt="NMRC"
           className="absolute inset-0 w-full h-full object-cover"
           initial={{ scale: 1.12 }}
           animate={{ scale: 1 }}
@@ -31,21 +30,20 @@ export function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-noir/70 via-noir/40 to-noir/80" />
         <div className="relative h-full flex flex-col items-center justify-center text-center text-bone px-6">
           <motion.h1
-            className="font-display text-5xl md:text-8xl leading-[0.95] max-w-4xl"
+            className="font-varsity text-6xl md:text-8xl lg:text-9xl leading-[0.85] uppercase max-w-5xl"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
-            Lujo en silencio
+            Forjado, no regalado
           </motion.h1>
           <motion.p
-            className="mt-6 max-w-md text-bone/80 text-sm md:text-base leading-relaxed"
+            className="mt-6 max-w-md text-bone/80 text-sm md:text-base leading-relaxed uppercase tracking-wide"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.9 }}
           >
-            Prendas exclusivas concebidas para quienes entienden que el verdadero estatus no necesita
-            anunciarse.
+            Streetwear sin concesiones. Para quienes entrenan, crean y no piden permiso.
           </motion.p>
           <motion.div
             className="mt-10 flex flex-col sm:flex-row gap-4"
@@ -98,9 +96,8 @@ export function Home() {
       <section className="bg-coal border-y border-bone/10">
         <div className="max-w-editorial mx-auto px-5 md:px-10 py-24 md:py-36">
           <Reveal>
-            <p className="font-display text-3xl md:text-5xl leading-tight max-w-4xl mx-auto text-center">
-              Cada pieza nace de una obsesión por el detalle. Materiales nobles, siluetas atemporales,
-              números contados.
+            <p className="font-condensed uppercase text-3xl md:text-5xl leading-tight max-w-4xl mx-auto text-center tracking-wide">
+              No excuses. No limits. No mercy. La nueva era se construye con hierro y paciencia.
             </p>
           </Reveal>
         </div>
