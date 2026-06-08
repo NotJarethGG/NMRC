@@ -19,10 +19,11 @@ export default {
         smoke: '#17150F',
       },
       fontFamily: {
+        // Una sola fuente de marca: "Varsity Block" (Graduate, collegiate block)
         sans: ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        varsity: ['Anton', 'Impact', 'sans-serif'],
-        condensed: ['Oswald', 'Inter', 'sans-serif'],
+        display: ['Graduate', 'Georgia', 'serif'],
+        varsity: ['Graduate', 'Georgia', 'serif'],
+        condensed: ['Graduate', 'Georgia', 'serif'],
       },
       letterSpacing: {
         luxe: '0.22em',

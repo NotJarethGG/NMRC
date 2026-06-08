@@ -15,8 +15,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        display: ['Oswald', 'Inter', 'sans-serif'],
-        varsity: ['Anton', 'Impact', 'sans-serif'],
+        display: ['Graduate', 'Georgia', 'serif'],
+        varsity: ['Graduate', 'Georgia', 'serif'],
       },
       letterSpacing: { luxe: '0.18em' },
     },
