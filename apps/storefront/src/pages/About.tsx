@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Reveal } from '../components/Reveal';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const HERO = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=80';
 const BLOCK = 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80';
@@ -20,6 +21,7 @@ const COLORS = [
 ];
 
 export function About() {
+  useDocumentTitle('La Casa', 'NMRC — No Mercy. Streetwear sin concesiones. Est. 2026.');
   return (
     <div className="pt-9">
       {/* HERO */}

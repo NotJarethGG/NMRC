@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useProducts, useCategories, useCollections } from '../hooks/useCatalog';
 import { ProductCard } from '../components/ProductCard';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import type { Product } from '../lib/types';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL'];
@@ -197,6 +198,7 @@ export function Shop() {
 
   const activeCategory = categories?.find((c) => c.slug === category);
   const title = search ? `“${search}”` : activeCategory ? activeCategory.name : 'La Tienda';
+  useDocumentTitle(search ? `Buscar: ${search}` : activeCategory ? activeCategory.name : 'Tienda');
   const filterCount = (category ? 1 : 0) + (collection ? 1 : 0) + sizes.length;
 
   const filterProps: FiltersProps = {

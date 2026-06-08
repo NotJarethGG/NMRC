@@ -5,6 +5,7 @@ import { AnnouncementBar } from './components/AnnouncementBar';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
+import { BackToTop } from './components/BackToTop';
 import { useAuth } from './store/auth';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
@@ -16,6 +17,8 @@ import { OrderConfirmation } from './pages/OrderConfirmation';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Account } from './pages/Account';
+import { Wishlist } from './pages/Wishlist';
+import { NotFound } from './pages/NotFound';
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -62,8 +65,11 @@ export default function App() {
           <Route path="/login" element={<Page><Login /></Page>} />
           <Route path="/register" element={<Page><Register /></Page>} />
           <Route path="/account" element={<Page><Account /></Page>} />
+          <Route path="/wishlist" element={<Page><Wishlist /></Page>} />
+          <Route path="*" element={<Page><NotFound /></Page>} />
         </Routes>
       </AnimatePresence>
+      <BackToTop />
       <Footer />
     </>
   );

@@ -6,10 +6,12 @@ import { Reveal } from '../components/Reveal';
 import { BenefitsBar } from '../components/BenefitsBar';
 import { CategoryMosaic } from '../components/CategoryMosaic';
 import { Newsletter } from '../components/Newsletter';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const HERO = '/NMRC.png';
 
 export function Home() {
+  useDocumentTitle(undefined, 'NMRC — No Mercy. Streetwear sin concesiones. Edición limitada · Est. 2026.');
   const { data: products } = useProducts();
   const { data: collections } = useCollections();
   const lead = collections?.[0];

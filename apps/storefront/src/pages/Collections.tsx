@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useCollections } from '../hooks/useCatalog';
 import { Reveal } from '../components/Reveal';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Collections() {
+  useDocumentTitle('Colecciones');
   const { data: collections } = useCollections();
 
   return (
@@ -25,6 +27,8 @@ export function Collections() {
                 <img
                   src={c.heroImage}
                   alt={c.name}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-luxe group-hover:scale-105"
                 />
               )}

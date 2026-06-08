@@ -1,16 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useProduct } from '../hooks/useCatalog';
+import { useProduct, useProducts } from '../hooks/useCatalog';
 import { useCart } from '../store/cart';
+import { useWishlist } from '../store/wishlist';
 import { formatCRC } from '../lib/api';
+import { ProductCard } from '../components/ProductCard';
+import { Reveal } from '../components/Reveal';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function ProductDetail() {
   const { slug = '' } = useParams();
   const { data: product, isLoading } = useProduct(slug);
   const add = useCart((s) => s.add);
+  const liked = useWishlist((s) => (product ? s.ids.includes(product.id) : false));
+  const toggleWish = useWishlist((s) => s.toggle);
   const [selected, setSelected] = useState<string | null>(null);
   const [activeImg, setActiveImg] = useState(0);
+
+  // Relacionados de la misma categoría
+  const { data: catProducts } = useProducts({ category: product?.category?.slug });
+  const related = (catProducts ?? []).filter((p) => p.id !== product?.id).slice(0, 4);
+
+  useDocumentTitle(product?.name, product?.description ?? undefined);
+
+  // Reinicia selección al cambiar de producto
+  useEffect(() => {
+    setSelected(null);
+    setActiveImg(0);
+  }, [slug]);
 
   if (isLoading) {
     return (
@@ -35,6 +53,7 @@ export function ProductDetail() {
 
   const variant = product.variants.find((v) => v.id === selected);
   const canAdd = variant && variant.stock > 0;
+  const totalStock = product.variants.reduce((n, v) => n + v.stock, 0);
 
   const handleAdd = () => {
     if (!variant) return;
@@ -54,6 +73,15 @@ export function ProductDetail() {
   return (
     <div className="pt-28 md:pt-32">
       <div className="max-w-editorial mx-auto md:px-10">
+        {/* MIGAS */}
+        <nav className="px-5 md:px-0 mb-6 text-[11px] uppercase tracking-luxe text-stone">
+          <Link to="/shop" className="hover:text-bone">Tienda</Link>
+          <span className="mx-2">/</span>
+          <Link to={`/shop?category=${product.category?.slug}`} className="hover:text-bone">
+            {product.category?.name}
+          </Link>
+        </nav>
+
         <div className="grid md:grid-cols-2 gap-0 md:gap-12">
           {/* GALERÍA */}
           <div>
@@ -62,6 +90,7 @@ export function ProductDetail() {
                 key={activeImg}
                 src={product.images[activeImg]?.url}
                 alt={product.name}
+                decoding="async"
                 className="w-full h-full object-cover"
                 initial={{ opacity: 0, scale: 1.04 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -78,7 +107,7 @@ export function ProductDetail() {
                       activeImg === i ? 'opacity-100 ring-1 ring-bone' : 'opacity-50 hover:opacity-100'
                     }`}
                   >
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <img src={img.url} alt="" loading="lazy" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -89,7 +118,9 @@ export function ProductDetail() {
           <div className="px-5 md:px-0 py-10 md:py-16 md:pr-10">
             <div className="md:sticky md:top-28">
               <span className="eyebrow">{product.category?.name}</span>
-              <h1 className="font-display text-4xl md:text-5xl mt-3 leading-tight">{product.name}</h1>
+              <h1 className="font-display text-4xl md:text-5xl mt-3 leading-tight uppercase">
+                {product.name}
+              </h1>
               <p className="text-xl mt-4">{formatCRC(product.priceCents)}</p>
 
               <p className="mt-8 text-stone leading-relaxed max-w-md">{product.description}</p>
@@ -100,7 +131,7 @@ export function ProductDetail() {
                   <span className="eyebrow">Talla</span>
                   {variant && variant.stock <= 3 && variant.stock > 0 && (
                     <span className="text-[11px] uppercase tracking-wide text-clay">
-                      Quedan {variant.stock}
+                      ¡Quedan {variant.stock}!
                     </span>
                   )}
                 </div>
@@ -127,22 +158,53 @@ export function ProductDetail() {
                 </div>
               </div>
 
-              <button
-                onClick={handleAdd}
-                disabled={!canAdd}
-                className="btn-ink w-full mt-10"
-              >
-                {selected ? (canAdd ? 'Añadir a la bolsa' : 'Agotado') : 'Selecciona una talla'}
-              </button>
+              {/* AÑADIR + FAVORITO */}
+              <div className="flex gap-3 mt-10">
+                <button onClick={handleAdd} disabled={!canAdd} className="btn-ink flex-1">
+                  {selected ? (canAdd ? 'Añadir a la bolsa' : 'Agotado') : 'Selecciona una talla'}
+                </button>
+                <button
+                  onClick={() => toggleWish(product.id)}
+                  aria-label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                  className={`w-14 shrink-0 border flex items-center justify-center transition-colors ${
+                    liked ? 'border-bone bg-bone text-noir' : 'border-bone/30 text-bone hover:border-bone'
+                  }`}
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
+                    <path d="M12 21s-7.5-4.6-10-9.2C.4 8.4 2 5 5.2 5c2 0 3.3 1.1 4.1 2.3l.7 1 .7-1C11.5 6.1 12.8 5 14.8 5 18 5 19.6 8.4 22 11.8 19.5 16.4 12 21 12 21z" />
+                  </svg>
+                </button>
+              </div>
+
+              {totalStock > 0 && totalStock <= 8 && (
+                <p className="mt-4 text-[11px] uppercase tracking-wide text-clay">
+                  Edición limitada · pocas unidades disponibles
+                </p>
+              )}
 
               <div className="mt-8 space-y-2 text-[11px] uppercase tracking-wide text-stone">
                 <p>· Pago seguro por SINPE Móvil</p>
                 <p>· Confirmación de pedido por WhatsApp</p>
-                <p>· Pieza de edición limitada</p>
+                <p>· Cambios fáciles dentro de los 7 días</p>
               </div>
             </div>
           </div>
         </div>
+
+        {/* RELACIONADOS */}
+        {related.length > 0 && (
+          <section className="px-5 md:px-0 mt-24 md:mt-32 pb-8">
+            <Reveal className="mb-10">
+              <span className="eyebrow">Completa el look</span>
+              <h2 className="font-display text-3xl md:text-4xl mt-2 uppercase">También te puede gustar</h2>
+            </Reveal>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-12">
+              {related.map((p, i) => (
+                <ProductCard key={p.id} product={p} index={i} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

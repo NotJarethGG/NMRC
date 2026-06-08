@@ -4,6 +4,33 @@ import { AnimatePresence, motion } from 'framer-motion';
 import type { Product } from '../lib/types';
 import { formatCRC } from '../lib/api';
 import { useCart } from '../store/cart';
+import { useWishlist } from '../store/wishlist';
+
+export function HeartButton({ productId, className = '' }: { productId: string; className?: string }) {
+  const liked = useWishlist((s) => s.ids.includes(productId));
+  const toggle = useWishlist((s) => s.toggle);
+  return (
+    <button
+      aria-label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggle(productId);
+      }}
+      className={`w-9 h-9 flex items-center justify-center rounded-full bg-noir/55 backdrop-blur text-bone transition-colors hover:bg-noir/80 ${className}`}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        className="w-[18px] h-[18px]"
+        fill={liked ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth="1.5"
+      >
+        <path d="M12 21s-7.5-4.6-10-9.2C.4 8.4 2 5 5.2 5c2 0 3.3 1.1 4.1 2.3l.7 1 .7-1C11.5 6.1 12.8 5 14.8 5 18 5 19.6 8.4 22 11.8 19.5 16.4 12 21 12 21z" />
+      </svg>
+    </button>
+  );
+}
 
 function isRecent(createdAt?: string) {
   if (!createdAt) return false;
@@ -51,16 +78,23 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
               <img
                 src={primary}
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-luxe group-hover:opacity-0"
               />
               <img
                 src={secondary}
                 alt={product.name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover scale-105 opacity-0 transition-all duration-[1100ms] ease-luxe group-hover:opacity-100 group-hover:scale-100"
               />
             </>
           )}
         </Link>
+
+        {/* FAVORITO */}
+        <HeartButton productId={product.id} className="absolute top-3 right-3" />
 
         {/* BADGES */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">

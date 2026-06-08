@@ -3,11 +3,13 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../store/cart';
 import { useAuth } from '../store/auth';
+import { useWishlist } from '../store/wishlist';
 import { useCategories, useProducts } from '../hooks/useCatalog';
 
 export function Header() {
   const count = useCart((s) => s.count());
   const openCart = useCart((s) => s.open);
+  const wishCount = useWishlist((s) => s.ids.length);
   const user = useAuth((s) => s.user);
   const location = useLocation();
   const navigate = useNavigate();
@@ -113,6 +115,20 @@ export function Header() {
               className="link-underline opacity-70 hover:opacity-100 hidden sm:inline"
             >
               {user ? 'Cuenta' : 'Acceder'}
+            </Link>
+            <Link
+              to="/wishlist"
+              aria-label="Favoritos"
+              className="relative opacity-80 hover:opacity-100 hidden sm:flex items-center"
+            >
+              <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 21s-7.5-4.6-10-9.2C.4 8.4 2 5 5.2 5c2 0 3.3 1.1 4.1 2.3l.7 1 .7-1C11.5 6.1 12.8 5 14.8 5 18 5 19.6 8.4 22 11.8 19.5 16.4 12 21 12 21z" />
+              </svg>
+              {wishCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-bone text-noir text-[9px] font-semibold w-4 h-4 flex items-center justify-center rounded-full">
+                  {wishCount}
+                </span>
+              )}
             </Link>
             <button onClick={openCart} className="link-underline opacity-80 hover:opacity-100">
               Bolsa ({count})
@@ -235,6 +251,7 @@ export function Header() {
               ))}
               <Link to="/collections" className="pt-2">Colecciones</Link>
               <Link to="/about">Casa</Link>
+              <Link to="/wishlist">Favoritos{wishCount > 0 ? ` (${wishCount})` : ''}</Link>
               <Link to={user ? '/account' : '/login'}>{user ? 'Cuenta' : 'Acceder'}</Link>
             </div>
           </motion.nav>

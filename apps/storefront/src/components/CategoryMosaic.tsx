@@ -60,6 +60,8 @@ export function CategoryMosaic() {
                 <img
                   src={t.image}
                   alt={t.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-[1100ms] ease-luxe group-hover:scale-105"
                 />
               )}
