@@ -68,6 +68,10 @@ export const useCart = create<CartState>()(
       count: () => get().lines.reduce((n, l) => n + l.quantity, 0),
       totalCents: () => get().lines.reduce((n, l) => n + l.priceCents * l.quantity, 0),
     }),
-    { name: 'gosth_cart' },
+    {
+      name: 'nmrc_cart',
+      // Solo persistimos las líneas (no el estado abierto/cerrado del drawer)
+      partialize: (state) => ({ lines: state.lines }),
+    },
   ),
 );

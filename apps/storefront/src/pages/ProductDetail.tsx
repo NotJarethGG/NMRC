@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useProduct, useProducts } from '../hooks/useCatalog';
 import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
+import { useToast } from '../store/toast';
+import { useRecentlyViewed } from '../store/recentlyViewed';
 import { formatCRC } from '../lib/api';
 import { ProductCard } from '../components/ProductCard';
 import { Reveal } from '../components/Reveal';
@@ -15,8 +17,13 @@ export function ProductDetail() {
   const add = useCart((s) => s.add);
   const liked = useWishlist((s) => (product ? s.ids.includes(product.id) : false));
   const toggleWish = useWishlist((s) => s.toggle);
+  const showToast = useToast((s) => s.show);
   const [selected, setSelected] = useState<string | null>(null);
   const [activeImg, setActiveImg] = useState(0);
+  const sizesRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSizes = () =>
+    sizesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
   // Relacionados de la misma categoría
   const { data: catProducts } = useProducts({ category: product?.category?.slug });
@@ -29,6 +36,12 @@ export function ProductDetail() {
     setSelected(null);
     setActiveImg(0);
   }, [slug]);
+
+  // Registra el producto como "visto recientemente"
+  const track = useRecentlyViewed((s) => s.track);
+  useEffect(() => {
+    if (product?.id) track(product.id);
+  }, [product?.id, track]);
 
   if (isLoading) {
     return (
@@ -71,7 +84,7 @@ export function ProductDetail() {
   };
 
   return (
-    <div className="pt-28 md:pt-32">
+    <div className="pt-28 md:pt-32 pb-24 md:pb-0">
       <div className="max-w-editorial mx-auto md:px-10">
         {/* MIGAS */}
         <nav className="px-5 md:px-0 mb-6 text-[11px] uppercase tracking-luxe text-stone">
@@ -126,7 +139,7 @@ export function ProductDetail() {
               <p className="mt-8 text-stone leading-relaxed max-w-md">{product.description}</p>
 
               {/* TALLAS */}
-              <div className="mt-10">
+              <div className="mt-10" ref={sizesRef}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="eyebrow">Talla</span>
                   {variant && variant.stock <= 3 && variant.stock > 0 && (
@@ -164,7 +177,10 @@ export function ProductDetail() {
                   {selected ? (canAdd ? 'Añadir a la bolsa' : 'Agotado') : 'Selecciona una talla'}
                 </button>
                 <button
-                  onClick={() => toggleWish(product.id)}
+                  onClick={() => {
+                    toggleWish(product.id);
+                    showToast(liked ? 'Quitado de favoritos' : 'Añadido a favoritos');
+                  }}
                   aria-label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
                   className={`w-14 shrink-0 border flex items-center justify-center transition-colors ${
                     liked ? 'border-bone bg-bone text-noir' : 'border-bone/30 text-bone hover:border-bone'
@@ -205,6 +221,21 @@ export function ProductDetail() {
             </div>
           </section>
         )}
+      </div>
+
+      {/* BARRA FIJA MÓVIL (añadir a la bolsa) */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-coal/95 backdrop-blur border-t border-bone/10 px-4 py-3 flex items-center gap-3">
+        <div className="min-w-0 shrink">
+          <p className="text-[11px] uppercase tracking-wide truncate">{product.name}</p>
+          <p className="text-sm">{formatCRC(product.priceCents)}</p>
+        </div>
+        <button
+          onClick={selected ? (canAdd ? handleAdd : undefined) : scrollToSizes}
+          disabled={!!selected && !canAdd}
+          className="btn-ink flex-1 py-3.5"
+        >
+          {selected ? (canAdd ? 'Añadir a la bolsa' : 'Agotado') : 'Elegir talla'}
+        </button>
       </div>
     </div>
   );

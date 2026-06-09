@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../store/cart';
 import { formatCRC } from '../lib/api';
 
+// Umbral de envío gratis (₡60.000). priceCents = colones × 100.
+const FREE_SHIP_CENTS = 60_000 * 100;
+
 export function CartDrawer() {
   const { isOpen, close, lines, remove, setQuantity, totalCents } = useCart();
   const navigate = useNavigate();
@@ -37,6 +40,35 @@ export function CartDrawer() {
                 Cerrar
               </button>
             </div>
+
+            {lines.length > 0 &&
+              (() => {
+                const total = totalCents();
+                const remaining = Math.max(0, FREE_SHIP_CENTS - total);
+                const pct = Math.min(100, (total / FREE_SHIP_CENTS) * 100);
+                return (
+                  <div className="px-7 pt-5 pb-4 border-b border-bone/10">
+                    <p className="text-[11px] uppercase tracking-wide text-center mb-2.5">
+                      {remaining > 0 ? (
+                        <>
+                          Te faltan <span className="text-clay">{formatCRC(remaining)}</span> para{' '}
+                          <span className="text-bone">envío gratis</span>
+                        </>
+                      ) : (
+                        <span className="text-bone">✓ ¡Envío gratis desbloqueado!</span>
+                      )}
+                    </p>
+                    <div className="h-1 bg-bone/15 overflow-hidden">
+                      <motion.div
+                        className="h-full bg-bone"
+                        initial={false}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
 
             <div className="flex-1 overflow-y-auto px-7 py-6">
               {lines.length === 0 ? (

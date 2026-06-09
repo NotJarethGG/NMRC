@@ -6,6 +6,7 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { BackToTop } from './components/BackToTop';
+import { Toaster } from './components/Toaster';
 import { useAuth } from './store/auth';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
@@ -70,6 +71,7 @@ export default function App() {
         </Routes>
       </AnimatePresence>
       <BackToTop />
+      <Toaster />
       <Footer />
     </>
   );

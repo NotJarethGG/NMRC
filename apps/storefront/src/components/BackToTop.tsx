@@ -20,7 +20,7 @@ export function BackToTop() {
           transition={{ duration: 0.3 }}
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="Volver arriba"
-          className="fixed bottom-6 right-6 z-40 w-11 h-11 flex items-center justify-center bg-bone text-noir hover:bg-taupe transition-colors"
+          className="fixed bottom-24 md:bottom-6 right-5 md:right-6 z-30 w-11 h-11 flex items-center justify-center bg-bone text-noir hover:bg-taupe transition-colors"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M12 19V5M5 12l7-7 7 7" />

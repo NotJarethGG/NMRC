@@ -5,10 +5,12 @@ import type { Product } from '../lib/types';
 import { formatCRC } from '../lib/api';
 import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
+import { useToast } from '../store/toast';
 
 export function HeartButton({ productId, className = '' }: { productId: string; className?: string }) {
   const liked = useWishlist((s) => s.ids.includes(productId));
   const toggle = useWishlist((s) => s.toggle);
+  const showToast = useToast((s) => s.show);
   return (
     <button
       aria-label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
@@ -16,6 +18,7 @@ export function HeartButton({ productId, className = '' }: { productId: string; 
         e.preventDefault();
         e.stopPropagation();
         toggle(productId);
+        showToast(liked ? 'Quitado de favoritos' : 'Añadido a favoritos');
       }}
       className={`w-9 h-9 flex items-center justify-center rounded-full bg-noir/55 backdrop-blur text-bone transition-colors hover:bg-noir/80 ${className}`}
     >
