@@ -3,13 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../store/cart';
 import { useAuth } from '../store/auth';
 import { api, formatCRC } from '../lib/api';
+import { useConfig, shippingFor } from '../hooks/useConfig';
 import type { Order } from '../lib/types';
 
 export function Checkout() {
   const { lines, totalCents, clear } = useCart();
+  const config = useConfig();
   const user = useAuth((s) => s.user);
   const loading = useAuth((s) => s.loading);
   const navigate = useNavigate();
+
+  const subtotal = totalCents();
+  const shipping = shippingFor(subtotal, config);
 
   const [form, setForm] = useState({
     shippingName: user?.name ?? '',
@@ -145,9 +150,24 @@ export function Checkout() {
               </li>
             ))}
           </ul>
-          <div className="mt-8 pt-6 border-t border-bone/10 flex justify-between">
+          <div className="mt-8 pt-6 border-t border-bone/10 space-y-2 text-sm">
+            <div className="flex justify-between text-stone">
+              <span>Subtotal</span>
+              <span className="text-bone">{formatCRC(subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-stone">
+              <span>Envío</span>
+              <span className="text-bone">{shipping === 0 ? 'Gratis' : formatCRC(shipping)}</span>
+            </div>
+            {shipping > 0 && (
+              <p className="text-[11px] text-clay pt-1">
+                Envío gratis en compras desde {formatCRC(config.freeShippingMinCents)}.
+              </p>
+            )}
+          </div>
+          <div className="mt-4 pt-4 border-t border-bone/10 flex justify-between items-center">
             <span className="eyebrow">Total</span>
-            <span className="text-xl">{formatCRC(totalCents())}</span>
+            <span className="text-2xl">{formatCRC(subtotal + shipping)}</span>
           </div>
         </div>
       </div>

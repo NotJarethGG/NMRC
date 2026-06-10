@@ -41,8 +41,28 @@ export function OrderConfirmation() {
           Estado: pendiente de pago
         </p>
 
+        {/* DESGLOSE */}
+        {order.subtotalCents != null && (
+          <div className="mt-10 max-w-sm mx-auto text-left text-sm space-y-2">
+            <div className="flex justify-between text-stone">
+              <span>Subtotal</span>
+              <span className="text-bone">{formatCRC(order.subtotalCents)}</span>
+            </div>
+            <div className="flex justify-between text-stone">
+              <span>Envío</span>
+              <span className="text-bone">
+                {order.shippingCents ? formatCRC(order.shippingCents) : 'Gratis'}
+              </span>
+            </div>
+            <div className="flex justify-between pt-2 border-t border-bone/10">
+              <span className="uppercase tracking-wide">Total</span>
+              <span className="text-bone">{formatCRC(order.totalCents)}</span>
+            </div>
+          </div>
+        )}
+
         {/* INSTRUCCIONES SINPE */}
-        <div className="mt-12 bg-smoke text-bone text-left p-8 md:p-10">
+        <div className="mt-10 bg-smoke text-bone text-left p-8 md:p-10">
           <span className="eyebrow text-bone/50">Completa tu pago por SINPE Móvil</span>
           <div className="mt-6 grid grid-cols-2 gap-6">
             <div>

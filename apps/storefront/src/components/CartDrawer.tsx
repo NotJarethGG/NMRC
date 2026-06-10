@@ -2,12 +2,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../store/cart';
 import { formatCRC } from '../lib/api';
-
-// Umbral de envío gratis (₡60.000). priceCents = colones × 100.
-const FREE_SHIP_CENTS = 60_000 * 100;
+import { useConfig, shippingFor } from '../hooks/useConfig';
 
 export function CartDrawer() {
   const { isOpen, close, lines, remove, setQuantity, totalCents } = useCart();
+  const config = useConfig();
   const navigate = useNavigate();
 
   const goCheckout = () => {
@@ -44,8 +43,8 @@ export function CartDrawer() {
             {lines.length > 0 &&
               (() => {
                 const total = totalCents();
-                const remaining = Math.max(0, FREE_SHIP_CENTS - total);
-                const pct = Math.min(100, (total / FREE_SHIP_CENTS) * 100);
+                const remaining = Math.max(0, config.freeShippingMinCents - total);
+                const pct = Math.min(100, (total / config.freeShippingMinCents) * 100);
                 return (
                   <div className="px-7 pt-5 pb-4 border-b border-bone/10">
                     <p className="text-[11px] uppercase tracking-wide text-center mb-2.5">
@@ -121,20 +120,37 @@ export function CartDrawer() {
               )}
             </div>
 
-            {lines.length > 0 && (
-              <div className="px-7 py-7 border-t border-bone/10">
-                <div className="flex justify-between mb-5">
-                  <span className="eyebrow">Subtotal</span>
-                  <span className="text-lg">{formatCRC(totalCents())}</span>
-                </div>
-                <button onClick={goCheckout} className="btn-ink w-full">
-                  Finalizar compra
-                </button>
-                <p className="text-[11px] text-stone text-center mt-3 tracking-wide">
-                  Pago por SINPE Móvil · Confirmación por WhatsApp
-                </p>
-              </div>
-            )}
+            {lines.length > 0 &&
+              (() => {
+                const subtotal = totalCents();
+                const shipping = shippingFor(subtotal, config);
+                return (
+                  <div className="px-7 py-6 border-t border-bone/10">
+                    <div className="space-y-1.5 mb-4 text-sm">
+                      <div className="flex justify-between text-stone">
+                        <span>Subtotal</span>
+                        <span className="text-bone">{formatCRC(subtotal)}</span>
+                      </div>
+                      <div className="flex justify-between text-stone">
+                        <span>Envío</span>
+                        <span className={shipping === 0 ? 'text-bone' : 'text-bone'}>
+                          {shipping === 0 ? 'Gratis' : formatCRC(shipping)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center pt-3 border-t border-bone/10 mb-5">
+                      <span className="eyebrow">Total</span>
+                      <span className="text-lg">{formatCRC(subtotal + shipping)}</span>
+                    </div>
+                    <button onClick={goCheckout} className="btn-ink w-full">
+                      Finalizar compra
+                    </button>
+                    <p className="text-[11px] text-stone text-center mt-3 tracking-wide">
+                      Pago por SINPE Móvil · Confirmación por WhatsApp
+                    </p>
+                  </div>
+                );
+              })()}
           </motion.aside>
         </>
       )}

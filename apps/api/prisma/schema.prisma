@@ -105,6 +105,8 @@ model Order {
   user            User        @relation(fields: [userId], references: [id])
   userId          String
   status          OrderStatus @default(PENDING)
+  subtotalCents   Int         @default(0)
+  shippingCents   Int         @default(0)
   totalCents      Int
   shippingName    String
   shippingPhone   String

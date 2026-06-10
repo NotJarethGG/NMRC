@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { OrderStatus, Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { shippingConfig, shippingFor } from '../common/shipping';
 import { CreateOrderDto } from './dto';
 
 const orderInclude = {
@@ -24,7 +25,7 @@ export class OrdersService {
       include: { product: true },
     });
 
-    let totalCents = 0;
+    let subtotalCents = 0;
     const itemsData = dto.items.map((item) => {
       const variant = variants.find((v) => v.id === item.variantId);
       if (!variant || variant.productId !== item.productId) {
@@ -36,7 +37,7 @@ export class OrdersService {
         );
       }
       const unitPriceCents = variant.product.priceCents;
-      totalCents += unitPriceCents * item.quantity;
+      subtotalCents += unitPriceCents * item.quantity;
       return {
         productId: variant.productId,
         variantId: variant.id,
@@ -47,10 +48,16 @@ export class OrdersService {
       };
     });
 
+    // Envío calculado en el servidor (autoritativo)
+    const shippingCents = shippingFor(subtotalCents, shippingConfig(this.config));
+    const totalCents = subtotalCents + shippingCents;
+
     const order = await this.prisma.order.create({
       data: {
         userId,
         status: OrderStatus.PENDING,
+        subtotalCents,
+        shippingCents,
         totalCents,
         shippingName: dto.shippingName,
         shippingPhone: dto.shippingPhone,

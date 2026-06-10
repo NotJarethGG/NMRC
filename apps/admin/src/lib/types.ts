@@ -57,6 +57,8 @@ export interface OrderItem {
 export interface Order {
   id: string;
   status: OrderStatus;
+  subtotalCents?: number;
+  shippingCents?: number;
   totalCents: number;
   shippingName: string;
   shippingPhone: string;

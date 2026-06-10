@@ -153,6 +153,25 @@ export function Orders() {
                 </ul>
               </div>
 
+              {selected.subtotalCents != null && (
+                <div className="text-sm space-y-1.5 border-t border-line pt-4">
+                  <div className="flex justify-between text-stone">
+                    <span>Subtotal</span>
+                    <span className="text-ink">{formatCRC(selected.subtotalCents)}</span>
+                  </div>
+                  <div className="flex justify-between text-stone">
+                    <span>Envío</span>
+                    <span className="text-ink">
+                      {selected.shippingCents ? formatCRC(selected.shippingCents) : 'Gratis'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-medium pt-1">
+                    <span>Total</span>
+                    <span>{formatCRC(selected.totalCents)}</span>
+                  </div>
+                </div>
+              )}
+
               {selected.user?.phone && (
                 <a
                   href={`https://wa.me/${selected.user.phone.replace(/\D/g, '')}`}
