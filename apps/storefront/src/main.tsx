@@ -6,7 +6,15 @@ import App from './App';
 import './index.css';
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 60_000, refetchOnWindowFocus: false } },
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+      // Reintentos con espera creciente (cubre el cold start del free tier de Render)
+      retry: 2,
+      retryDelay: (attempt) => Math.min(2000 * 2 ** attempt, 15000),
+    },
+  },
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

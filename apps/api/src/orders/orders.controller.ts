@@ -30,6 +30,12 @@ export class OrdersController {
     return this.orders.findOneForUser(user.id, id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch('mine/:id/cancel')
+  cancelMine(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.orders.cancelMine(user.id, id);
+  }
+
   // --- Admin / Staff ---
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'STAFF')

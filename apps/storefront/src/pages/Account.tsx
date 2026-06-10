@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../store/auth';
+import { useToast } from '../store/toast';
 import { api, formatCRC } from '../lib/api';
 import type { Order } from '../lib/types';
 
@@ -17,11 +18,25 @@ export function Account() {
   const logout = useAuth((s) => s.logout);
   const navigate = useNavigate();
 
+  const qc = useQueryClient();
+  const showToast = useToast((s) => s.show);
+
   const { data: orders } = useQuery({
     queryKey: ['my-orders'],
     queryFn: async () => (await api.get<Order[]>('/orders/mine')).data,
     enabled: !!user,
   });
+
+  const cancelOrder = async (id: string) => {
+    if (!confirm('¿Cancelar este pedido? Esta acción no se puede deshacer.')) return;
+    try {
+      await api.patch(`/orders/mine/${id}/cancel`);
+      await qc.invalidateQueries({ queryKey: ['my-orders'] });
+      showToast('Pedido cancelado');
+    } catch {
+      showToast('No se pudo cancelar el pedido');
+    }
+  };
 
   if (!loading && !user) {
     return (
@@ -122,12 +137,20 @@ export function Account() {
                   })()}
 
                 {o.status === 'PENDING' && (
-                  <Link
-                    to={`/order/${o.id}`}
-                    className="inline-block mt-4 text-[11px] uppercase tracking-luxe link-underline"
-                  >
-                    Completar pago →
-                  </Link>
+                  <div className="flex items-center gap-6 mt-4">
+                    <Link
+                      to={`/order/${o.id}`}
+                      className="text-[11px] uppercase tracking-luxe link-underline"
+                    >
+                      Completar pago →
+                    </Link>
+                    <button
+                      onClick={() => cancelOrder(o.id)}
+                      className="text-[11px] uppercase tracking-luxe text-stone hover:text-red-400 transition-colors"
+                    >
+                      Cancelar pedido
+                    </button>
+                  </div>
                 )}
               </li>
             ))}

@@ -1,13 +1,27 @@
 import { useState } from 'react';
 import { Reveal } from './Reveal';
+import { api } from '../lib/api';
+import { useToast } from '../store/toast';
 
 export function Newsletter() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const showToast = useToast((s) => s.show);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) setDone(true);
+    const value = email.trim();
+    if (!value || sending) return;
+    setSending(true);
+    try {
+      await api.post('/newsletter', { email: value });
+      setDone(true);
+    } catch {
+      showToast('No pudimos suscribirte, intenta de nuevo');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -35,8 +49,8 @@ export function Newsletter() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="field text-center sm:text-left flex-1"
               />
-              <button type="submit" className="btn-ink whitespace-nowrap">
-                Suscribirme
+              <button type="submit" disabled={sending} className="btn-ink whitespace-nowrap">
+                {sending ? 'Enviando…' : 'Suscribirme'}
               </button>
             </form>
           )}

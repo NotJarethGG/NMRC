@@ -11,6 +11,7 @@ import { useConfig } from '../hooks/useConfig';
 import { ProductCard } from '../components/ProductCard';
 import { Reveal } from '../components/Reveal';
 import { SizeGuide } from '../components/SizeGuide';
+import { ReviewsSection, Stars, ratingSummary } from '../components/Reviews';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
@@ -205,7 +206,24 @@ export function ProductDetail() {
               <h1 className="font-display text-4xl md:text-5xl mt-3 leading-tight uppercase">
                 {product.name}
               </h1>
-              <p className="text-xl mt-4">{formatCRC(product.priceCents)}</p>
+              <div className="flex items-center gap-4 mt-4">
+                <p className="text-xl">{formatCRC(product.priceCents)}</p>
+                {(() => {
+                  const s = ratingSummary(product);
+                  if (!s) return null;
+                  return (
+                    <button
+                      onClick={() =>
+                        document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })
+                      }
+                      className="flex items-center gap-1.5 text-stone hover:text-bone transition-colors"
+                    >
+                      <Stars value={s.avg} className="w-3.5 h-3.5" />
+                      <span className="text-xs">({s.count})</span>
+                    </button>
+                  );
+                })()}
+              </div>
 
               <p className="mt-8 text-stone leading-relaxed max-w-md">{product.description}</p>
 
@@ -365,6 +383,9 @@ export function ProductDetail() {
             </div>
           </div>
         </div>
+
+        {/* VALORACIONES */}
+        <ReviewsSection product={product} slug={slug} />
 
         {/* RELACIONADOS */}
         {related.length > 0 && (

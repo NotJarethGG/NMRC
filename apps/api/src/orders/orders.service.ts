@@ -88,6 +88,20 @@ export class OrdersService {
     });
   }
 
+  // El cliente puede cancelar su pedido solo mientras está pendiente de pago
+  async cancelMine(userId: string, id: string) {
+    const order = await this.prisma.order.findFirst({ where: { id, userId } });
+    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException('Solo puedes cancelar pedidos pendientes de pago');
+    }
+    return this.prisma.order.update({
+      where: { id },
+      data: { status: OrderStatus.CANCELLED },
+      include: { items: true },
+    });
+  }
+
   async findOneForUser(userId: string, id: string) {
     const order = await this.prisma.order.findFirst({
       where: { id, userId },

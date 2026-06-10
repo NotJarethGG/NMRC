@@ -9,11 +9,25 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CurrentUser, AuthUser } from '../auth/current-user.decorator';
 import { ProductsService, ProductQuery } from './products.service';
 import { CreateProductDto, UpdateProductDto } from './dto';
+
+class ReviewDto {
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  comment?: string;
+}
 
 @Controller('products')
 export class ProductsController {
@@ -35,6 +49,13 @@ export class ProductsController {
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
     return this.products.findBySlug(slug);
+  }
+
+  // Valoración del cliente (1 por usuario, se actualiza si ya existe)
+  @Post(':id/reviews')
+  @UseGuards(JwtAuthGuard)
+  review(@Param('id') id: string, @CurrentUser() user: AuthUser, @Body() dto: ReviewDto) {
+    return this.products.upsertReview(id, user.id, dto.rating, dto.comment);
   }
 
   // --- Admin ---

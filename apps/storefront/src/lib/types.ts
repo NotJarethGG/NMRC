@@ -28,6 +28,14 @@ export interface ProductVariant {
   stock: number;
 }
 
+export interface Review {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  createdAt: string;
+  user?: { name: string };
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -40,6 +48,7 @@ export interface Product {
   collection?: Collection | null;
   images: ProductImage[];
   variants: ProductVariant[];
+  reviews?: Review[];
   createdAt?: string;
 }
 

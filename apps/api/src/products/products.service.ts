@@ -44,10 +44,28 @@ export class ProductsService {
   async findBySlug(slug: string) {
     const product = await this.prisma.product.findUnique({
       where: { slug },
-      include: productInclude,
+      include: {
+        ...productInclude,
+        // El detalle incluye valoraciones (con nombre del autor)
+        reviews: {
+          include: { user: { select: { name: true } } },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
     });
     if (!product) throw new NotFoundException('Producto no encontrado');
     return product;
+  }
+
+  // Crea o actualiza la valoración del usuario para un producto (1 por usuario)
+  async upsertReview(productId: string, userId: string, rating: number, comment?: string) {
+    await this.findById(productId);
+    return this.prisma.review.upsert({
+      where: { productId_userId: { productId, userId } },
+      create: { productId, userId, rating, comment },
+      update: { rating, comment },
+      include: { user: { select: { name: true } } },
+    });
   }
 
   async findById(id: string) {
