@@ -7,6 +7,7 @@ const baseURL =
 
 // Timeout amplio: el free tier de Render "duerme" y tarda ~50s en despertar
 export const api = axios.create({ baseURL, timeout: 60000 });
+export const apiBaseURL = baseURL;
 
 // Aviso único cuando la API no responde (cold start de Render)
 let coldNotified = false;

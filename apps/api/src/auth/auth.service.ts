@@ -1,8 +1,10 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dto';
+import { GoogleProfile } from './google.strategy';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +36,38 @@ export class AuthService {
         role: 'CUSTOMER',
       },
     });
+    return this.sign(user);
+  }
+
+  // OAuth: busca por googleId o email; crea la cuenta si no existe
+  async loginWithGoogle(profile: GoogleProfile) {
+    if (!profile.email) throw new UnauthorizedException('Google no devolvió un correo');
+
+    let user = await this.prisma.user.findFirst({
+      where: { OR: [{ googleId: profile.googleId }, { email: profile.email }] },
+    });
+
+    if (user) {
+      if (!user.googleId) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: { googleId: profile.googleId },
+        });
+      }
+    } else {
+      // Cuenta nueva vía Google: password aleatorio (solo entra por OAuth)
+      const passwordHash = await bcrypt.hash(randomUUID(), 10);
+      user = await this.prisma.user.create({
+        data: {
+          email: profile.email,
+          name: profile.name,
+          passwordHash,
+          googleId: profile.googleId,
+          role: 'CUSTOMER',
+        },
+      });
+    }
+
     return this.sign(user);
   }
 

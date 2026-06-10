@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../store/auth';
+import { GoogleButton } from '../components/GoogleButton';
 
 export function Register() {
   const register = useAuth((s) => s.register);
@@ -68,6 +69,8 @@ export function Register() {
             {loading ? 'Creando…' : 'Crear cuenta'}
           </button>
         </form>
+
+        <GoogleButton label="Registrarme con Google" />
 
         <p className="text-center text-sm text-stone mt-8">
           ¿Ya tienes cuenta?{' '}

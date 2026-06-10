@@ -20,6 +20,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Account } from './pages/Account';
 import { Wishlist } from './pages/Wishlist';
+import { AuthCallback } from './pages/AuthCallback';
 import { NotFound } from './pages/NotFound';
 
 function Page({ children }: { children: React.ReactNode }) {
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="/register" element={<Page><Register /></Page>} />
           <Route path="/account" element={<Page><Account /></Page>} />
           <Route path="/wishlist" element={<Page><Wishlist /></Page>} />
+          <Route path="/auth/callback" element={<Page><AuthCallback /></Page>} />
           <Route path="*" element={<Page><NotFound /></Page>} />
         </Routes>
       </AnimatePresence>

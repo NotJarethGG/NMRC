@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../store/auth';
+import { GoogleButton } from '../components/GoogleButton';
 
 export function Login() {
   const login = useAuth((s) => s.login);
@@ -63,6 +64,8 @@ export function Login() {
             {loading ? 'Accediendo…' : 'Entrar'}
           </button>
         </form>
+
+        <GoogleButton />
 
         <p className="text-center text-sm text-stone mt-8">
           ¿No tienes cuenta?{' '}

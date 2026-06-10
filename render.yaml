@@ -39,7 +39,24 @@ services:
       # https://nmrc-storefront.vercel.app,https://nmrc-admin.vercel.app
       - key: CORS_ORIGINS
         sync: false
-      # --- URL pública de esta API en Render (para las URLs de imágenes subidas), p.ej:
+      # --- URL pública de esta API en Render (imágenes + callback OAuth), p.ej:
       # https://nmrc-api.onrender.com
       - key: PUBLIC_URL
+        sync: false
+      # --- URL del storefront (destino del redirect OAuth) ---
+      - key: FRONTEND_URL
+        value: https://nmrc-storefront.vercel.app
+      # --- OAuth Google: credenciales de console.cloud.google.com ---
+      # Redirect URI autorizada: https://nmrc-api.onrender.com/api/auth/google/callback
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # --- Cloudinary (dashboard de cloudinary.com) ---
+      - key: CLOUDINARY_CLOUD_NAME
+        value: ds2z843sd
+      - key: CLOUDINARY_API_KEY
+        value: "358738713244282"
+      # El API secret NO se versiona: pégalo en el dashboard de Render
+      - key: CLOUDINARY_API_SECRET
         sync: false
