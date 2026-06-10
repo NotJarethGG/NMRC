@@ -7,6 +7,7 @@ import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { BackToTop } from './components/BackToTop';
 import { Toaster } from './components/Toaster';
+import { ScrollProgress } from './components/ScrollProgress';
 import { useAuth } from './store/auth';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
@@ -51,6 +52,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <ScrollProgress />
       <AnnouncementBar />
       <Header />
       <CartDrawer />

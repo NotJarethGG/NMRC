@@ -87,6 +87,40 @@ export function Account() {
                   </span>
                   <span>{formatCRC(o.totalCents)}</span>
                 </div>
+
+                {/* TIMELINE DE ESTADO (Pendiente → Pagado → Enviado) */}
+                {o.status !== 'CANCELLED' &&
+                  (() => {
+                    const STEPS = ['PENDING', 'PAID', 'FULFILLED'] as const;
+                    const LABELS = ['Pendiente', 'Pagado', 'Enviado'];
+                    const idx = STEPS.indexOf(o.status as (typeof STEPS)[number]);
+                    return (
+                      <div className="mt-5">
+                        <div className="flex items-center">
+                          {STEPS.map((s, i) => (
+                            <div key={s} className={`flex items-center ${i < STEPS.length - 1 ? 'flex-1' : ''}`}>
+                              <div
+                                className={`w-2.5 h-2.5 rounded-full shrink-0 transition-colors ${
+                                  i <= idx ? 'bg-bone' : 'bg-bone/20'
+                                }`}
+                              />
+                              {i < STEPS.length - 1 && (
+                                <div className={`flex-1 h-px mx-1.5 ${i < idx ? 'bg-bone' : 'bg-bone/20'}`} />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-between mt-2 text-[9px] uppercase tracking-wide text-stone">
+                          {LABELS.map((l, i) => (
+                            <span key={l} className={i <= idx ? 'text-bone/80' : ''}>
+                              {l}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                 {o.status === 'PENDING' && (
                   <Link
                     to={`/order/${o.id}`}

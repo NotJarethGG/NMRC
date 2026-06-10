@@ -5,6 +5,7 @@ import { useCart } from '../store/cart';
 import { useAuth } from '../store/auth';
 import { useWishlist } from '../store/wishlist';
 import { useCategories, useProducts } from '../hooks/useCatalog';
+import { formatCRC } from '../lib/api';
 
 export function Header() {
   const count = useCart((s) => s.count());
@@ -22,7 +23,22 @@ export function Header() {
 
   const { data: categories } = useCategories();
   const { data: featured } = useProducts({ featured: true });
+  const { data: allProducts } = useProducts();
   const tile = featured?.[0];
+
+  // Sugerencias en vivo (mínimo 2 caracteres)
+  const suggestions =
+    term.trim().length >= 2
+      ? (allProducts ?? [])
+          .filter((p) => p.name.toLowerCase().includes(term.trim().toLowerCase()))
+          .slice(0, 5)
+      : [];
+
+  const goToProduct = (slug: string) => {
+    setSearchOpen(false);
+    setTerm('');
+    navigate(`/product/${slug}`);
+  };
 
   useEffect(() => {
     setMenuOpen(false);
@@ -131,7 +147,17 @@ export function Header() {
               )}
             </Link>
             <button onClick={openCart} className="link-underline opacity-80 hover:opacity-100">
-              Bolsa ({count})
+              Bolsa (
+              <motion.span
+                key={count}
+                initial={{ scale: 1.6 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-block"
+              >
+                {count}
+              </motion.span>
+              )
             </button>
             <button
               className="md:hidden opacity-90"
@@ -170,6 +196,49 @@ export function Header() {
                 Cerrar
               </button>
             </form>
+
+            {/* SUGERENCIAS EN VIVO */}
+            {suggestions.length > 0 && (
+              <div className="max-w-editorial mx-auto px-5 md:px-10 pb-5">
+                <ul className="divide-y divide-bone/5 border-t border-bone/10">
+                  {suggestions.map((p) => (
+                    <li key={p.id}>
+                      <button
+                        onClick={() => goToProduct(p.slug)}
+                        className="w-full flex items-center gap-4 py-2.5 px-1 text-left hover:bg-bone/5 transition-colors"
+                      >
+                        <div className="w-10 h-12 bg-graphite overflow-hidden shrink-0">
+                          {p.images[0] && (
+                            <img src={p.images[0].url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-bone truncate">{p.name}</p>
+                          <p className="text-[10px] uppercase tracking-wide text-stone">
+                            {p.category?.name}
+                          </p>
+                        </div>
+                        <span className="text-sm text-bone shrink-0">{formatCRC(p.priceCents)}</span>
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <button
+                      onClick={() => {
+                        const q = term.trim();
+                        if (!q) return;
+                        setSearchOpen(false);
+                        setTerm('');
+                        navigate(`/shop?search=${encodeURIComponent(q)}`);
+                      }}
+                      className="w-full py-3 text-[11px] uppercase tracking-luxe text-stone hover:text-bone text-left px-1"
+                    >
+                      Ver todos los resultados →
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

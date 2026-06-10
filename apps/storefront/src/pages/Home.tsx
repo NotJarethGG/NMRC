@@ -7,6 +7,7 @@ import { BenefitsBar } from '../components/BenefitsBar';
 import { CategoryMosaic } from '../components/CategoryMosaic';
 import { Newsletter } from '../components/Newsletter';
 import { RecentlyViewed } from '../components/RecentlyViewed';
+import { Marquee } from '../components/Marquee';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const HERO = '/NMRC.png';
@@ -66,12 +67,21 @@ export function Home() {
           </motion.div>
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-bone/60 text-[10px] uppercase tracking-wide2">
-          Desliza
+          <motion.span
+            className="inline-block"
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            Desliza ↓
+          </motion.span>
         </div>
       </section>
 
       {/* BENEFICIOS */}
       <BenefitsBar />
+
+      {/* TICKER NMRC */}
+      <Marquee />
 
       {/* COMPRAR POR CATEGORÍA */}
       <CategoryMosaic />

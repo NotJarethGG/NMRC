@@ -12,6 +12,46 @@ export function Footer() {
               Streetwear sin concesiones. Construcción honesta, actitud sin límites. Hecho para
               quienes no piden permiso.
             </p>
+
+            {/* REDES */}
+            <div className="flex items-center gap-3 mt-6">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+                className="w-9 h-9 border border-bone/15 flex items-center justify-center text-bone/60 hover:text-bone hover:border-bone/50 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.2" cy="6.8" r="0.5" fill="currentColor" />
+                </svg>
+              </a>
+              <a
+                href="https://tiktok.com"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="TikTok"
+                className="w-9 h-9 border border-bone/15 flex items-center justify-center text-bone/60 hover:text-bone hover:border-bone/50 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M9 12a4 4 0 1 0 4 4V4c.8 2.4 2.6 4 5 4.4" />
+                </svg>
+              </a>
+              <a
+                href="https://wa.me/50688888888"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="WhatsApp"
+                className="w-9 h-9 border border-bone/15 flex items-center justify-center text-bone/60 hover:text-bone hover:border-bone/50 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3z" />
+                  <path d="M8.8 9.2c.3 2.4 3.6 5.6 6 6l1.4-1.4-2-1.3-1 .7c-.9-.5-1.9-1.5-2.4-2.4l.7-1-1.3-2z" />
+                </svg>
+              </a>
+            </div>
           </div>
 
           <div>
