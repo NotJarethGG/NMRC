@@ -79,13 +79,15 @@ export function Header() {
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 xl:gap-7 text-[11px] uppercase tracking-luxe">
-              <button
+              {/* Hover abre el mega-menú; clic navega a la tienda */}
+              <NavLink
+                to="/shop"
                 onMouseEnter={() => setMegaOpen(true)}
-                onClick={() => setMegaOpen((v) => !v)}
+                onClick={() => setMegaOpen(false)}
                 className={`uppercase link-underline transition-opacity ${megaOpen ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
               >
                 Tienda
-              </button>
+              </NavLink>
               <NavLink
                 to="/shop"
                 onMouseEnter={() => setMegaOpen(false)}
