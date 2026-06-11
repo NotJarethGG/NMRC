@@ -72,10 +72,12 @@ export function Footer() {
           </div>
 
           <div>
-            <div className="eyebrow text-bone/40 mb-5">Pago</div>
+            <div className="eyebrow text-bone/40 mb-5">Ayuda</div>
             <ul className="space-y-3 text-sm text-bone/70">
-              <li>SINPE Móvil</li>
-              <li>Confirmación por WhatsApp</li>
+              <li><Link to="/envios" className="link-underline">Envíos y cambios</Link></li>
+              <li><Link to="/privacidad" className="link-underline">Privacidad</Link></li>
+              <li><Link to="/terminos" className="link-underline">Términos</Link></li>
+              <li>Pago: SINPE Móvil</li>
             </ul>
           </div>
         </div>

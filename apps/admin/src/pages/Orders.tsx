@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, formatCRC } from '../lib/api';
 import { useOrders } from '../hooks/useAdmin';
+import { downloadCSV } from '../lib/csv';
 import type { Order, OrderStatus } from '../lib/types';
 
 const STATUSES: { value: string; label: string }[] = [
@@ -52,9 +53,37 @@ export function Orders() {
 
   return (
     <div>
-      <header className="mb-8">
-        <span className="eyebrow">Operación</span>
-        <h1 className="font-display text-4xl mt-1">Pedidos</h1>
+      <header className="flex items-end justify-between mb-8">
+        <div>
+          <span className="eyebrow">Operación</span>
+          <h1 className="font-display text-4xl mt-1">Pedidos</h1>
+        </div>
+        <button
+          onClick={() => {
+            const rows: (string | number)[][] = [
+              ['Pedido', 'Fecha', 'Cliente', 'Teléfono', 'Dirección', 'Piezas', 'Subtotal', 'Envío', 'Total', 'Estado'],
+            ];
+            (orders ?? []).forEach((o) =>
+              rows.push([
+                `#${o.id.slice(-8).toUpperCase()}`,
+                new Date(o.createdAt).toLocaleDateString('es-CR'),
+                o.user?.name ?? o.shippingName,
+                o.shippingPhone,
+                o.shippingAddress,
+                o.items.reduce((n, it) => n + it.quantity, 0),
+                (o.subtotalCents ?? o.totalCents) / 100,
+                (o.shippingCents ?? 0) / 100,
+                o.totalCents / 100,
+                o.status,
+              ]),
+            );
+            downloadCSV(`nmrc-pedidos${filter ? '-' + filter.toLowerCase() : ''}.csv`, rows);
+          }}
+          disabled={!orders?.length}
+          className="btn-ghost py-2.5 disabled:opacity-40"
+        >
+          Exportar CSV
+        </button>
       </header>
 
       <div className="flex gap-6 mb-6 text-sm">

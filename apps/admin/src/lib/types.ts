@@ -75,6 +75,20 @@ export interface Stats {
   revenueCents: number;
   avgOrderCents: number;
   ordersByStatus: { status: OrderStatus; count: number }[];
+  revenueByDay: { date: string; revenueCents: number; orders: number }[];
+}
+export interface AdminReview {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  createdAt: string;
+  user?: { name: string; email: string };
+  product?: { name: string; slug: string };
+}
+export interface Subscriber {
+  id: string;
+  email: string;
+  createdAt: string;
 }
 export interface BestSeller {
   productId: string;

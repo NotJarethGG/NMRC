@@ -26,16 +26,25 @@ export function Products() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(false);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const totalStock = (p: Product) => p.variants.reduce((n, v) => n + v.stock, 0);
 
-  const total = products?.length ?? 0;
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return products ?? [];
+    return (products ?? []).filter(
+      (p) => p.name.toLowerCase().includes(q) || p.category?.name.toLowerCase().includes(q),
+    );
+  }, [products, search]);
+
+  const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageItems = useMemo(
-    () => (products ?? []).slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
-    [products, safePage],
+    () => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filtered, safePage],
   );
   const from = total === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
   const to = Math.min(safePage * PAGE_SIZE, total);
@@ -60,14 +69,25 @@ export function Products() {
 
   return (
     <div>
-      <header className="flex items-end justify-between mb-8">
+      <header className="flex items-end justify-between gap-4 mb-8">
         <div>
           <span className="eyebrow">Inventario</span>
           <h1 className="font-display text-4xl mt-1">Productos</h1>
         </div>
-        <button onClick={() => setCreating(true)} className="btn py-3">
-          + Nuevo producto
-        </button>
+        <div className="flex items-center gap-3">
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Buscar producto o categoría…"
+            className="field w-64"
+          />
+          <button onClick={() => setCreating(true)} className="btn py-3 shrink-0">
+            + Nuevo producto
+          </button>
+        </div>
       </header>
 
       <div className="card overflow-hidden">
@@ -133,10 +153,10 @@ export function Products() {
                 </td>
               </tr>
             ))}
-            {products && products.length === 0 && (
+            {!isLoading && total === 0 && (
               <tr>
                 <td colSpan={6} className="px-6 py-10 text-center text-stone">
-                  No hay productos. Crea el primero.
+                  {search ? `Sin resultados para “${search}”.` : 'No hay productos. Crea el primero.'}
                 </td>
               </tr>
             )}

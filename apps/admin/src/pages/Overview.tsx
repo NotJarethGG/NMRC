@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   Cell,
@@ -72,6 +74,54 @@ export function Overview() {
         <Metric label="Ticket promedio" value={formatCRC(stats?.avgOrderCents ?? 0)} />
         <Metric label="Pedidos totales" value={String(stats?.totalOrders ?? 0)} />
         <Metric label="Productos" value={String(stats?.totalProducts ?? 0)} />
+      </div>
+
+      {/* VENTAS ÚLTIMOS 14 DÍAS */}
+      <div className="card p-6 mb-6">
+        <div className="flex items-baseline justify-between mb-6">
+          <p className="eyebrow">Ventas confirmadas · últimos 14 días</p>
+          <span className="text-xs text-stone">
+            {formatCRC(stats?.revenueByDay?.reduce((n, d) => n + d.revenueCents, 0) ?? 0)} en el período
+          </span>
+        </div>
+        <div className="h-56">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={(stats?.revenueByDay ?? []).map((d) => ({
+                ...d,
+                label: new Date(d.date + 'T12:00:00').toLocaleDateString('es-CR', {
+                  day: '2-digit',
+                  month: 'short',
+                }),
+                colones: d.revenueCents / 100,
+              }))}
+              margin={{ top: 8, right: 8, left: -8, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#22201C" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#22201C" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#6F6557' }} axisLine={false} tickLine={false} interval={1} />
+              <YAxis
+                tick={{ fontSize: 10, fill: '#6F6557' }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v: number) => `₡${(v / 1000).toFixed(0)}k`}
+                width={52}
+              />
+              <Tooltip
+                formatter={(v: number, name: string) =>
+                  name === 'colones' ? [`₡${v.toLocaleString('es-CR')}`, 'Ventas'] : [v, 'Pedidos']
+                }
+                labelStyle={{ fontSize: 12 }}
+                contentStyle={{ fontSize: 12, border: '1px solid #E6E1D6' }}
+              />
+              <Area type="monotone" dataKey="colones" stroke="#22201C" strokeWidth={1.6} fill="url(#rev)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mb-6">

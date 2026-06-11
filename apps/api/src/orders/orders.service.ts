@@ -182,12 +182,37 @@ export class OrdersService {
       .reduce((n, s) => n + s._count._all, 0);
     const revenue = paidAgg._sum.totalCents ?? 0;
 
+    // Ventas confirmadas de los últimos 14 días, agrupadas por día
+    const since = new Date();
+    since.setDate(since.getDate() - 13);
+    since.setHours(0, 0, 0, 0);
+    const recentPaid = await this.prisma.order.findMany({
+      where: {
+        status: { in: [OrderStatus.PAID, OrderStatus.FULFILLED] },
+        createdAt: { gte: since },
+      },
+      select: { createdAt: true, totalCents: true },
+    });
+    const revenueByDay: { date: string; revenueCents: number; orders: number }[] = [];
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(since);
+      d.setDate(since.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      const dayOrders = recentPaid.filter((o) => o.createdAt.toISOString().slice(0, 10) === key);
+      revenueByDay.push({
+        date: key,
+        revenueCents: dayOrders.reduce((n, o) => n + o.totalCents, 0),
+        orders: dayOrders.length,
+      });
+    }
+
     return {
       totalOrders: orders,
       totalProducts: products,
       revenueCents: revenue,
       avgOrderCents: paidCount ? Math.round(revenue / paidCount) : 0,
       ordersByStatus: byStatus.map((s) => ({ status: s.status, count: s._count._all })),
+      revenueByDay,
     };
   }
 

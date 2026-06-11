@@ -21,6 +21,8 @@ import { Register } from './pages/Register';
 import { Account } from './pages/Account';
 import { Wishlist } from './pages/Wishlist';
 import { AuthCallback } from './pages/AuthCallback';
+import { Shipping, Privacy, Terms } from './pages/Legal';
+import { WhatsAppFloat } from './components/WhatsAppFloat';
 import { NotFound } from './pages/NotFound';
 
 function Page({ children }: { children: React.ReactNode }) {
@@ -71,9 +73,13 @@ export default function App() {
           <Route path="/account" element={<Page><Account /></Page>} />
           <Route path="/wishlist" element={<Page><Wishlist /></Page>} />
           <Route path="/auth/callback" element={<Page><AuthCallback /></Page>} />
+          <Route path="/envios" element={<Page><Shipping /></Page>} />
+          <Route path="/privacidad" element={<Page><Privacy /></Page>} />
+          <Route path="/terminos" element={<Page><Terms /></Page>} />
           <Route path="*" element={<Page><NotFound /></Page>} />
         </Routes>
       </AnimatePresence>
+      <WhatsAppFloat />
       <BackToTop />
       <Toaster />
       <Footer />
