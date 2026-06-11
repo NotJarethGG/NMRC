@@ -188,6 +188,12 @@ export function Orders() {
                     <span>Subtotal</span>
                     <span className="text-ink">{formatCRC(selected.subtotalCents)}</span>
                   </div>
+                  {!!selected.discountCents && (
+                    <div className="flex justify-between text-stone">
+                      <span>Descuento{selected.discountCode ? ` (${selected.discountCode})` : ''}</span>
+                      <span className="text-red-700">−{formatCRC(selected.discountCents)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-stone">
                     <span>Envío</span>
                     <span className="text-ink">

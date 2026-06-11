@@ -11,6 +11,7 @@ import { useConfig } from '../hooks/useConfig';
 import { ProductCard } from '../components/ProductCard';
 import { Reveal } from '../components/Reveal';
 import { SizeGuide } from '../components/SizeGuide';
+import { StockAlertForm } from '../components/StockAlertForm';
 import { ReviewsSection, Stars, ratingSummary } from '../components/Reviews';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
@@ -266,6 +267,7 @@ export function ProductDetail() {
                     );
                   })}
                 </div>
+                <StockAlertForm product={product} />
               </div>
 
               {/* CANTIDAD + AÑADIR + FAVORITO + COMPARTIR */}

@@ -87,6 +87,8 @@ export interface Order {
   id: string;
   status: OrderStatus;
   subtotalCents?: number;
+  discountCents?: number;
+  discountCode?: string | null;
   shippingCents?: number;
   totalCents: number;
   shippingName: string;

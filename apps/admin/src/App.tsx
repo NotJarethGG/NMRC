@@ -8,6 +8,7 @@ import { Products } from './pages/Products';
 import { Orders } from './pages/Orders';
 import { Catalog } from './pages/Catalog';
 import { Community } from './pages/Community';
+import { Discounts } from './pages/Discounts';
 import { Users } from './pages/Users';
 
 function Protected({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ export default function App() {
       <Route path="/products" element={<Protected><Products /></Protected>} />
       <Route path="/orders" element={<Protected><Orders /></Protected>} />
       <Route path="/catalog" element={<Protected><Catalog /></Protected>} />
+      <Route path="/discounts" element={<Protected><Discounts /></Protected>} />
       <Route path="/community" element={<Protected><Community /></Protected>} />
       <Route path="/users" element={<Protected><Users /></Protected>} />
       <Route path="*" element={<Navigate to="/" replace />} />

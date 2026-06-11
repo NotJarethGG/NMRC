@@ -3,6 +3,7 @@ import { OrderStatus, Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { shippingConfig, shippingFor } from '../common/shipping';
+import { findValidDiscount } from '../discounts/discounts.util';
 import { CreateOrderDto } from './dto';
 
 const orderInclude = {
@@ -48,15 +49,28 @@ export class OrdersService {
       };
     });
 
-    // Envío calculado en el servidor (autoritativo)
-    const shippingCents = shippingFor(subtotalCents, shippingConfig(this.config));
-    const totalCents = subtotalCents + shippingCents;
+    // Descuento validado y calculado en el servidor (autoritativo)
+    let discountCents = 0;
+    let discountCode: string | null = null;
+    if (dto.couponCode) {
+      const discount = await findValidDiscount(this.prisma, dto.couponCode);
+      if (!discount) throw new BadRequestException('El código de descuento no es válido');
+      discountCents = Math.round((subtotalCents * discount.percentOff) / 100);
+      discountCode = discount.code;
+    }
+
+    // Envío sobre el subtotal ya descontado
+    const discounted = subtotalCents - discountCents;
+    const shippingCents = shippingFor(discounted, shippingConfig(this.config));
+    const totalCents = discounted + shippingCents;
 
     const order = await this.prisma.order.create({
       data: {
         userId,
         status: OrderStatus.PENDING,
         subtotalCents,
+        discountCents,
+        discountCode,
         shippingCents,
         totalCents,
         shippingName: dto.shippingName,
@@ -67,6 +81,14 @@ export class OrdersService {
       },
       include: orderInclude,
     });
+
+    // Consumir un uso del código (después de crear el pedido)
+    if (discountCode) {
+      await this.prisma.discountCode.update({
+        where: { code: discountCode },
+        data: { uses: { increment: 1 } },
+      });
+    }
 
     return { ...order, payment: this.paymentInfo(order.id, totalCents) };
   }

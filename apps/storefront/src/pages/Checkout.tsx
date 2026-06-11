@@ -4,6 +4,7 @@ import { useCart } from '../store/cart';
 import { useAuth } from '../store/auth';
 import { api, formatCRC } from '../lib/api';
 import { useConfig, shippingFor } from '../hooks/useConfig';
+import { useToast } from '../store/toast';
 import type { Order } from '../lib/types';
 
 export function Checkout() {
@@ -12,9 +13,7 @@ export function Checkout() {
   const user = useAuth((s) => s.user);
   const loading = useAuth((s) => s.loading);
   const navigate = useNavigate();
-
-  const subtotal = totalCents();
-  const shipping = shippingFor(subtotal, config);
+  const showToast = useToast((s) => s.show);
 
   const [form, setForm] = useState({
     shippingName: user?.name ?? '',
@@ -24,6 +23,35 @@ export function Checkout() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Cupón de descuento
+  const [couponInput, setCouponInput] = useState('');
+  const [coupon, setCoupon] = useState<{ code: string; percentOff: number } | null>(null);
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
+
+  const subtotal = totalCents();
+  const discount = coupon ? Math.round((subtotal * coupon.percentOff) / 100) : 0;
+  const shipping = shippingFor(subtotal - discount, config);
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code || checkingCoupon) return;
+    setCheckingCoupon(true);
+    try {
+      const { data } = await api.post('/discounts/validate', { code, subtotalCents: subtotal });
+      if (data.valid) {
+        setCoupon({ code: data.code, percentOff: data.percentOff });
+        showToast(`Código ${data.code} aplicado: −${data.percentOff}%`);
+      } else {
+        setCoupon(null);
+        showToast('Código inválido o vencido');
+      }
+    } catch {
+      showToast('No se pudo validar el código');
+    } finally {
+      setCheckingCoupon(false);
+    }
+  };
 
   if (!loading && !user) {
     return (
@@ -62,6 +90,7 @@ export function Checkout() {
           quantity: l.quantity,
         })),
         ...form,
+        couponCode: coupon?.code,
       });
       clear();
       navigate(`/order/${data.id}`, { state: { order: data } });
@@ -150,11 +179,51 @@ export function Checkout() {
               </li>
             ))}
           </ul>
-          <div className="mt-8 pt-6 border-t border-bone/10 space-y-2 text-sm">
+          {/* CUPÓN */}
+          <div className="mt-8 pt-6 border-t border-bone/10">
+            {coupon ? (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-bone">
+                  Código <span className="uppercase tracking-wide">{coupon.code}</span> · −{coupon.percentOff}%
+                </span>
+                <button
+                  onClick={() => setCoupon(null)}
+                  className="text-[11px] uppercase tracking-luxe text-stone hover:text-bone link-underline"
+                >
+                  Quitar
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <input
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                  placeholder="Código de descuento"
+                  className="field flex-1 uppercase"
+                />
+                <button
+                  onClick={applyCoupon}
+                  disabled={checkingCoupon || !couponInput.trim()}
+                  className="btn-outline px-5 py-0 text-[11px] disabled:opacity-40"
+                >
+                  {checkingCoupon ? '…' : 'Aplicar'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-bone/10 space-y-2 text-sm">
             <div className="flex justify-between text-stone">
               <span>Subtotal</span>
               <span className="text-bone">{formatCRC(subtotal)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-stone">
+                <span>Descuento ({coupon?.code})</span>
+                <span className="text-clay">−{formatCRC(discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-stone">
               <span>Envío</span>
               <span className="text-bone">{shipping === 0 ? 'Gratis' : formatCRC(shipping)}</span>
@@ -167,7 +236,7 @@ export function Checkout() {
           </div>
           <div className="mt-4 pt-4 border-t border-bone/10 flex justify-between items-center">
             <span className="eyebrow">Total</span>
-            <span className="text-2xl">{formatCRC(subtotal + shipping)}</span>
+            <span className="text-2xl">{formatCRC(subtotal - discount + shipping)}</span>
           </div>
         </div>
       </div>

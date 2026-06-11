@@ -58,6 +58,8 @@ export interface Order {
   id: string;
   status: OrderStatus;
   subtotalCents?: number;
+  discountCents?: number;
+  discountCode?: string | null;
   shippingCents?: number;
   totalCents: number;
   shippingName: string;
@@ -89,6 +91,23 @@ export interface Subscriber {
   id: string;
   email: string;
   createdAt: string;
+}
+export interface DiscountCode {
+  id: string;
+  code: string;
+  percentOff: number;
+  active: boolean;
+  expiresAt?: string | null;
+  maxUses?: number | null;
+  uses: number;
+  createdAt: string;
+}
+export interface StockAlert {
+  id: string;
+  email: string;
+  size?: string | null;
+  createdAt: string;
+  product?: { name: string; slug: string };
 }
 export interface BestSeller {
   productId: string;

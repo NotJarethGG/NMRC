@@ -48,6 +48,12 @@ export function OrderConfirmation() {
               <span>Subtotal</span>
               <span className="text-bone">{formatCRC(order.subtotalCents)}</span>
             </div>
+            {!!order.discountCents && (
+              <div className="flex justify-between text-stone">
+                <span>Descuento{order.discountCode ? ` (${order.discountCode})` : ''}</span>
+                <span className="text-clay">−{formatCRC(order.discountCents)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-stone">
               <span>Envío</span>
               <span className="text-bone">

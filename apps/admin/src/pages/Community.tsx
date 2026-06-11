@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { downloadCSV } from '../lib/csv';
-import type { AdminReview, Subscriber } from '../lib/types';
+import type { AdminReview, StockAlert, Subscriber } from '../lib/types';
 
 function StarsInline({ value }: { value: number }) {
   return (
@@ -23,6 +23,15 @@ export function Community() {
     queryKey: ['admin-subscribers'],
     queryFn: async () => (await api.get<Subscriber[]>('/newsletter')).data,
   });
+  const { data: alerts } = useQuery({
+    queryKey: ['admin-stock-alerts'],
+    queryFn: async () => (await api.get<StockAlert[]>('/stock-alerts')).data,
+  });
+
+  const removeAlert = async (id: string) => {
+    await api.delete(`/stock-alerts/${id}`);
+    qc.invalidateQueries({ queryKey: ['admin-stock-alerts'] });
+  };
 
   const removeReview = async (r: AdminReview) => {
     if (!confirm(`¿Eliminar la valoración de ${r.user?.name ?? 'cliente'} sobre "${r.product?.name}"?`))
@@ -82,6 +91,8 @@ export function Community() {
           )}
         </div>
 
+        {/* COLUMNA DERECHA */}
+        <div className="space-y-6">
         {/* SUSCRIPTORES */}
         <div className="card overflow-hidden">
           <div className="px-6 py-4 border-b border-line flex items-center justify-between">
@@ -108,6 +119,41 @@ export function Community() {
           ) : (
             <p className="px-6 py-10 text-center text-stone text-sm">Sin suscriptores todavía.</p>
           )}
+        </div>
+
+        {/* AVÍSAME CUANDO VUELVA */}
+        <div className="card overflow-hidden">
+          <div className="px-6 py-4 border-b border-line">
+            <p className="eyebrow">Avísame cuando vuelva ({alerts?.length ?? 0})</p>
+          </div>
+          {alerts && alerts.length > 0 ? (
+            <ul className="divide-y divide-line">
+              {alerts.map((a) => (
+                <li key={a.id} className="px-6 py-3 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="truncate">{a.email}</span>
+                    <button
+                      onClick={() => removeAlert(a.id)}
+                      className="text-red-700 text-xs hover:underline shrink-0"
+                      title="Eliminar (ya notificado)"
+                    >
+                      Listo
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-stone mt-0.5">
+                    {a.product?.name}
+                    {a.size ? ` · talla ${a.size}` : ''} ·{' '}
+                    {new Date(a.createdAt).toLocaleDateString('es-CR')}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="px-6 py-10 text-center text-stone text-sm">
+              Nadie espera reposiciones por ahora.
+            </p>
+          )}
+        </div>
         </div>
       </div>
     </div>

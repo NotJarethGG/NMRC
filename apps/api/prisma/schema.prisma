@@ -62,6 +62,29 @@ model Subscriber {
   createdAt DateTime @default(now())
 }
 
+model DiscountCode {
+  id         String    @id @default(cuid())
+  code       String    @unique
+  percentOff Int
+  active     Boolean   @default(true)
+  expiresAt  DateTime?
+  maxUses    Int?
+  uses       Int       @default(0)
+  createdAt  DateTime  @default(now())
+}
+
+model StockAlert {
+  id        String   @id @default(cuid())
+  email     String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  size      String?
+  createdAt DateTime @default(now())
+
+  @@unique([email, productId])
+  @@index([productId])
+}
+
 model Category {
   id       String    @id @default(cuid())
   name     String
@@ -94,6 +117,7 @@ model Product {
   variants     ProductVariant[]
   orderItems   OrderItem[]
   reviews      Review[]
+  stockAlerts  StockAlert[]
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
@@ -129,6 +153,8 @@ model Order {
   userId          String
   status          OrderStatus @default(PENDING)
   subtotalCents   Int         @default(0)
+  discountCents   Int         @default(0)
+  discountCode    String?
   shippingCents   Int         @default(0)
   totalCents      Int
   shippingName    String

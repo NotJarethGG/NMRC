@@ -7,6 +7,7 @@ const links = [
   { to: '/products', label: 'Productos' },
   { to: '/orders', label: 'Pedidos' },
   { to: '/catalog', label: 'Catálogo' },
+  { to: '/discounts', label: 'Descuentos' },
   { to: '/community', label: 'Comunidad' },
   { to: '/users', label: 'Usuarios', adminOnly: true },
 ];
@@ -18,6 +19,7 @@ function NavIcon({ to }: { to: string }) {
     '/products': <path d="M4 7l8-4 8 4v10l-8 4-8-4zM4 7l8 4 8-4M12 11v10" />,
     '/orders': <path d="M6 2l1.5 3h9L18 2M5 5h14l-1 15H6zM9 10h6" />,
     '/catalog': <path d="M4 5h7v14H4zM13 5h7v14h-7" />,
+    '/discounts': <path d="M9 15l6-6M9.5 9.5h.01M14.5 14.5h.01M4 12l8-8 8 8-8 8z" />,
     '/community': <path d="M21 11a8 8 0 0 1-11.6 7.2L4 20l1.8-5.4A8 8 0 1 1 21 11zM8.5 11h.01M12 11h.01M15.5 11h.01" />,
     '/users': <path d="M16 19v-2a4 4 0 0 0-8 0v2M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />,
   };
