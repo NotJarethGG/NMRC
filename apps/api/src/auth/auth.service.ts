@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto, RegisterDto } from './dto';
+import { ChangePasswordDto, LoginDto, RegisterDto } from './dto';
 import { GoogleProfile } from './google.strategy';
 
 @Injectable()
@@ -79,6 +79,18 @@ export class AuthService {
     if (!ok) throw new UnauthorizedException('Credenciales inválidas');
 
     return this.sign(user);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('Usuario no válido');
+
+    const ok = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!ok) throw new UnauthorizedException('La contraseña actual no es correcta');
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+    return { ok: true };
   }
 
   async me(userId: string) {

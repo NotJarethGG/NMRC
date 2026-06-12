@@ -73,10 +73,6 @@ export function Login() {
             </button>
           </div>
 
-          <p className="text-xs text-stone mt-6 leading-relaxed">
-            Demo: <span className="text-ink">admin@gosthshop.com</span> /{' '}
-            <span className="text-ink">password123</span>
-          </p>
         </form>
       </div>
     </div>

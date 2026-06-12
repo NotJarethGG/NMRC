@@ -9,6 +9,7 @@ import { Orders } from './pages/Orders';
 import { Catalog } from './pages/Catalog';
 import { Community } from './pages/Community';
 import { Discounts } from './pages/Discounts';
+import { Security } from './pages/Security';
 import { Users } from './pages/Users';
 
 function Protected({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,7 @@ export default function App() {
       <Route path="/catalog" element={<Protected><Catalog /></Protected>} />
       <Route path="/discounts" element={<Protected><Discounts /></Protected>} />
       <Route path="/community" element={<Protected><Community /></Protected>} />
+      <Route path="/security" element={<Protected><Security /></Protected>} />
       <Route path="/users" element={<Protected><Users /></Protected>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

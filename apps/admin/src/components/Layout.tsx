@@ -69,6 +69,12 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="px-7 py-5 border-t border-bone/10">
           <p className="text-sm font-medium">{user?.name}</p>
           <p className="text-[10px] text-bone/50 uppercase tracking-[0.2em] mt-0.5">{user?.role}</p>
+          <NavLink
+            to="/security"
+            className="block mt-3 text-[11px] uppercase tracking-wide text-bone/60 hover:text-bone"
+          >
+            Cambiar contraseña
+          </NavLink>
           <button
             onClick={() => {
               logout();

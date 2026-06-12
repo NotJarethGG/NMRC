@@ -1,11 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+
+  // Fail-fast: en producción el JWT_SECRET es obligatorio (sin fallback inseguro)
+  if (process.env.NODE_ENV === 'production' && !config.get<string>('JWT_SECRET')) {
+    throw new Error('JWT_SECRET es obligatorio en producción');
+  }
+
+  // Headers de seguridad. CORP cross-origin para que /uploads se vea desde Vercel.
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: false, // API JSON; CSP aplica en los frontends
+    }),
+  );
 
   app.setGlobalPrefix('api');
 
@@ -22,7 +36,7 @@ async function bootstrap() {
     .map((o) => o.trim());
 
   app.enableCors({
-    // Permite: orígenes configurados, comodín "*", localhost (dev) y cualquier *.vercel.app
+    // Permite: orígenes configurados, localhost (dev) y solo despliegues nmrc-*.vercel.app
     origin: (origin, cb) => {
       const allowAll = origins.includes('*');
       const ok =
@@ -30,7 +44,7 @@ async function bootstrap() {
         allowAll ||
         origins.includes(origin) ||
         /^http:\/\/localhost:\d+$/.test(origin) ||
-        /\.vercel\.app$/.test(origin);
+        /^https:\/\/nmrc-[a-z0-9-]+\.vercel\.app$/.test(origin);
       cb(null, ok);
     },
     credentials: true,
