@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useProducts } from '../hooks/useCatalog';
 import { Reveal } from './Reveal';
+import { useT } from '../i18n';
 
 interface Tile {
   slug: string;
@@ -11,6 +12,7 @@ interface Tile {
 }
 
 export function CategoryMosaic() {
+  const t = useT();
   const { data: products } = useProducts();
 
   const map = new Map<string, Tile>();
@@ -34,18 +36,18 @@ export function CategoryMosaic() {
     <section className="max-w-editorial mx-auto px-5 md:px-10 py-24 md:py-32">
       <Reveal className="flex items-end justify-between mb-10">
         <div>
-          <span className="eyebrow">Explorar</span>
-          <h2 className="font-display text-4xl md:text-5xl mt-3">Comprar por categoría</h2>
+          <span className="eyebrow">{t('home.explore')}</span>
+          <h2 className="font-display text-4xl md:text-5xl mt-3 uppercase">{t('home.shopByCategory')}</h2>
         </div>
         <Link to="/shop" className="hidden md:inline text-[11px] uppercase tracking-luxe link-underline">
-          Ver todo
+          {t('home.viewAll')}
         </Link>
       </Reveal>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-        {tiles.map((t, i) => (
+        {tiles.map((tile, i) => (
           <motion.div
-            key={t.slug}
+            key={tile.slug}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
@@ -53,13 +55,13 @@ export function CategoryMosaic() {
             className={i === 0 ? 'col-span-2 lg:col-span-1' : ''}
           >
             <Link
-              to={`/shop?category=${t.slug}`}
+              to={`/shop?category=${tile.slug}`}
               className="group relative block aspect-[4/5] overflow-hidden bg-graphite"
             >
-              {t.image && (
+              {tile.image && (
                 <img
-                  src={t.image}
-                  alt={t.name}
+                  src={tile.image}
+                  alt={tile.name}
                   loading="lazy"
                   decoding="async"
                   className="w-full h-full object-cover transition-transform duration-[1100ms] ease-luxe group-hover:scale-105"
@@ -67,9 +69,10 @@ export function CategoryMosaic() {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-noir/85 via-noir/20 to-noir/10 transition-colors duration-500 group-hover:from-noir/90" />
               <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="font-display text-3xl md:text-4xl text-bone">{t.name}</h3>
+                <h3 className="font-display text-3xl md:text-4xl text-bone">{tile.name}</h3>
                 <span className="mt-2 inline-block text-[11px] uppercase tracking-luxe text-bone/70 link-underline">
-                  Comprar — {t.count} {t.count === 1 ? 'pieza' : 'piezas'}
+                  {t('home.shopNow')}
+                  {tile.count} {tile.count === 1 ? t('home.piece') : t('home.pieces')}
                 </span>
               </div>
             </Link>

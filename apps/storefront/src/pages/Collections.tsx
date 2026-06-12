@@ -2,17 +2,19 @@ import { Link } from 'react-router-dom';
 import { useCollections } from '../hooks/useCatalog';
 import { Reveal } from '../components/Reveal';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useT } from '../i18n';
 
 export function Collections() {
-  useDocumentTitle('Colecciones');
+  const t = useT();
+  useDocumentTitle(t('col.title'));
   const { data: collections } = useCollections();
 
   return (
     <div className="pt-28 md:pt-36">
       <div className="max-w-editorial mx-auto px-5 md:px-10">
         <header className="text-center mb-16">
-          <span className="eyebrow">Las cápsulas</span>
-          <h1 className="font-display text-5xl md:text-7xl mt-4">Colecciones</h1>
+          <span className="eyebrow">{t('col.eyebrow')}</span>
+          <h1 className="font-display text-5xl md:text-7xl mt-4 uppercase">{t('col.title')}</h1>
         </header>
       </div>
 
@@ -38,11 +40,13 @@ export function Collections() {
                   i % 2 ? 'md:items-end md:text-right md:pr-24' : 'md:items-start md:text-left md:pl-24'
                 }`}
               >
-                <span className="eyebrow text-bone/70">Colección {String(i + 1).padStart(2, '0')}</span>
-                <h2 className="font-display text-5xl md:text-7xl mt-3 mb-4">{c.name}</h2>
+                <span className="eyebrow text-bone/70">
+                  {t('col.collection')} {String(i + 1).padStart(3, '0')}
+                </span>
+                <h2 className="font-display text-5xl md:text-7xl mt-3 mb-4 uppercase">{c.name}</h2>
                 <p className="max-w-sm text-bone/80 text-sm leading-relaxed">{c.description}</p>
                 <span className="mt-8 text-[11px] uppercase tracking-luxe link-underline">
-                  Descubrir
+                  {t('col.discover')}
                 </span>
               </div>
             </Link>

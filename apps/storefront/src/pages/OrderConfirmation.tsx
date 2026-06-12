@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api, formatCRC } from '../lib/api';
+import { usePrice } from '../lib/currency';
+import { useT } from '../i18n';
 import type { Order } from '../lib/types';
 
 export function OrderConfirmation() {
+  const t = useT();
+  const price = usePrice();
   const { id = '' } = useParams();
   const location = useLocation();
   const passed = (location.state as { order?: Order } | null)?.order;
@@ -17,7 +21,7 @@ export function OrderConfirmation() {
   }, [id, order]);
 
   if (!order) {
-    return <div className="pt-40 pb-32 text-center text-stone">Cargando tu pedido…</div>;
+    return <div className="pt-40 pb-32 text-center text-stone">{t('order.loading')}</div>;
   }
 
   const payment = order.payment;
@@ -34,57 +38,58 @@ export function OrderConfirmation() {
           <span className="font-display text-2xl">✓</span>
         </motion.div>
 
-        <span className="eyebrow">Pedido recibido</span>
-        <h1 className="font-display text-4xl md:text-5xl mt-3 mb-4">Gracias por tu compra</h1>
+        <span className="eyebrow">{t('order.received')}</span>
+        <h1 className="font-display text-4xl md:text-5xl mt-3 mb-4 uppercase">{t('order.thanks')}</h1>
         <p className="text-stone">
-          Pedido <span className="text-bone font-medium">#{order.id.slice(-8).toUpperCase()}</span> ·
-          Estado: pendiente de pago
+          {t('order.order')}{' '}
+          <span className="text-bone font-medium">#{order.id.slice(-8).toUpperCase()}</span> ·{' '}
+          {t('order.pendingPayment')}
         </p>
 
         {/* DESGLOSE */}
         {order.subtotalCents != null && (
           <div className="mt-10 max-w-sm mx-auto text-left text-sm space-y-2">
             <div className="flex justify-between text-stone">
-              <span>Subtotal</span>
-              <span className="text-bone">{formatCRC(order.subtotalCents)}</span>
+              <span>{t('order.subtotal')}</span>
+              <span className="text-bone">{price(order.subtotalCents)}</span>
             </div>
             {!!order.discountCents && (
               <div className="flex justify-between text-stone">
-                <span>Descuento{order.discountCode ? ` (${order.discountCode})` : ''}</span>
-                <span className="text-clay">−{formatCRC(order.discountCents)}</span>
+                <span>{t('order.discount')}{order.discountCode ? ` (${order.discountCode})` : ''}</span>
+                <span className="text-clay">−{price(order.discountCents)}</span>
               </div>
             )}
             <div className="flex justify-between text-stone">
-              <span>Envío</span>
+              <span>{t('order.shipping')}</span>
               <span className="text-bone">
-                {order.shippingCents ? formatCRC(order.shippingCents) : 'Gratis'}
+                {order.shippingCents ? price(order.shippingCents) : t('order.free')}
               </span>
             </div>
             <div className="flex justify-between pt-2 border-t border-bone/10">
-              <span className="uppercase tracking-wide">Total</span>
-              <span className="text-bone">{formatCRC(order.totalCents)}</span>
+              <span className="uppercase tracking-wide">{t('order.total')}</span>
+              <span className="text-bone">{price(order.totalCents)}</span>
             </div>
           </div>
         )}
 
-        {/* INSTRUCCIONES SINPE */}
+        {/* INSTRUCCIONES SINPE — el monto exacto va en colones (moneda de la transferencia) */}
         <div className="mt-10 bg-smoke text-bone text-left p-8 md:p-10">
-          <span className="eyebrow text-bone/50">Completa tu pago por SINPE Móvil</span>
+          <span className="eyebrow text-bone/50">{t('order.completeSinpe')}</span>
           <div className="mt-6 grid grid-cols-2 gap-6">
             <div>
-              <p className="text-bone/50 text-xs uppercase tracking-wide mb-1">Número SINPE</p>
+              <p className="text-bone/50 text-xs uppercase tracking-wide mb-1">{t('order.sinpeNumber')}</p>
               <p className="font-display text-3xl">{payment?.sinpeNumber}</p>
             </div>
             <div>
-              <p className="text-bone/50 text-xs uppercase tracking-wide mb-1">Monto exacto</p>
+              <p className="text-bone/50 text-xs uppercase tracking-wide mb-1">{t('order.exactAmount')}</p>
               <p className="font-display text-3xl">{payment?.totalText ?? formatCRC(order.totalCents)}</p>
             </div>
           </div>
 
           <ol className="mt-8 space-y-2 text-sm text-bone/70 list-decimal list-inside">
-            <li>Realiza el SINPE Móvil al número indicado por el monto exacto.</li>
-            <li>Envíanos el comprobante por WhatsApp con el botón de abajo.</li>
-            <li>Confirmamos tu pago y preparamos tu pedido.</li>
+            <li>{t('order.step1')}</li>
+            <li>{t('order.step2')}</li>
+            <li>{t('order.step3')}</li>
           </ol>
 
           {payment?.whatsappUrl && (
@@ -94,15 +99,15 @@ export function OrderConfirmation() {
               rel="noreferrer"
               className="btn-ink bg-bone text-ink hover:bg-bone/90 hover:text-ink w-full mt-8"
             >
-              Enviar comprobante por WhatsApp
+              {t('order.whatsapp')}
             </a>
           )}
         </div>
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/account" className="btn-outline">Ver mis pedidos</Link>
+          <Link to="/account" className="btn-outline">{t('order.viewOrders')}</Link>
           <Link to="/shop" className="text-[11px] uppercase tracking-luxe link-underline self-center">
-            Seguir explorando
+            {t('order.keepShopping')}
           </Link>
         </div>
       </div>

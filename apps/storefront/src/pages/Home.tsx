@@ -9,15 +9,21 @@ import { Newsletter } from '../components/Newsletter';
 import { RecentlyViewed } from '../components/RecentlyViewed';
 import { Marquee } from '../components/Marquee';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useT } from '../i18n';
+import { BRAND_TAGLINE } from '../lib/brand';
 
 const HERO = '/NMRC.png';
 
 export function Home() {
-  useDocumentTitle(undefined, 'NMRC — No Mercy. Streetwear sin concesiones. Edición limitada · Est. 2026.');
+  const t = useT();
+  useDocumentTitle(undefined, BRAND_TAGLINE);
   const { data: products } = useProducts();
   const { data: collections } = useCollections();
   const lead = collections?.[0];
-  const novedades = products?.slice(0, 8) ?? [];
+  const latestDrop = products?.slice(0, 8) ?? [];
+
+  const scrollToWaitlist = () =>
+    document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <div>
@@ -25,44 +31,54 @@ export function Home() {
       <section className="relative h-[100svh] w-full overflow-hidden">
         <motion.img
           src={HERO}
-          alt="NMRC"
+          alt="NMRC — No Mercy"
+          fetchPriority="high"
           className="absolute inset-0 w-full h-full object-cover"
           initial={{ scale: 1.12 }}
           animate={{ scale: 1 }}
           transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-noir/70 via-noir/40 to-noir/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-noir/75 via-noir/45 to-noir/85" />
         <div className="relative h-full flex flex-col items-center justify-center text-center text-bone px-6">
           <motion.h1
-            className="font-varsity text-6xl md:text-8xl lg:text-9xl leading-[0.85] uppercase max-w-5xl"
+            className="font-varsity text-7xl md:text-9xl leading-[0.85] uppercase"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            Forjado, no regalado
+            NMRC
           </motion.h1>
           <motion.p
-            className="mt-6 max-w-md text-bone/80 text-sm md:text-base leading-relaxed uppercase tracking-wide"
+            className="font-condensed text-xl md:text-3xl uppercase tracking-[0.4em] text-bone/90 mt-3"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.45 }}
+          >
+            No Mercy
+          </motion.p>
+          <motion.p
+            className="mt-8 max-w-md text-bone/80 text-sm md:text-base leading-relaxed uppercase tracking-wide"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.9 }}
+            transition={{ duration: 1, delay: 0.7 }}
           >
-            Streetwear sin concesiones. Para quienes entrenan, crean y no piden permiso.
+            {t('hero.tagline')}
+            <span className="block mt-2 text-bone font-medium">{t('hero.sub')}</span>
           </motion.p>
           <motion.div
             className="mt-10 flex flex-col sm:flex-row gap-4"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1.1 }}
+            transition={{ duration: 1, delay: 0.95 }}
           >
-            <Link to="/shop" className="btn-ink">
-              Comprar ahora
-            </Link>
+            <button onClick={scrollToWaitlist} className="btn-ink">
+              {t('hero.joinWaitlist')}
+            </button>
             <Link
-              to="/collections"
+              to="/shop"
               className="btn-outline border-bone/40 text-bone hover:bg-bone hover:text-noir"
             >
-              Ver colecciones
+              {t('hero.shopDrops')}
             </Link>
           </motion.div>
         </div>
@@ -72,7 +88,7 @@ export function Home() {
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           >
-            Desliza ↓
+            {t('hero.scroll')} ↓
           </motion.span>
         </div>
       </section>
@@ -86,20 +102,20 @@ export function Home() {
       {/* COMPRAR POR CATEGORÍA */}
       <CategoryMosaic />
 
-      {/* NOVEDADES */}
+      {/* ÚLTIMO DROP */}
       <section className="max-w-editorial mx-auto px-5 md:px-10 pb-24 md:pb-32">
         <Reveal className="flex items-end justify-between mb-12">
           <div>
-            <span className="eyebrow">Recién llegado</span>
-            <h2 className="font-display text-4xl md:text-5xl mt-3">Novedades</h2>
+            <span className="eyebrow">{t('home.justLanded')}</span>
+            <h2 className="font-display text-4xl md:text-5xl mt-3 uppercase">{t('home.latestDrop')}</h2>
           </div>
           <Link to="/shop" className="hidden md:inline text-[11px] uppercase tracking-luxe link-underline">
-            Ver todo
+            {t('home.viewAll')}
           </Link>
         </Reveal>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-12">
-          {novedades.map((p, i) => (
+          {latestDrop.map((p, i) => (
             <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
@@ -110,7 +126,7 @@ export function Home() {
         <div className="max-w-editorial mx-auto px-5 md:px-10 py-24 md:py-36">
           <Reveal>
             <p className="font-condensed uppercase text-3xl md:text-5xl leading-tight max-w-4xl mx-auto text-center tracking-wide">
-              No excuses. No limits. No mercy. La nueva era se construye con hierro y paciencia.
+              {t('home.manifesto')}
             </p>
           </Reveal>
         </div>
@@ -122,19 +138,19 @@ export function Home() {
           <div className="grid md:grid-cols-2">
             <div className="relative aspect-[4/5] md:aspect-auto md:min-h-[80vh] overflow-hidden bg-graphite">
               {lead.heroImage && (
-                <img src={lead.heroImage} alt={lead.name} className="w-full h-full object-cover" />
+                <img src={lead.heroImage} alt={lead.name} loading="lazy" className="w-full h-full object-cover" />
               )}
             </div>
             <div className="flex items-center bg-smoke text-bone px-8 md:px-20 py-20">
               <Reveal>
-                <span className="eyebrow text-bone/50">Colección</span>
-                <h2 className="font-display text-4xl md:text-6xl mt-4 mb-6">{lead.name}</h2>
+                <span className="eyebrow text-bone/50">{t('home.collection')}</span>
+                <h2 className="font-display text-4xl md:text-6xl mt-4 mb-6 uppercase">{lead.name}</h2>
                 <p className="text-bone/70 leading-relaxed max-w-md mb-10">{lead.description}</p>
                 <Link
                   to={`/shop?collection=${lead.slug}`}
                   className="btn-outline border-bone/40 text-bone hover:bg-bone hover:text-noir"
                 >
-                  Ver la colección
+                  {t('home.viewCollection')}
                 </Link>
               </Reveal>
             </div>
@@ -145,7 +161,7 @@ export function Home() {
       {/* VISTOS RECIENTEMENTE */}
       <RecentlyViewed />
 
-      {/* NEWSLETTER */}
+      {/* WAITLIST */}
       <Newsletter />
     </div>
   );

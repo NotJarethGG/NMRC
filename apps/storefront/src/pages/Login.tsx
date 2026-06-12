@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../store/auth';
 import { GoogleButton } from '../components/GoogleButton';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useT } from '../i18n';
 
 export function Login() {
+  const t = useT();
+  useDocumentTitle(t('auth.signIn'));
   const login = useAuth((s) => s.login);
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -22,7 +26,7 @@ export function Login() {
       await login(email, password);
       navigate(redirect);
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Credenciales inválidas.');
+      setError(err?.response?.data?.message ?? t('auth.invalid'));
     } finally {
       setLoading(false);
     }
@@ -32,13 +36,13 @@ export function Login() {
     <div className="min-h-[80vh] pt-32 pb-24 flex items-center justify-center px-5">
       <div className="w-full max-w-sm">
         <header className="text-center mb-10">
-          <span className="eyebrow">Bienvenido de vuelta</span>
-          <h1 className="font-display text-4xl mt-3">Acceder</h1>
+          <span className="eyebrow">{t('auth.welcomeBack')}</span>
+          <h1 className="font-display text-4xl mt-3 uppercase">{t('auth.signIn')}</h1>
         </header>
 
         <form onSubmit={submit} className="space-y-6">
           <div>
-            <label className="eyebrow block mb-2">Correo</label>
+            <label className="eyebrow block mb-2">{t('auth.email')}</label>
             <input
               type="email"
               required
@@ -48,7 +52,7 @@ export function Login() {
             />
           </div>
           <div>
-            <label className="eyebrow block mb-2">Contraseña</label>
+            <label className="eyebrow block mb-2">{t('auth.password')}</label>
             <input
               type="password"
               required
@@ -61,16 +65,16 @@ export function Login() {
           {error && <p className="text-sm text-red-400">{error}</p>}
 
           <button type="submit" disabled={loading} className="btn-ink w-full">
-            {loading ? 'Accediendo…' : 'Entrar'}
+            {loading ? t('auth.entering') : t('auth.enter')}
           </button>
         </form>
 
         <GoogleButton />
 
         <p className="text-center text-sm text-stone mt-8">
-          ¿No tienes cuenta?{' '}
+          {t('auth.noAccount')}{' '}
           <Link to={`/register?redirect=${redirect}`} className="text-bone link-underline">
-            Crear una
+            {t('auth.createOne')}
           </Link>
         </p>
       </div>

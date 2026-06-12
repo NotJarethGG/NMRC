@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '../i18n';
 
 function Item({ icon, title, sub }: { icon: ReactNode; title: string; sub: string }) {
   return (
@@ -15,12 +16,13 @@ function Item({ icon, title, sub }: { icon: ReactNode; title: string; sub: strin
 const ic = 'w-5 h-5';
 
 export function BenefitsBar() {
+  const t = useT();
   return (
     <section className="border-y border-bone/10 bg-coal">
       <div className="max-w-editorial mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-bone/10">
         <Item
-          title="Envío nacional"
-          sub="A todo Costa Rica"
+          title={t('benefits.shipping')}
+          sub={t('benefits.shippingSub')}
           icon={
             <svg className={ic} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3">
               <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />
@@ -30,8 +32,8 @@ export function BenefitsBar() {
           }
         />
         <Item
-          title="Pago SINPE"
-          sub="Móvil y seguro"
+          title={t('benefits.payment')}
+          sub={t('benefits.paymentSub')}
           icon={
             <svg className={ic} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3">
               <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -40,8 +42,8 @@ export function BenefitsBar() {
           }
         />
         <Item
-          title="Cambios fáciles"
-          sub="Dentro de 7 días"
+          title={t('benefits.exchanges')}
+          sub={t('benefits.exchangesSub')}
           icon={
             <svg className={ic} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3">
               <path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4" />
@@ -50,8 +52,8 @@ export function BenefitsBar() {
           }
         />
         <Item
-          title="Edición limitada"
-          sub="Números contados"
+          title={t('benefits.limited')}
+          sub={t('benefits.limitedSub')}
           icon={
             <svg className={ic} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3">
               <path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 21l-4.9-2.8.9-5.5-4-3.9 5.5-.8z" />

@@ -1,17 +1,19 @@
 import { useConfig } from '../hooks/useConfig';
+import { useT } from '../i18n';
 
 // Botón flotante de contacto (canal principal de la tienda)
 export function WhatsAppFloat() {
+  const t = useT();
   const config = useConfig();
   if (!config.whatsappNumber) return null;
 
-  const msg = encodeURIComponent('Hola NMRC, tengo una consulta sobre una prenda.');
+  const msg = encodeURIComponent('Hi NMRC, I have a question about a piece.');
   return (
     <a
       href={`https://wa.me/${config.whatsappNumber}?text=${msg}`}
       target="_blank"
       rel="noreferrer"
-      aria-label="Escríbenos por WhatsApp"
+      aria-label={t('misc.whatsapp')}
       className="fixed bottom-24 md:bottom-6 left-5 md:left-6 z-40 w-12 h-12 rounded-full bg-bone text-noir flex items-center justify-center shadow-lg hover:bg-taupe transition-colors"
     >
       <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.6">

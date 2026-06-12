@@ -1,17 +1,21 @@
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n';
+import { useLocale } from '../store/locale';
+import { HELLO_EMAIL, SUPPORT_EMAIL } from '../lib/brand';
 
 export function Footer() {
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
+  const setLocale = useLocale((s) => s.setLocale);
+
   return (
     <footer className="bg-coal text-bone mt-32 border-t border-bone/10">
       <div className="max-w-editorial mx-auto px-5 md:px-10 py-20 md:py-28">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           <div className="col-span-2 md:col-span-1">
             <div className="font-varsity text-4xl uppercase tracking-[0.18em] mb-3">NMRC</div>
-            <p className="text-bone/40 text-[11px] uppercase tracking-luxe mb-4">No Mercy · Est. 2026</p>
-            <p className="text-bone/50 text-sm leading-relaxed max-w-xs">
-              Streetwear sin concesiones. Construcción honesta, actitud sin límites. Hecho para
-              quienes no piden permiso.
-            </p>
+            <p className="text-bone/40 text-[11px] uppercase tracking-luxe mb-4">{t('footer.tagline')}</p>
+            <p className="text-bone/50 text-sm leading-relaxed max-w-xs">{t('footer.desc')}</p>
 
             {/* REDES */}
             <div className="flex items-center gap-3 mt-6">
@@ -55,36 +59,63 @@ export function Footer() {
           </div>
 
           <div>
-            <div className="eyebrow text-bone/40 mb-5">Comprar</div>
+            <div className="eyebrow text-bone/40 mb-5">{t('footer.shop')}</div>
             <ul className="space-y-3 text-sm text-bone/70">
-              <li><Link to="/shop" className="link-underline">Todo</Link></li>
-              <li><Link to="/collections" className="link-underline">Colecciones</Link></li>
+              <li><Link to="/shop" className="link-underline">{t('footer.all')}</Link></li>
+              <li><Link to="/collections" className="link-underline">{t('footer.collections')}</Link></li>
               <li><Link to="/shop?category=outerwear" className="link-underline">Outerwear</Link></li>
             </ul>
           </div>
 
           <div>
-            <div className="eyebrow text-bone/40 mb-5">Casa</div>
+            <div className="eyebrow text-bone/40 mb-5">{t('footer.house')}</div>
             <ul className="space-y-3 text-sm text-bone/70">
-              <li><Link to="/about" className="link-underline">Filosofía</Link></li>
-              <li><Link to="/account" className="link-underline">Mi cuenta</Link></li>
+              <li><Link to="/about" className="link-underline">{t('footer.philosophy')}</Link></li>
+              <li><Link to="/account" className="link-underline">{t('footer.myAccount')}</Link></li>
+              <li>
+                <a href={`mailto:${HELLO_EMAIL}`} className="link-underline">{HELLO_EMAIL}</a>
+              </li>
             </ul>
           </div>
 
           <div>
-            <div className="eyebrow text-bone/40 mb-5">Ayuda</div>
+            <div className="eyebrow text-bone/40 mb-5">{t('footer.help')}</div>
             <ul className="space-y-3 text-sm text-bone/70">
-              <li><Link to="/envios" className="link-underline">Envíos y cambios</Link></li>
-              <li><Link to="/privacidad" className="link-underline">Privacidad</Link></li>
-              <li><Link to="/terminos" className="link-underline">Términos</Link></li>
-              <li>Pago: SINPE Móvil</li>
+              <li><Link to="/envios" className="link-underline">{t('footer.shippingReturns')}</Link></li>
+              <li><Link to="/privacidad" className="link-underline">{t('footer.privacy')}</Link></li>
+              <li><Link to="/terminos" className="link-underline">{t('footer.terms')}</Link></li>
+              <li>
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="link-underline">{SUPPORT_EMAIL}</a>
+              </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-20 pt-8 border-t border-bone/10 flex flex-col md:flex-row justify-between gap-4 text-[11px] uppercase tracking-luxe text-bone/40">
-          <span>© {new Date().getFullYear()} NMRC · No Mercy · Costa Rica</span>
-          <span>Edición limitada · Hecho con intención</span>
+        <div className="mt-20 pt-8 border-t border-bone/10 flex flex-col md:flex-row md:items-center justify-between gap-5 text-[11px] uppercase tracking-luxe text-bone/40">
+          <span>© {new Date().getFullYear()} {t('footer.rights')}</span>
+
+          {/* SELECTOR DE IDIOMA */}
+          <div className="flex items-center gap-3" aria-label={t('footer.language')}>
+            <svg className="w-4 h-4 text-bone/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+            </svg>
+            <button
+              onClick={() => setLocale('en')}
+              className={`link-underline ${locale === 'en' ? 'text-bone' : 'hover:text-bone/70'}`}
+            >
+              EN
+            </button>
+            <span className="text-bone/20">/</span>
+            <button
+              onClick={() => setLocale('es')}
+              className={`link-underline ${locale === 'es' ? 'text-bone' : 'hover:text-bone/70'}`}
+            >
+              ES
+            </button>
+          </div>
+
+          <span>{t('footer.limited')}</span>
         </div>
       </div>
     </footer>

@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useT } from '../i18n';
 
 // Medidas de la prenda en plano (cm), fit oversize NMRC
 const ROWS: [string, number, number, number][] = [
@@ -10,6 +11,7 @@ const ROWS: [string, number, number, number][] = [
 ];
 
 export function SizeGuide({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useT();
   return (
     <AnimatePresence>
       {open && (
@@ -28,11 +30,11 @@ export function SizeGuide({ open, onClose }: { open: boolean; onClose: () => voi
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             role="dialog"
-            aria-label="Guía de tallas"
+            aria-label={t('guide.title')}
           >
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-display text-2xl uppercase">Guía de tallas</h3>
-              <button onClick={onClose} className="text-stone hover:text-bone text-sm" aria-label="Cerrar">
+              <h3 className="font-display text-2xl uppercase">{t('guide.title')}</h3>
+              <button onClick={onClose} className="text-stone hover:text-bone text-sm" aria-label={t('nav.close')}>
                 ✕
               </button>
             </div>
@@ -40,10 +42,10 @@ export function SizeGuide({ open, onClose }: { open: boolean; onClose: () => voi
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[10px] uppercase tracking-luxe text-stone border-b border-bone/10">
-                  <th className="py-2 font-normal">Talla</th>
-                  <th className="py-2 font-normal">Pecho</th>
-                  <th className="py-2 font-normal">Largo</th>
-                  <th className="py-2 font-normal">Hombros</th>
+                  <th className="py-2 font-normal">{t('guide.size')}</th>
+                  <th className="py-2 font-normal">{t('guide.chest')}</th>
+                  <th className="py-2 font-normal">{t('guide.length')}</th>
+                  <th className="py-2 font-normal">{t('guide.shoulders')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,10 +60,7 @@ export function SizeGuide({ open, onClose }: { open: boolean; onClose: () => voi
               </tbody>
             </table>
 
-            <p className="mt-5 text-[11px] text-stone leading-relaxed">
-              Fit oversize — medidas de la prenda en plano. Si la quieres más ajustada, baja una
-              talla; para el fit NMRC clásico, quédate con la tuya.
-            </p>
+            <p className="mt-5 text-[11px] text-stone leading-relaxed">{t('guide.note')}</p>
           </motion.div>
         </>
       )}

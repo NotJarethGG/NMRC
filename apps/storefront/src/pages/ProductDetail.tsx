@@ -6,7 +6,7 @@ import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
 import { useToast } from '../store/toast';
 import { useRecentlyViewed } from '../store/recentlyViewed';
-import { formatCRC } from '../lib/api';
+import { usePrice, CURRENCIES } from '../lib/currency';
 import { useConfig } from '../hooks/useConfig';
 import { ProductCard } from '../components/ProductCard';
 import { Reveal } from '../components/Reveal';
@@ -14,6 +14,9 @@ import { SizeGuide } from '../components/SizeGuide';
 import { StockAlertForm } from '../components/StockAlertForm';
 import { ReviewsSection, Stars, ratingSummary } from '../components/Reviews';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useT } from '../i18n';
+import { SITE_URL } from '../lib/brand';
+import type { Product } from '../lib/types';
 
 function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -45,7 +48,55 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
+// Product Schema (JSON-LD) para SEO internacional / Google Shopping
+function useProductSchema(product: Product | undefined) {
+  useEffect(() => {
+    if (!product) return;
+    const usd = (product.priceCents / 100 / CURRENCIES.USD.ratePerCRC).toFixed(2);
+    const inStock = product.variants.some((v) => v.stock > 0);
+    const s = ratingSummary(product);
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description: product.description ?? undefined,
+      image: product.images.map((i) => i.url),
+      brand: { '@type': 'Brand', name: 'NMRC' },
+      url: `${SITE_URL}/product/${product.slug}`,
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'USD',
+        price: usd,
+        availability: inStock
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        url: `${SITE_URL}/product/${product.slug}`,
+      },
+      ...(s
+        ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: s.avg.toFixed(1),
+              reviewCount: s.count,
+            },
+          }
+        : {}),
+    };
+    const el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.id = 'product-schema';
+    el.textContent = JSON.stringify(schema);
+    document.getElementById('product-schema')?.remove();
+    document.head.appendChild(el);
+    return () => {
+      document.getElementById('product-schema')?.remove();
+    };
+  }, [product]);
+}
+
 export function ProductDetail() {
+  const t = useT();
+  const price = usePrice();
   const { slug = '' } = useParams();
   const { data: product, isLoading } = useProduct(slug);
   const add = useCart((s) => s.add);
@@ -64,25 +115,22 @@ export function ProductDetail() {
   const scrollToSizes = () =>
     sizesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-  // Relacionados de la misma categoría
   const { data: catProducts } = useProducts({ category: product?.category?.slug });
   const related = (catProducts ?? []).filter((p) => p.id !== product?.id).slice(0, 4);
 
   useDocumentTitle(product?.name, product?.description ?? undefined);
+  useProductSchema(product);
 
-  // Reinicia selección al cambiar de producto
   useEffect(() => {
     setSelected(null);
     setActiveImg(0);
     setQty(1);
   }, [slug]);
 
-  // La cantidad vuelve a 1 al cambiar de talla
   useEffect(() => {
     setQty(1);
   }, [selected]);
 
-  // Registra el producto como "visto recientemente"
   const track = useRecentlyViewed((s) => s.track);
   useEffect(() => {
     if (product?.id) track(product.id);
@@ -103,8 +151,8 @@ export function ProductDetail() {
   if (!product) {
     return (
       <div className="pt-40 text-center">
-        <p className="text-stone">Producto no encontrado.</p>
-        <Link to="/shop" className="btn-outline mt-6">Volver a la tienda</Link>
+        <p className="text-stone">{t('pdp.notFound')}</p>
+        <Link to="/shop" className="btn-outline mt-6">{t('pdp.backToShop')}</Link>
       </div>
     );
   }
@@ -113,6 +161,14 @@ export function ProductDetail() {
   const canAdd = variant && variant.stock > 0;
   const totalStock = product.variants.reduce((n, v) => n + v.stock, 0);
   const maxQty = variant?.stock ?? 1;
+
+  const FEATURES = [
+    t('pdp.feature.cotton'),
+    t('pdp.feature.fit'),
+    t('pdp.feature.print'),
+    t('pdp.feature.limited'),
+    t('pdp.feature.noRestocks'),
+  ];
 
   const handleAdd = () => {
     if (!variant) return;
@@ -136,7 +192,7 @@ export function ProductDetail() {
         await navigator.share({ title: `${product.name} · NMRC`, url });
       } else {
         await navigator.clipboard.writeText(url);
-        showToast('Enlace copiado');
+        showToast(t('pdp.linkCopied'));
       }
     } catch {
       /* compartir cancelado */
@@ -148,7 +204,7 @@ export function ProductDetail() {
       <div className="max-w-editorial mx-auto md:px-10">
         {/* MIGAS */}
         <nav className="px-5 md:px-0 mb-6 text-[11px] uppercase tracking-luxe text-stone">
-          <Link to="/shop" className="hover:text-bone">Tienda</Link>
+          <Link to="/shop" className="hover:text-bone">{t('nav.shop')}</Link>
           <span className="mx-2">/</span>
           <Link to={`/shop?category=${product.category?.slug}`} className="hover:text-bone">
             {product.category?.name}
@@ -156,7 +212,7 @@ export function ProductDetail() {
         </nav>
 
         <div className="grid md:grid-cols-2 gap-0 md:gap-12">
-          {/* GALERÍA (zoom siguiendo el cursor, estilo SSENSE/Zara) */}
+          {/* GALERÍA */}
           <div>
             <div
               className="relative aspect-[3/4] bg-graphite overflow-hidden md:cursor-zoom-in"
@@ -208,7 +264,7 @@ export function ProductDetail() {
                 {product.name}
               </h1>
               <div className="flex items-center gap-4 mt-4">
-                <p className="text-xl">{formatCRC(product.priceCents)}</p>
+                <p className="text-xl">{price(product.priceCents)}</p>
                 {(() => {
                   const s = ratingSummary(product);
                   if (!s) return null;
@@ -228,21 +284,33 @@ export function ProductDetail() {
 
               <p className="mt-8 text-stone leading-relaxed max-w-md">{product.description}</p>
 
+              {/* FEATURES DESTACADAS */}
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {FEATURES.map((f) => (
+                  <li
+                    key={f}
+                    className="text-[10px] uppercase tracking-luxe text-bone/80 border border-bone/15 px-3 py-1.5"
+                  >
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
               {/* TALLAS */}
               <div className="mt-10" ref={sizesRef}>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="eyebrow">Talla</span>
+                  <span className="eyebrow">{t('pdp.size')}</span>
                   <div className="flex items-center gap-4">
                     {variant && variant.stock <= 3 && variant.stock > 0 && (
                       <span className="text-[11px] uppercase tracking-wide text-clay">
-                        ¡Quedan {variant.stock}!
+                        {t('pdp.only')} {variant.stock} {t('pdp.left')}
                       </span>
                     )}
                     <button
                       onClick={() => setGuideOpen(true)}
                       className="text-[11px] uppercase tracking-wide text-stone hover:text-bone link-underline"
                     >
-                      Guía de tallas
+                      {t('pdp.sizeGuide')}
                     </button>
                   </div>
                 </div>
@@ -270,7 +338,7 @@ export function ProductDetail() {
                 <StockAlertForm product={product} />
               </div>
 
-              {/* CANTIDAD + AÑADIR + FAVORITO + COMPARTIR */}
+              {/* CANTIDAD + AÑADIR */}
               <div className="flex gap-3 mt-10">
                 <div
                   className={`flex items-center border border-bone/25 shrink-0 transition-opacity ${
@@ -280,7 +348,7 @@ export function ProductDetail() {
                   <button
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
                     className="w-10 h-full text-stone hover:text-bone"
-                    aria-label="Menos"
+                    aria-label="−"
                   >
                     –
                   </button>
@@ -288,13 +356,13 @@ export function ProductDetail() {
                   <button
                     onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
                     className="w-10 h-full text-stone hover:text-bone"
-                    aria-label="Más"
+                    aria-label="+"
                   >
                     +
                   </button>
                 </div>
                 <button onClick={handleAdd} disabled={!canAdd} className="btn-ink flex-1">
-                  {selected ? (canAdd ? 'Añadir a la bolsa' : 'Agotado') : 'Selecciona una talla'}
+                  {selected ? (canAdd ? t('pdp.addToBag') : t('pdp.soldOut')) : t('pdp.selectSize')}
                 </button>
               </div>
 
@@ -302,7 +370,7 @@ export function ProductDetail() {
                 <button
                   onClick={() => {
                     toggleWish(product.id);
-                    showToast(liked ? 'Quitado de favoritos' : 'Añadido a favoritos');
+                    showToast(liked ? t('wish.removed') : t('wish.added'));
                   }}
                   className={`flex-1 h-12 border flex items-center justify-center gap-2 text-[11px] uppercase tracking-luxe transition-colors ${
                     liked ? 'border-bone bg-bone text-noir' : 'border-bone/30 text-bone hover:border-bone'
@@ -311,7 +379,7 @@ export function ProductDetail() {
                   <svg viewBox="0 0 24 24" className="w-4 h-4" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
                     <path d="M12 21s-7.5-4.6-10-9.2C.4 8.4 2 5 5.2 5c2 0 3.3 1.1 4.1 2.3l.7 1 .7-1C11.5 6.1 12.8 5 14.8 5 18 5 19.6 8.4 22 11.8 19.5 16.4 12 21 12 21z" />
                   </svg>
-                  {liked ? 'En favoritos' : 'Favorito'}
+                  {liked ? t('pdp.inFavorites') : t('pdp.favorite')}
                 </button>
                 <button
                   onClick={onShare}
@@ -323,25 +391,22 @@ export function ProductDetail() {
                     <circle cx="17" cy="18" r="2.2" />
                     <path d="M8 11l7-4M8 13l7 4" />
                   </svg>
-                  Compartir
+                  {t('pdp.share')}
                 </button>
               </div>
 
               {totalStock > 0 && totalStock <= 8 && (
                 <p className="mt-4 text-[11px] uppercase tracking-wide text-clay">
-                  Edición limitada · pocas unidades disponibles
+                  {t('pdp.limitedRelease')}
                 </p>
               )}
 
               {/* TRUST BADGES */}
               <div className="grid grid-cols-3 gap-2 mt-8 text-center">
                 {[
+                  { txt: t('pdp.trust.payment'), icon: <path d="M3 7h18v10H3zM3 10h18" /> },
                   {
-                    t: 'Pago SINPE',
-                    icon: <path d="M3 7h18v10H3zM3 10h18" />,
-                  },
-                  {
-                    t: `Envío gratis +${formatCRC(config.freeShippingMinCents)}`,
+                    txt: t('pdp.trust.freeShipping', { free: price(config.freeShippingMinCents) }),
                     icon: (
                       <>
                         <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />
@@ -351,36 +416,29 @@ export function ProductDetail() {
                     ),
                   },
                   {
-                    t: 'Cambios 7 días',
+                    txt: t('pdp.trust.exchanges'),
                     icon: <path d="M4 12a8 8 0 0 1 13.7-5.6L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.7 5.6L4 16M4 20v-4h4" />,
                   },
                 ].map((b) => (
-                  <div key={b.t} className="border border-bone/10 px-2 py-3.5 flex flex-col items-center gap-2">
+                  <div key={b.txt} className="border border-bone/10 px-2 py-3.5 flex flex-col items-center gap-2">
                     <svg viewBox="0 0 24 24" className="w-5 h-5 text-bone/70" fill="none" stroke="currentColor" strokeWidth="1.3">
                       {b.icon}
                     </svg>
-                    <span className="text-[9px] uppercase tracking-wide text-stone leading-tight">{b.t}</span>
+                    <span className="text-[9px] uppercase tracking-wide text-stone leading-tight">{b.txt}</span>
                   </div>
                 ))}
               </div>
 
-              {/* ACORDEONES (estilo Kith/FOG) */}
+              {/* ACORDEONES */}
               <div className="mt-8 border-t border-bone/10">
-                <Accordion title="Envío y pago">
-                  Envío a todo Costa Rica. Tarifa plana de {formatCRC(config.shippingFlatCents)} y{' '}
-                  <span className="text-bone">gratis</span> en compras desde{' '}
-                  {formatCRC(config.freeShippingMinCents)}. Pago por SINPE Móvil con confirmación por
-                  WhatsApp — tu pedido se prepara al confirmar el pago.
+                <Accordion title={t('pdp.acc.shipping')}>
+                  {t('pdp.acc.shippingBody', {
+                    flat: price(config.shippingFlatCents),
+                    free: price(config.freeShippingMinCents),
+                  })}
                 </Accordion>
-                <Accordion title="Composición y cuidados">
-                  Algodón pesado de primera calidad. Lavar a máquina en frío con colores similares,
-                  no usar blanqueador, secar a baja temperatura y planchar del revés. El print
-                  varsity está hecho para durar — no plancharlo directamente.
-                </Accordion>
-                <Accordion title="Cambios y devoluciones">
-                  Tienes 7 días desde la entrega para cambios. La prenda debe estar sin uso y con
-                  etiquetas. Escríbenos por WhatsApp y coordinamos el cambio sin complicaciones.
-                </Accordion>
+                <Accordion title={t('pdp.acc.care')}>{t('pdp.acc.careBody')}</Accordion>
+                <Accordion title={t('pdp.acc.exchanges')}>{t('pdp.acc.exchangesBody')}</Accordion>
               </div>
             </div>
           </div>
@@ -393,8 +451,10 @@ export function ProductDetail() {
         {related.length > 0 && (
           <section className="px-5 md:px-0 mt-24 md:mt-32 pb-8">
             <Reveal className="mb-10">
-              <span className="eyebrow">Completa el look</span>
-              <h2 className="font-display text-3xl md:text-4xl mt-2 uppercase">También te puede gustar</h2>
+              <span className="eyebrow">{t('pdp.completeTheLook')}</span>
+              <h2 className="font-display text-3xl md:text-4xl mt-2 uppercase">
+                {t('pdp.youMayAlsoLike')}
+              </h2>
             </Reveal>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-12">
               {related.map((p, i) => (
@@ -408,18 +468,18 @@ export function ProductDetail() {
       {/* GUÍA DE TALLAS */}
       <SizeGuide open={guideOpen} onClose={() => setGuideOpen(false)} />
 
-      {/* BARRA FIJA MÓVIL (añadir a la bolsa) */}
+      {/* BARRA FIJA MÓVIL */}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-coal/95 backdrop-blur border-t border-bone/10 px-4 py-3 flex items-center gap-3">
         <div className="min-w-0 shrink">
           <p className="text-[11px] uppercase tracking-wide truncate">{product.name}</p>
-          <p className="text-sm">{formatCRC(product.priceCents)}</p>
+          <p className="text-sm">{price(product.priceCents)}</p>
         </div>
         <button
           onClick={selected ? (canAdd ? handleAdd : undefined) : scrollToSizes}
           disabled={!!selected && !canAdd}
           className="btn-ink flex-1 py-3.5"
         >
-          {selected ? (canAdd ? 'Añadir a la bolsa' : 'Agotado') : 'Elegir talla'}
+          {selected ? (canAdd ? t('pdp.addToBag') : t('pdp.soldOut')) : t('pdp.chooseSize')}
         </button>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const BASE = 'NMRC — No Mercy';
+const BASE = 'NMRC | Premium Streetwear';
 
 /**
  * Ajusta el <title> y la meta description por página (SEO básico SPA).

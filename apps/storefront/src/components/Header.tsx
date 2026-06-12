@@ -5,9 +5,12 @@ import { useCart } from '../store/cart';
 import { useAuth } from '../store/auth';
 import { useWishlist } from '../store/wishlist';
 import { useCategories, useProducts } from '../hooks/useCatalog';
-import { formatCRC } from '../lib/api';
+import { usePrice } from '../lib/currency';
+import { useT } from '../i18n';
 
 export function Header() {
+  const t = useT();
+  const price = usePrice();
   const count = useCart((s) => s.count());
   const openCart = useCart((s) => s.open);
   const wishCount = useWishlist((s) => s.ids.length);
@@ -39,6 +42,12 @@ export function Header() {
     setTerm('');
     navigate(`/product/${slug}`);
   };
+
+  useEffect(() => {
+    const onScroll = () => undefined;
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -86,14 +95,14 @@ export function Header() {
                 onClick={() => setMegaOpen(false)}
                 className={`uppercase link-underline transition-opacity ${megaOpen ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
               >
-                Tienda
+                {t('nav.shop')}
               </NavLink>
               <NavLink
                 to="/shop"
                 onMouseEnter={() => setMegaOpen(false)}
                 className="link-underline opacity-70 hover:opacity-100"
               >
-                Novedades
+                {t('nav.newArrivals')}
               </NavLink>
               <NavLink
                 to="/collections"
@@ -102,7 +111,7 @@ export function Header() {
                   `link-underline transition-opacity ${isActive ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`
                 }
               >
-                Colecciones
+                {t('nav.collections')}
               </NavLink>
               <NavLink
                 to="/about"
@@ -111,7 +120,7 @@ export function Header() {
                   `link-underline transition-opacity ${isActive ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`
                 }
               >
-                Casa
+                {t('nav.about')}
               </NavLink>
             </nav>
           </div>
@@ -120,7 +129,7 @@ export function Header() {
           <div className="flex items-center gap-5 md:gap-6 text-[11px] uppercase tracking-luxe shrink-0">
             <button
               onClick={() => setSearchOpen((v) => !v)}
-              aria-label="Buscar"
+              aria-label={t('nav.search')}
               className="opacity-80 hover:opacity-100"
             >
               <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -132,11 +141,11 @@ export function Header() {
               to={user ? '/account' : '/login'}
               className="link-underline opacity-70 hover:opacity-100 hidden sm:inline"
             >
-              {user ? 'Cuenta' : 'Acceder'}
+              {user ? t('nav.account') : t('nav.signIn')}
             </Link>
             <Link
               to="/wishlist"
-              aria-label="Favoritos"
+              aria-label={t('nav.wishlist')}
               className="relative opacity-80 hover:opacity-100 hidden sm:flex items-center"
             >
               <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -149,7 +158,7 @@ export function Header() {
               )}
             </Link>
             <button onClick={openCart} className="link-underline opacity-80 hover:opacity-100">
-              Bolsa (
+              {t('nav.bag')} (
               <motion.span
                 key={count}
                 initial={{ scale: 1.6 }}
@@ -164,7 +173,7 @@ export function Header() {
             <button
               className="md:hidden opacity-90"
               onClick={() => setMenuOpen((v) => !v)}
-              aria-label="Menú"
+              aria-label={t('nav.menu')}
             >
               {menuOpen ? '✕' : '☰'}
             </button>
@@ -191,11 +200,11 @@ export function Header() {
                 ref={searchRef}
                 value={term}
                 onChange={(e) => setTerm(e.target.value)}
-                placeholder="Buscar prendas, hoodies, oversize…"
+                placeholder={t('nav.searchPlaceholder')}
                 className="flex-1 bg-transparent text-bone text-lg outline-none placeholder:text-stone/60"
               />
               <button type="button" onClick={() => setSearchOpen(false)} className="text-stone hover:text-bone text-[11px] uppercase tracking-luxe">
-                Cerrar
+                {t('nav.close')}
               </button>
             </form>
 
@@ -220,7 +229,7 @@ export function Header() {
                             {p.category?.name}
                           </p>
                         </div>
-                        <span className="text-sm text-bone shrink-0">{formatCRC(p.priceCents)}</span>
+                        <span className="text-sm text-bone shrink-0">{price(p.priceCents)}</span>
                       </button>
                     </li>
                   ))}
@@ -235,7 +244,7 @@ export function Header() {
                       }}
                       className="w-full py-3 text-[11px] uppercase tracking-luxe text-stone hover:text-bone text-left px-1"
                     >
-                      Ver todos los resultados →
+                      {t('nav.seeAllResults')}
                     </button>
                   </li>
                 </ul>
@@ -257,11 +266,11 @@ export function Header() {
           >
             <div className="max-w-editorial mx-auto px-10 py-10 grid grid-cols-[1fr_1.8fr] gap-12">
               <div>
-                <p className="eyebrow mb-5">Categorías</p>
+                <p className="eyebrow mb-5">{t('nav.categories')}</p>
                 <ul className="space-y-3">
                   <li>
                     <Link to="/shop" className="text-xs uppercase tracking-luxe text-bone/70 hover:text-bone link-underline">
-                      Ver todo
+                      {t('nav.viewAll')}
                     </Link>
                   </li>
                   {categories?.map((c) => (
@@ -288,7 +297,7 @@ export function Header() {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-noir/80 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-5">
-                    <span className="eyebrow text-bone/60">Destacado</span>
+                    <span className="eyebrow text-bone/60">{t('nav.featured')}</span>
                     <p className="font-display text-2xl text-bone mt-1">{tile.name}</p>
                   </div>
                 </Link>
@@ -309,8 +318,8 @@ export function Header() {
             className="md:hidden overflow-hidden bg-noir text-bone border-t border-bone/10"
           >
             <div className="px-5 py-6 flex flex-col gap-5 text-sm uppercase tracking-luxe">
-              <Link to="/shop">Novedades</Link>
-              <span className="eyebrow pt-2">Categorías</span>
+              <Link to="/shop">{t('nav.newArrivals')}</Link>
+              <span className="eyebrow pt-2">{t('nav.categories')}</span>
               {categories?.map((c) => (
                 <Link
                   key={c.id}
@@ -320,10 +329,10 @@ export function Header() {
                   {c.name}
                 </Link>
               ))}
-              <Link to="/collections" className="pt-2">Colecciones</Link>
-              <Link to="/about">Casa</Link>
-              <Link to="/wishlist">Favoritos{wishCount > 0 ? ` (${wishCount})` : ''}</Link>
-              <Link to={user ? '/account' : '/login'}>{user ? 'Cuenta' : 'Acceder'}</Link>
+              <Link to="/collections" className="pt-2">{t('nav.collections')}</Link>
+              <Link to="/about">{t('nav.about')}</Link>
+              <Link to="/wishlist">{t('nav.wishlist')}{wishCount > 0 ? ` (${wishCount})` : ''}</Link>
+              <Link to={user ? '/account' : '/login'}>{user ? t('nav.account') : t('nav.signIn')}</Link>
             </div>
           </motion.nav>
         )}

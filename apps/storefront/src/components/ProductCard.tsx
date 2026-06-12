@@ -2,23 +2,25 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Product } from '../lib/types';
-import { formatCRC } from '../lib/api';
+import { usePrice } from '../lib/currency';
 import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
 import { useToast } from '../store/toast';
+import { useT } from '../i18n';
 
 export function HeartButton({ productId, className = '' }: { productId: string; className?: string }) {
+  const t = useT();
   const liked = useWishlist((s) => s.ids.includes(productId));
   const toggle = useWishlist((s) => s.toggle);
   const showToast = useToast((s) => s.show);
   return (
     <button
-      aria-label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+      aria-label={t('nav.wishlist')}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         toggle(productId);
-        showToast(liked ? 'Quitado de favoritos' : 'Añadido a favoritos');
+        showToast(liked ? t('wish.removed') : t('wish.added'));
       }}
       className={`w-9 h-9 flex items-center justify-center rounded-full bg-noir/55 backdrop-blur text-bone transition-colors hover:bg-noir/80 ${className}`}
     >
@@ -42,6 +44,8 @@ function isRecent(createdAt?: string) {
 }
 
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
+  const t = useT();
+  const price = usePrice();
   const add = useCart((s) => s.add);
   const [showSizes, setShowSizes] = useState(false);
 
@@ -103,18 +107,18 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
           {soldOut ? (
             <span className="bg-noir/85 text-bone text-[10px] uppercase tracking-luxe px-3 py-1">
-              Agotado
+              {t('badge.soldOut')}
             </span>
           ) : (
             <>
               {isNew && (
                 <span className="bg-bone text-noir text-[10px] uppercase tracking-luxe px-3 py-1">
-                  Nuevo
+                  {t('badge.new')}
                 </span>
               )}
               {product.featured && (
                 <span className="bg-noir/85 text-bone text-[10px] uppercase tracking-luxe px-3 py-1 border border-bone/20">
-                  Bestseller
+                  {t('badge.bestseller')}
                 </span>
               )}
             </>
@@ -134,7 +138,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
                   onClick={() => setShowSizes(true)}
                   className="w-full bg-bone/95 text-noir text-[11px] uppercase tracking-luxe py-3 backdrop-blur hover:bg-bone"
                 >
-                  Añadir rápido
+                  {t('card.quickAdd')}
                 </motion.button>
               ) : (
                 <motion.div
@@ -174,7 +178,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
             <p className="text-xs text-stone mt-1 uppercase tracking-wide">{product.category?.name}</p>
           </div>
-          <span className="text-sm whitespace-nowrap">{formatCRC(product.priceCents)}</span>
+          <span className="text-sm whitespace-nowrap">{price(product.priceCents)}</span>
         </div>
       </Link>
     </motion.div>

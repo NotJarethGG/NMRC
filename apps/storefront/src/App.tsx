@@ -9,6 +9,7 @@ import { BackToTop } from './components/BackToTop';
 import { Toaster } from './components/Toaster';
 import { ScrollProgress } from './components/ScrollProgress';
 import { useAuth } from './store/auth';
+import { useLocale } from './store/locale';
 import { Home } from './pages/Home';
 import { Shop } from './pages/Shop';
 import { ProductDetail } from './pages/ProductDetail';
@@ -47,10 +48,16 @@ function ScrollToTop() {
 export default function App() {
   const location = useLocation();
   const init = useAuth((s) => s.init);
+  const locale = useLocale((s) => s.locale);
 
   useEffect(() => {
     init();
   }, [init]);
+
+  // <html lang> sigue al idioma activo (SEO + accesibilidad)
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   return (
     <>

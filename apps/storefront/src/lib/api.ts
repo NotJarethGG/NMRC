@@ -11,10 +11,15 @@ export const apiBaseURL = baseURL;
 
 // Aviso único cuando la API no responde (cold start de Render)
 let coldNotified = false;
-api.interceptors.response.use(undefined, (error) => {
+api.interceptors.response.use(undefined, async (error) => {
   if (!error.response && !coldNotified) {
     coldNotified = true;
-    useToast.getState().show('Despertando el servidor… dale unos segundos');
+    const { useLocale } = await import('../store/locale');
+    const msg =
+      useLocale.getState().locale === 'en'
+        ? 'Waking up the server… give it a few seconds'
+        : 'Despertando el servidor… dale unos segundos';
+    useToast.getState().show(msg);
     setTimeout(() => {
       coldNotified = false;
     }, 20000);

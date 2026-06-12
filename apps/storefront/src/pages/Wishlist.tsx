@@ -3,9 +3,11 @@ import { useProducts } from '../hooks/useCatalog';
 import { useWishlist } from '../store/wishlist';
 import { ProductCard } from '../components/ProductCard';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useT } from '../i18n';
 
 export function Wishlist() {
-  useDocumentTitle('Favoritos');
+  const t = useT();
+  useDocumentTitle(t('wish.title'));
   const ids = useWishlist((s) => s.ids);
   const clear = useWishlist((s) => s.clear);
   const { data: products, isLoading } = useProducts();
@@ -17,15 +19,15 @@ export function Wishlist() {
       <div className="max-w-editorial mx-auto px-5 md:px-10">
         <header className="flex items-end justify-between mb-12">
           <div>
-            <span className="eyebrow">Tu selección</span>
-            <h1 className="font-display text-5xl md:text-7xl mt-3 uppercase">Favoritos</h1>
+            <span className="eyebrow">{t('wish.eyebrow')}</span>
+            <h1 className="font-display text-5xl md:text-7xl mt-3 uppercase">{t('wish.title')}</h1>
           </div>
           {favorites.length > 0 && (
             <button
               onClick={clear}
               className="text-[11px] uppercase tracking-luxe text-stone hover:text-bone link-underline"
             >
-              Vaciar
+              {t('wish.clear')}
             </button>
           )}
         </header>
@@ -44,12 +46,10 @@ export function Wishlist() {
           </div>
         ) : (
           <div className="py-24 text-center">
-            <p className="font-display text-3xl uppercase mb-3">Aún no tienes favoritos</p>
-            <p className="text-stone mb-10 max-w-sm mx-auto">
-              Toca el corazón en cualquier prenda para guardarla aquí.
-            </p>
+            <p className="font-display text-3xl uppercase mb-3">{t('wish.emptyTitle')}</p>
+            <p className="text-stone mb-10 max-w-sm mx-auto">{t('wish.emptySub')}</p>
             <Link to="/shop" className="btn-ink">
-              Explorar la tienda
+              {t('wish.explore')}
             </Link>
           </div>
         )}

@@ -2,24 +2,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../store/auth';
 import { useToast } from '../store/toast';
-import { api, formatCRC } from '../lib/api';
+import { api } from '../lib/api';
+import { usePrice } from '../lib/currency';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useT } from '../i18n';
 import type { Order } from '../lib/types';
 
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: 'Pendiente de pago',
-  PAID: 'Pago confirmado',
-  FULFILLED: 'Enviado',
-  CANCELLED: 'Cancelado',
-};
-
 export function Account() {
+  const t = useT();
+  const price = usePrice();
+  useDocumentTitle(t('account.title'));
   const user = useAuth((s) => s.user);
   const loading = useAuth((s) => s.loading);
   const logout = useAuth((s) => s.logout);
   const navigate = useNavigate();
-
   const qc = useQueryClient();
   const showToast = useToast((s) => s.show);
+
+  const STATUS_LABEL: Record<string, string> = {
+    PENDING: t('account.status.pending'),
+    PAID: t('account.status.paid'),
+    FULFILLED: t('account.status.fulfilled'),
+    CANCELLED: t('account.status.cancelled'),
+  };
 
   const { data: orders } = useQuery({
     queryKey: ['my-orders'],
@@ -28,21 +33,21 @@ export function Account() {
   });
 
   const cancelOrder = async (id: string) => {
-    if (!confirm('¿Cancelar este pedido? Esta acción no se puede deshacer.')) return;
+    if (!confirm(t('account.cancelConfirm'))) return;
     try {
       await api.patch(`/orders/mine/${id}/cancel`);
       await qc.invalidateQueries({ queryKey: ['my-orders'] });
-      showToast('Pedido cancelado');
+      showToast(t('account.cancelled'));
     } catch {
-      showToast('No se pudo cancelar el pedido');
+      showToast(t('account.cancelFailed'));
     }
   };
 
   if (!loading && !user) {
     return (
       <div className="pt-40 pb-32 text-center px-6">
-        <h1 className="font-display text-4xl mb-6">Tu cuenta</h1>
-        <Link to="/login" className="btn-ink">Acceder</Link>
+        <h1 className="font-display text-4xl mb-6 uppercase">{t('account.title')}</h1>
+        <Link to="/login" className="btn-ink">{t('nav.signIn')}</Link>
       </div>
     );
   }
@@ -52,8 +57,10 @@ export function Account() {
       <div className="max-w-3xl mx-auto px-5 md:px-10">
         <div className="flex items-end justify-between mb-12">
           <div>
-            <span className="eyebrow">Mi cuenta</span>
-            <h1 className="font-display text-4xl md:text-5xl mt-3">Hola, {user?.name?.split(' ')[0]}</h1>
+            <span className="eyebrow">{t('account.title')}</span>
+            <h1 className="font-display text-4xl md:text-5xl mt-3 uppercase">
+              {t('account.hello')}, {user?.name?.split(' ')[0]}
+            </h1>
             <p className="text-stone text-sm mt-2">{user?.email}</p>
           </div>
           <button
@@ -63,11 +70,11 @@ export function Account() {
             }}
             className="text-[11px] uppercase tracking-luxe link-underline text-stone hover:text-bone"
           >
-            Cerrar sesión
+            {t('account.signOut')}
           </button>
         </div>
 
-        <h2 className="eyebrow mb-6">Mis pedidos</h2>
+        <h2 className="eyebrow mb-6">{t('account.myOrders')}</h2>
 
         {orders && orders.length > 0 ? (
           <ul className="space-y-4">
@@ -77,7 +84,7 @@ export function Account() {
                   <div>
                     <p className="text-sm font-medium">#{o.id.slice(-8).toUpperCase()}</p>
                     <p className="text-xs text-stone mt-1">
-                      {new Date(o.createdAt).toLocaleDateString('es-CR', {
+                      {new Date(o.createdAt).toLocaleDateString(undefined, {
                         day: '2-digit',
                         month: 'long',
                         year: 'numeric',
@@ -98,16 +105,20 @@ export function Account() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-stone">
-                    {o.items.length} {o.items.length === 1 ? 'pieza' : 'piezas'}
+                    {o.items.length} {o.items.length === 1 ? t('account.piece') : t('account.pieces')}
                   </span>
-                  <span>{formatCRC(o.totalCents)}</span>
+                  <span>{price(o.totalCents)}</span>
                 </div>
 
-                {/* TIMELINE DE ESTADO (Pendiente → Pagado → Enviado) */}
+                {/* TIMELINE DE ESTADO */}
                 {o.status !== 'CANCELLED' &&
                   (() => {
                     const STEPS = ['PENDING', 'PAID', 'FULFILLED'] as const;
-                    const LABELS = ['Pendiente', 'Pagado', 'Enviado'];
+                    const LABELS = [
+                      t('account.step.pending'),
+                      t('account.step.paid'),
+                      t('account.step.shipped'),
+                    ];
                     const idx = STEPS.indexOf(o.status as (typeof STEPS)[number]);
                     return (
                       <div className="mt-5">
@@ -142,13 +153,13 @@ export function Account() {
                       to={`/order/${o.id}`}
                       className="text-[11px] uppercase tracking-luxe link-underline"
                     >
-                      Completar pago →
+                      {t('account.completePayment')}
                     </Link>
                     <button
                       onClick={() => cancelOrder(o.id)}
                       className="text-[11px] uppercase tracking-luxe text-stone hover:text-red-400 transition-colors"
                     >
-                      Cancelar pedido
+                      {t('account.cancelOrder')}
                     </button>
                   </div>
                 )}
@@ -157,8 +168,8 @@ export function Account() {
           </ul>
         ) : (
           <div className="border border-bone/10 p-12 text-center">
-            <p className="text-stone mb-6">Aún no tienes pedidos.</p>
-            <Link to="/shop" className="btn-ink">Explorar la colección</Link>
+            <p className="text-stone mb-6">{t('account.noOrders')}</p>
+            <Link to="/shop" className="btn-ink">{t('account.explore')}</Link>
           </div>
         )}
       </div>

@@ -1,11 +1,14 @@
 import { apiBaseURL } from '../lib/api';
+import { useT } from '../i18n';
 
-export function GoogleButton({ label = 'Continuar con Google' }: { label?: string }) {
+export function GoogleButton({ label }: { label?: string }) {
+  const t = useT();
+  const text = label ?? t('auth.google');
   return (
     <>
       <div className="flex items-center gap-4 my-6">
         <span className="flex-1 h-px bg-bone/10" />
-        <span className="text-[10px] uppercase tracking-luxe text-stone">o</span>
+        <span className="text-[10px] uppercase tracking-luxe text-stone">{t('auth.or')}</span>
         <span className="flex-1 h-px bg-bone/10" />
       </div>
       <a
@@ -33,7 +36,7 @@ export function GoogleButton({ label = 'Continuar con Google' }: { label?: strin
             d="M12 6c1.5 0 2.8.5 3.8 1.5L18.7 4.6A10 10 0 0 0 3 7.5l3.4 2.6C7.2 7.8 9.4 6 12 6z"
           />
         </svg>
-        {label}
+        {text}
       </a>
     </>
   );
