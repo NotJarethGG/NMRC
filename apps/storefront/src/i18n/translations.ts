@@ -253,6 +253,9 @@ const en = {
   'pay.securedBy': 'Secured by Stripe',
   'pay.orSinpe': 'Or pay via SINPE Móvil (Costa Rica)',
   'pay.cardApprox': 'Charged in USD',
+  'pay.paypalTitle': 'Pay with PayPal',
+  'pay.paypalSub': 'Pay with your PayPal balance or card. No account required.',
+  'pay.or': 'or',
 
   // Account
   'account.title': 'My Account',
@@ -619,6 +622,9 @@ const es: Record<TKey, string> = {
   'pay.securedBy': 'Protegido por Stripe',
   'pay.orSinpe': 'O paga por SINPE Móvil (Costa Rica)',
   'pay.cardApprox': 'Cobro en USD',
+  'pay.paypalTitle': 'Pagar con PayPal',
+  'pay.paypalSub': 'Paga con tu saldo PayPal o tarjeta. No necesitas cuenta.',
+  'pay.or': 'o',
 
   'account.title': 'Mi cuenta',
   'account.hello': 'Hola',

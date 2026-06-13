@@ -203,8 +203,8 @@ export class OrdersService {
     return this.findOne(id);
   }
 
-  // Marca un pedido como pagado por Stripe (idempotente; descuenta stock una sola vez)
-  async markPaidViaStripe(orderId: string, paymentIntentId: string) {
+  // Marca un pedido como pagado por una pasarela (idempotente; descuenta stock una sola vez)
+  async markPaid(orderId: string, via: 'stripe' | 'paypal', paymentRef: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { items: true },
@@ -214,7 +214,7 @@ export class OrdersService {
       // ya procesado: solo asegurar trazabilidad del pago
       await this.prisma.order.update({
         where: { id: orderId },
-        data: { paidVia: order.paidVia ?? 'stripe', stripePaymentId: paymentIntentId },
+        data: { paidVia: order.paidVia ?? via, stripePaymentId: paymentRef },
       });
       return;
     }
@@ -227,9 +227,13 @@ export class OrdersService {
       }
       await tx.order.update({
         where: { id: orderId },
-        data: { status: OrderStatus.PAID, paidVia: 'stripe', stripePaymentId: paymentIntentId },
+        data: { status: OrderStatus.PAID, paidVia: via, stripePaymentId: paymentRef },
       });
     });
+  }
+
+  markPaidViaStripe(orderId: string, paymentIntentId: string) {
+    return this.markPaid(orderId, 'stripe', paymentIntentId);
   }
 
   // Busca un pedido pendiente del usuario y devuelve su total (para crear el PaymentIntent)

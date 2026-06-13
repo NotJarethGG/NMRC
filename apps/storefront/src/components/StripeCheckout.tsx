@@ -17,7 +17,15 @@ function getStripe(pk: string) {
   return stripePromise;
 }
 
-function PaymentForm({ amountLabel, onPaid }: { amountLabel: string; onPaid: () => void }) {
+function PaymentForm({
+  orderId,
+  amountLabel,
+  onPaid,
+}: {
+  orderId: string;
+  amountLabel: string;
+  onPaid: () => void;
+}) {
   const t = useT();
   const stripe = useStripe();
   const elements = useElements();
@@ -41,6 +49,10 @@ function PaymentForm({ amountLabel, onPaid }: { amountLabel: string; onPaid: () 
       return;
     }
     if (paymentIntent && paymentIntent.status === 'succeeded') {
+      // Confirma el pago en el servidor (no depende del webhook → funciona en demo)
+      await api
+        .post('/payments/confirm', { orderId, paymentIntentId: paymentIntent.id })
+        .catch(() => undefined);
       showToast(t('pay.success'));
       onPaid();
     }
@@ -105,7 +117,7 @@ export function StripeCheckout({ orderId, publishableKey, amountLabel, onPaid }:
             },
           }}
         >
-          <PaymentForm amountLabel={amountLabel} onPaid={onPaid} />
+          <PaymentForm orderId={orderId} amountLabel={amountLabel} onPaid={onPaid} />
         </Elements>
       ) : (
         <div className="h-32 flex items-center justify-center">

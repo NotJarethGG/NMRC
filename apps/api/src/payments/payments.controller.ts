@@ -21,6 +21,27 @@ class CreateIntentDto {
   orderId: string;
 }
 
+class ConfirmDto {
+  @IsString()
+  orderId: string;
+
+  @IsString()
+  paymentIntentId: string;
+}
+
+class PayPalCreateDto {
+  @IsString()
+  orderId: string;
+}
+
+class PayPalCaptureDto {
+  @IsString()
+  paypalOrderId: string;
+
+  @IsString()
+  orderId: string;
+}
+
 @Controller('payments')
 export class PaymentsController {
   constructor(
@@ -28,6 +49,7 @@ export class PaymentsController {
     private orders: OrdersService,
   ) {}
 
+  // ---------- STRIPE ----------
   // El cliente pide un PaymentIntent para su pedido pendiente
   @Post('create-intent')
   @UseGuards(JwtAuthGuard)
@@ -37,6 +59,17 @@ export class PaymentsController {
     }
     const order = await this.orders.getPayableOrder(dto.orderId, user.id);
     return this.payments.createPaymentIntent(order.id, order.totalCents);
+  }
+
+  // Confirma el pago verificando el intent contra Stripe (no requiere webhook — ideal para demo)
+  @Post('confirm')
+  @UseGuards(JwtAuthGuard)
+  async confirm(@CurrentUser() user: AuthUser, @Body() dto: ConfirmDto) {
+    const order = await this.orders.getPayableOrder(dto.orderId, user.id);
+    const ok = await this.payments.verifyPaymentIntent(dto.paymentIntentId, order.id);
+    if (!ok) throw new BadRequestException('El pago no se pudo verificar');
+    await this.orders.markPaid(order.id, 'stripe', dto.paymentIntentId);
+    return { ok: true };
   }
 
   // Webhook de Stripe: confirma el pago y marca el pedido como pagado
@@ -55,5 +88,32 @@ export class PaymentsController {
       if (orderId) await this.orders.markPaidViaStripe(orderId, intent.id);
     }
     return { received: true };
+  }
+
+  // ---------- PAYPAL ----------
+  @Post('paypal/create-order')
+  @UseGuards(JwtAuthGuard)
+  async paypalCreate(@CurrentUser() user: AuthUser, @Body() dto: PayPalCreateDto) {
+    if (!this.payments.paypalEnabled) {
+      throw new ServiceUnavailableException('PayPal no está disponible');
+    }
+    const order = await this.orders.getPayableOrder(dto.orderId, user.id);
+    return this.payments.createPayPalOrder(order.id, order.totalCents);
+  }
+
+  @Post('paypal/capture')
+  @UseGuards(JwtAuthGuard)
+  async paypalCapture(@CurrentUser() user: AuthUser, @Body() dto: PayPalCaptureDto) {
+    if (!this.payments.paypalEnabled) {
+      throw new ServiceUnavailableException('PayPal no está disponible');
+    }
+    // El pedido debe ser del usuario (evita capturar a nombre de otro)
+    const order = await this.orders.getPayableOrder(dto.orderId, user.id);
+    const result = await this.payments.capturePayPalOrder(dto.paypalOrderId);
+    if (!result || result.orderId !== order.id) {
+      throw new BadRequestException('No se pudo capturar el pago de PayPal');
+    }
+    await this.orders.markPaid(order.id, 'paypal', dto.paypalOrderId);
+    return { ok: true };
   }
 }

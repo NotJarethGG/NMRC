@@ -8,6 +8,8 @@ export interface StoreConfig {
   whatsappNumber: string;
   stripeEnabled?: boolean;
   stripePublishableKey?: string;
+  paypalEnabled?: boolean;
+  paypalClientId?: string;
   usdRate?: number;
 }
 
@@ -18,6 +20,8 @@ const FALLBACK: StoreConfig = {
   whatsappNumber: '',
   stripeEnabled: false,
   stripePublishableKey: '',
+  paypalEnabled: false,
+  paypalClientId: '',
 };
 
 export function useConfig() {

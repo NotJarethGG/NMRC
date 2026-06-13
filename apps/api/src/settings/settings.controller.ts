@@ -13,6 +13,9 @@ export class SettingsController {
     // Stripe activo solo si hay clave secreta + publicable configuradas
     const stripePublishableKey = this.config.get<string>('STRIPE_PUBLISHABLE_KEY') ?? '';
     const stripeEnabled = Boolean(this.config.get<string>('STRIPE_SECRET_KEY') && stripePublishableKey);
+    // PayPal activo solo si hay client id + secret
+    const paypalClientId = this.config.get<string>('PAYPAL_CLIENT_ID') ?? '';
+    const paypalEnabled = Boolean(paypalClientId && this.config.get<string>('PAYPAL_SECRET'));
     return {
       shippingFlatCents: s.flatCents,
       freeShippingMinCents: s.freeMinCents,
@@ -20,6 +23,8 @@ export class SettingsController {
       whatsappNumber: this.config.get<string>('WHATSAPP_NUMBER') ?? '',
       stripeEnabled,
       stripePublishableKey: stripeEnabled ? stripePublishableKey : '',
+      paypalEnabled,
+      paypalClientId: paypalEnabled ? paypalClientId : '',
       usdRate: Number(this.config.get<string>('USD_RATE') ?? 510),
     };
   }

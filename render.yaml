@@ -70,8 +70,16 @@ services:
       - key: STRIPE_PUBLISHABLE_KEY
         sync: false
       # Webhook secret (whsec_...): crear endpoint .../api/payments/webhook en Stripe,
-      # evento payment_intent.succeeded.
+      # evento payment_intent.succeeded. OPCIONAL: el front confirma vía /payments/confirm.
       - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      # --- PayPal (developer.paypal.com → Apps & Credentials) — opera en Costa Rica ---
+      # PAYPAL_ENV: "sandbox" (demo) o "live" (producción). Sin llaves, se oculta PayPal.
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_SECRET
         sync: false
       # --- Resend (resend.com → API Keys) para correos transaccionales ---
       # Sin clave, los correos se omiten (no-op). MAIL_FROM debe ser un dominio verificado.

@@ -5,6 +5,7 @@ import { api, formatCRC } from '../lib/api';
 import { usePrice } from '../lib/currency';
 import { useConfig } from '../hooks/useConfig';
 import { StripeCheckout } from '../components/StripeCheckout';
+import { PayPalCheckout } from '../components/PayPalCheckout';
 import { useT } from '../i18n';
 import type { Order } from '../lib/types';
 
@@ -33,6 +34,7 @@ export function OrderConfirmation() {
   const payment = order.payment;
   const pending = order.status === 'PENDING';
   const showStripe = pending && config.stripeEnabled && !!config.stripePublishableKey;
+  const showPayPal = pending && config.paypalEnabled && !!config.paypalClientId;
 
   return (
     <div className="pt-28 md:pt-36 pb-32">
@@ -89,11 +91,29 @@ export function OrderConfirmation() {
               amountLabel={price(order.totalCents)}
               onPaid={refetch}
             />
-            <div className="flex items-center gap-4 my-8">
-              <span className="flex-1 h-px bg-bone/10" />
-              <span className="text-[10px] uppercase tracking-luxe text-stone">{t('pay.orSinpe')}</span>
-              <span className="flex-1 h-px bg-bone/10" />
-            </div>
+          </div>
+        )}
+
+        {/* PAGO CON PAYPAL — internacional (opera en CR) */}
+        {showPayPal && (
+          <div className="mt-6">
+            {showStripe && (
+              <div className="flex items-center gap-4 mb-6">
+                <span className="flex-1 h-px bg-bone/10" />
+                <span className="text-[10px] uppercase tracking-luxe text-stone">{t('pay.or')}</span>
+                <span className="flex-1 h-px bg-bone/10" />
+              </div>
+            )}
+            <PayPalCheckout orderId={order.id} clientId={config.paypalClientId!} onPaid={refetch} />
+          </div>
+        )}
+
+        {/* Separador hacia SINPE si hay alguna pasarela activa */}
+        {(showStripe || showPayPal) && pending && (
+          <div className="flex items-center gap-4 my-8">
+            <span className="flex-1 h-px bg-bone/10" />
+            <span className="text-[10px] uppercase tracking-luxe text-stone">{t('pay.orSinpe')}</span>
+            <span className="flex-1 h-px bg-bone/10" />
           </div>
         )}
 
