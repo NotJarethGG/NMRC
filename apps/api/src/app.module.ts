@@ -13,10 +13,13 @@ import { OrdersModule } from './orders/orders.module';
 import { UploadModule } from './upload/upload.module';
 import { SettingsModule } from './settings/settings.module';
 import { DiscountsModule } from './discounts/discounts.module';
+import { PaymentsModule } from './payments/payments.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    MailModule,
     // Rate limit global: 120 req/min por IP (los endpoints sensibles tienen límites propios)
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     ServeStaticModule.forRoot({
@@ -32,6 +35,7 @@ import { DiscountsModule } from './discounts/discounts.module';
     UploadModule,
     SettingsModule,
     DiscountsModule,
+    PaymentsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

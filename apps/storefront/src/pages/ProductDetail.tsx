@@ -14,7 +14,7 @@ import { SizeGuide } from '../components/SizeGuide';
 import { StockAlertForm } from '../components/StockAlertForm';
 import { ReviewsSection, Stars, ratingSummary } from '../components/Reviews';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { useT } from '../i18n';
+import { useT, useLocalize } from '../i18n';
 import { SITE_URL } from '../lib/brand';
 import type { Product } from '../lib/types';
 
@@ -58,8 +58,9 @@ function useProductSchema(product: Product | undefined) {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Product',
-      name: product.name,
-      description: product.description ?? undefined,
+      // Schema en inglés para SEO internacional (fallback al original)
+      name: product.nameEn || product.name,
+      description: product.descriptionEn || product.description || undefined,
       image: product.images.map((i) => i.url),
       brand: { '@type': 'Brand', name: 'NMRC' },
       url: `${SITE_URL}/product/${product.slug}`,
@@ -96,6 +97,7 @@ function useProductSchema(product: Product | undefined) {
 
 export function ProductDetail() {
   const t = useT();
+  const L = useLocalize();
   const price = usePrice();
   const { slug = '' } = useParams();
   const { data: product, isLoading } = useProduct(slug);
@@ -118,7 +120,10 @@ export function ProductDetail() {
   const { data: catProducts } = useProducts({ category: product?.category?.slug });
   const related = (catProducts ?? []).filter((p) => p.id !== product?.id).slice(0, 4);
 
-  useDocumentTitle(product?.name, product?.description ?? undefined);
+  useDocumentTitle(
+    product ? product.nameEn || product.name : undefined,
+    (product?.descriptionEn || product?.description) ?? undefined,
+  );
   useProductSchema(product);
 
   useEffect(() => {
@@ -157,6 +162,8 @@ export function ProductDetail() {
     );
   }
 
+  const name = L.name(product);
+  const description = L.description(product);
   const variant = product.variants.find((v) => v.id === selected);
   const canAdd = variant && variant.stock > 0;
   const totalStock = product.variants.reduce((n, v) => n + v.stock, 0);
@@ -176,7 +183,7 @@ export function ProductDetail() {
       productId: product.id,
       variantId: variant.id,
       slug: product.slug,
-      name: product.name,
+      name,
       size: variant.size,
       priceCents: product.priceCents,
       image: product.images[0]?.url,
@@ -189,7 +196,7 @@ export function ProductDetail() {
     const url = window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title: `${product.name} · NMRC`, url });
+        await navigator.share({ title: `${name} · NMRC`, url });
       } else {
         await navigator.clipboard.writeText(url);
         showToast(t('pdp.linkCopied'));
@@ -228,7 +235,7 @@ export function ProductDetail() {
               <motion.img
                 key={activeImg}
                 src={product.images[activeImg]?.url}
-                alt={product.name}
+                alt={name}
                 decoding="async"
                 style={{ transformOrigin: zoomOrigin }}
                 className={`w-full h-full object-cover transition-transform duration-200 ${
@@ -261,7 +268,7 @@ export function ProductDetail() {
             <div className="md:sticky md:top-28">
               <span className="eyebrow">{product.category?.name}</span>
               <h1 className="font-display text-4xl md:text-5xl mt-3 leading-tight uppercase">
-                {product.name}
+                {name}
               </h1>
               <div className="flex items-center gap-4 mt-4">
                 <p className="text-xl">{price(product.priceCents)}</p>
@@ -282,7 +289,7 @@ export function ProductDetail() {
                 })()}
               </div>
 
-              <p className="mt-8 text-stone leading-relaxed max-w-md">{product.description}</p>
+              <p className="mt-8 text-stone leading-relaxed max-w-md">{description}</p>
 
               {/* FEATURES DESTACADAS */}
               <ul className="mt-6 flex flex-wrap gap-2">
@@ -471,7 +478,7 @@ export function ProductDetail() {
       {/* BARRA FIJA MÓVIL */}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-coal/95 backdrop-blur border-t border-bone/10 px-4 py-3 flex items-center gap-3">
         <div className="min-w-0 shrink">
-          <p className="text-[11px] uppercase tracking-wide truncate">{product.name}</p>
+          <p className="text-[11px] uppercase tracking-wide truncate">{name}</p>
           <p className="text-sm">{price(product.priceCents)}</p>
         </div>
         <button

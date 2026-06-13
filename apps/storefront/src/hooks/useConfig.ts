@@ -6,6 +6,9 @@ export interface StoreConfig {
   freeShippingMinCents: number;
   sinpeNumber: string;
   whatsappNumber: string;
+  stripeEnabled?: boolean;
+  stripePublishableKey?: string;
+  usdRate?: number;
 }
 
 const FALLBACK: StoreConfig = {
@@ -13,6 +16,8 @@ const FALLBACK: StoreConfig = {
   freeShippingMinCents: 6000000, // ₡60.000
   sinpeNumber: '',
   whatsappNumber: '',
+  stripeEnabled: false,
+  stripePublishableKey: '',
 };
 
 export function useConfig() {

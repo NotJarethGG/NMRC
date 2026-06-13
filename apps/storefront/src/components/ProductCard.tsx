@@ -6,7 +6,7 @@ import { usePrice } from '../lib/currency';
 import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
 import { useToast } from '../store/toast';
-import { useT } from '../i18n';
+import { useT, useLocalize } from '../i18n';
 
 export function HeartButton({ productId, className = '' }: { productId: string; className?: string }) {
   const t = useT();
@@ -46,9 +46,11 @@ function isRecent(createdAt?: string) {
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
   const t = useT();
   const price = usePrice();
+  const L = useLocalize();
   const add = useCart((s) => s.add);
   const [showSizes, setShowSizes] = useState(false);
 
+  const name = L.name(product);
   const primary = product.images[0]?.url;
   const secondary = product.images[1]?.url ?? primary;
   const soldOut = product.variants.every((v) => v.stock <= 0);
@@ -59,7 +61,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       productId: product.id,
       variantId,
       slug: product.slug,
-      name: product.name,
+      name,
       size,
       priceCents: product.priceCents,
       image: primary,
@@ -84,14 +86,14 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             <>
               <img
                 src={primary}
-                alt={product.name}
+                alt={name}
                 loading="lazy"
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-luxe group-hover:opacity-0"
               />
               <img
                 src={secondary}
-                alt={product.name}
+                alt={name}
                 loading="lazy"
                 decoding="async"
                 className="absolute inset-0 w-full h-full object-cover scale-105 opacity-0 transition-all duration-[1100ms] ease-luxe group-hover:opacity-100 group-hover:scale-100"
@@ -175,7 +177,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       <Link to={`/product/${product.slug}`} className="block mt-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
+            <h3 className="text-sm font-medium leading-snug">{name}</h3>
             <p className="text-xs text-stone mt-1 uppercase tracking-wide">{product.category?.name}</p>
           </div>
           <span className="text-sm whitespace-nowrap">{price(product.priceCents)}</span>

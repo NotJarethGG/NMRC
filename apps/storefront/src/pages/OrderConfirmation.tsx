@@ -3,28 +3,36 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api, formatCRC } from '../lib/api';
 import { usePrice } from '../lib/currency';
+import { useConfig } from '../hooks/useConfig';
+import { StripeCheckout } from '../components/StripeCheckout';
 import { useT } from '../i18n';
 import type { Order } from '../lib/types';
 
 export function OrderConfirmation() {
   const t = useT();
   const price = usePrice();
+  const config = useConfig();
   const { id = '' } = useParams();
   const location = useLocation();
   const passed = (location.state as { order?: Order } | null)?.order;
   const [order, setOrder] = useState<Order | null>(passed ?? null);
 
+  const refetch = () => {
+    if (id) api.get<Order>(`/orders/mine/${id}`).then(({ data }) => setOrder(data)).catch(() => undefined);
+  };
+
   useEffect(() => {
-    if (!order && id) {
-      api.get<Order>(`/orders/mine/${id}`).then(({ data }) => setOrder(data)).catch(() => undefined);
-    }
-  }, [id, order]);
+    if (!order && id) refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   if (!order) {
     return <div className="pt-40 pb-32 text-center text-stone">{t('order.loading')}</div>;
   }
 
   const payment = order.payment;
+  const pending = order.status === 'PENDING';
+  const showStripe = pending && config.stripeEnabled && !!config.stripePublishableKey;
 
   return (
     <div className="pt-28 md:pt-36 pb-32">
@@ -43,7 +51,7 @@ export function OrderConfirmation() {
         <p className="text-stone">
           {t('order.order')}{' '}
           <span className="text-bone font-medium">#{order.id.slice(-8).toUpperCase()}</span> ·{' '}
-          {t('order.pendingPayment')}
+          {pending ? t('order.pendingPayment') : t('account.status.paid')}
         </p>
 
         {/* DESGLOSE */}
@@ -72,7 +80,25 @@ export function OrderConfirmation() {
           </div>
         )}
 
+        {/* PAGO CON TARJETA (Stripe) — internacional */}
+        {showStripe && (
+          <div className="mt-10">
+            <StripeCheckout
+              orderId={order.id}
+              publishableKey={config.stripePublishableKey!}
+              amountLabel={price(order.totalCents)}
+              onPaid={refetch}
+            />
+            <div className="flex items-center gap-4 my-8">
+              <span className="flex-1 h-px bg-bone/10" />
+              <span className="text-[10px] uppercase tracking-luxe text-stone">{t('pay.orSinpe')}</span>
+              <span className="flex-1 h-px bg-bone/10" />
+            </div>
+          </div>
+        )}
+
         {/* INSTRUCCIONES SINPE — el monto exacto va en colones (moneda de la transferencia) */}
+        {pending && (
         <div className="mt-10 bg-smoke text-bone text-left p-8 md:p-10">
           <span className="eyebrow text-bone/50">{t('order.completeSinpe')}</span>
           <div className="mt-6 grid grid-cols-2 gap-6">
@@ -103,6 +129,7 @@ export function OrderConfirmation() {
             </a>
           )}
         </div>
+        )}
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/account" className="btn-outline">{t('order.viewOrders')}</Link>

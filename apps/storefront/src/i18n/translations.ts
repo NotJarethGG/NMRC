@@ -243,6 +243,17 @@ const en = {
   'order.free': 'Free',
   'order.total': 'Total',
 
+  // Payment (Stripe)
+  'pay.cardTitle': 'Pay securely with card',
+  'pay.cardSub': 'Instant confirmation. Visa, Mastercard, Amex and more.',
+  'pay.pay': 'Pay {amount}',
+  'pay.processing': 'Processing…',
+  'pay.success': 'Payment confirmed — thank you!',
+  'pay.error': 'Payment could not be processed. Please try again.',
+  'pay.securedBy': 'Secured by Stripe',
+  'pay.orSinpe': 'Or pay via SINPE Móvil (Costa Rica)',
+  'pay.cardApprox': 'Charged in USD',
+
   // Account
   'account.title': 'My Account',
   'account.hello': 'Hey',
@@ -598,6 +609,16 @@ const es: Record<TKey, string> = {
   'order.shipping': 'Envío',
   'order.free': 'Gratis',
   'order.total': 'Total',
+
+  'pay.cardTitle': 'Paga seguro con tarjeta',
+  'pay.cardSub': 'Confirmación instantánea. Visa, Mastercard, Amex y más.',
+  'pay.pay': 'Pagar {amount}',
+  'pay.processing': 'Procesando…',
+  'pay.success': '¡Pago confirmado — gracias!',
+  'pay.error': 'No se pudo procesar el pago. Intenta de nuevo.',
+  'pay.securedBy': 'Protegido por Stripe',
+  'pay.orSinpe': 'O paga por SINPE Móvil (Costa Rica)',
+  'pay.cardApprox': 'Cobro en USD',
 
   'account.title': 'Mi cuenta',
   'account.hello': 'Hola',

@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { OrderStatus, Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { shippingConfig, shippingFor } from '../common/shipping';
 import { findValidDiscount } from '../discounts/discounts.util';
 import { CreateOrderDto } from './dto';
@@ -16,6 +17,7 @@ export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private config: ConfigService,
+    private mail: MailService,
   ) {}
 
   async create(userId: string, dto: CreateOrderDto) {
@@ -87,6 +89,20 @@ export class OrdersService {
       await this.prisma.discountCode.update({
         where: { code: discountCode },
         data: { uses: { increment: 1 } },
+      });
+    }
+
+    // Correo de confirmación (no-op si Resend no está configurado; no bloquea)
+    if (order.user?.email) {
+      void this.mail.sendOrderConfirmation(order.user.email, {
+        id: order.id,
+        totalCents: order.totalCents,
+        shippingName: order.shippingName,
+        items: order.items.map((i) => ({
+          productName: i.productName,
+          size: i.size,
+          quantity: i.quantity,
+        })),
       });
     }
 
@@ -185,6 +201,44 @@ export class OrdersService {
     }
 
     return this.findOne(id);
+  }
+
+  // Marca un pedido como pagado por Stripe (idempotente; descuenta stock una sola vez)
+  async markPaidViaStripe(orderId: string, paymentIntentId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order) return;
+    if (order.status !== OrderStatus.PENDING) {
+      // ya procesado: solo asegurar trazabilidad del pago
+      await this.prisma.order.update({
+        where: { id: orderId },
+        data: { paidVia: order.paidVia ?? 'stripe', stripePaymentId: paymentIntentId },
+      });
+      return;
+    }
+    await this.prisma.$transaction(async (tx) => {
+      for (const item of order.items) {
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { decrement: item.quantity } },
+        });
+      }
+      await tx.order.update({
+        where: { id: orderId },
+        data: { status: OrderStatus.PAID, paidVia: 'stripe', stripePaymentId: paymentIntentId },
+      });
+    });
+  }
+
+  // Busca un pedido pendiente del usuario y devuelve su total (para crear el PaymentIntent)
+  async getPayableOrder(orderId: string, userId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, userId },
+    });
+    if (!order) throw new NotFoundException('Pedido no encontrado');
+    return order;
   }
 
   async stats() {

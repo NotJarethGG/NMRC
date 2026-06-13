@@ -22,7 +22,9 @@ export function ProductEditor({ product, onClose }: Props) {
   const { data: collections } = useCollections();
 
   const [name, setName] = useState('');
+  const [nameEn, setNameEn] = useState('');
   const [description, setDescription] = useState('');
+  const [descriptionEn, setDescriptionEn] = useState('');
   const [priceColones, setPriceColones] = useState<number>(0);
   const [categoryId, setCategoryId] = useState('');
   const [collectionId, setCollectionId] = useState('');
@@ -39,7 +41,9 @@ export function ProductEditor({ product, onClose }: Props) {
   useEffect(() => {
     if (product) {
       setName(product.name);
+      setNameEn(product.nameEn ?? '');
       setDescription(product.description ?? '');
+      setDescriptionEn(product.descriptionEn ?? '');
       setPriceColones(product.priceCents / 100);
       setCategoryId(product.categoryId);
       setCollectionId(product.collectionId ?? '');
@@ -81,7 +85,9 @@ export function ProductEditor({ product, onClose }: Props) {
     setError(null);
     const payload = {
       name,
+      nameEn: nameEn.trim() || null,
       description,
+      descriptionEn: descriptionEn.trim() || null,
       priceCents: fromCRC(priceColones),
       categoryId,
       collectionId: collectionId || null,
@@ -115,18 +121,44 @@ export function ProductEditor({ product, onClose }: Props) {
 
         <div className="p-8 space-y-6">
           <div>
-            <label className="label">Nombre</label>
+            <label className="label">Nombre (español)</label>
             <input className="field" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           <div>
-            <label className="label">Descripción</label>
+            <label className="label">Descripción (español)</label>
             <textarea
               rows={3}
               className="field resize-none"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
+          </div>
+
+          {/* INGLÉS (INTERNACIONAL) */}
+          <div className="rounded border border-line bg-paper/60 p-4 space-y-4">
+            <p className="text-[11px] uppercase tracking-wide text-stone">
+              Inglés · internacional <span className="text-stone/60">(opcional — si se deja vacío se muestra el español)</span>
+            </p>
+            <div>
+              <label className="label">Name (English)</label>
+              <input
+                className="field"
+                placeholder={name || 'e.g. NMRC Hoodie — No Mercy'}
+                value={nameEn}
+                onChange={(e) => setNameEn(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="label">Description (English)</label>
+              <textarea
+                rows={3}
+                className="field resize-none"
+                placeholder="Heavyweight cotton hoodie…"
+                value={descriptionEn}
+                onChange={(e) => setDescriptionEn(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

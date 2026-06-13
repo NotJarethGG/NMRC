@@ -95,8 +95,10 @@ export class ProductsService {
     return this.prisma.product.create({
       data: {
         name: dto.name,
+        nameEn: dto.nameEn || null,
         slug,
         description: dto.description,
+        descriptionEn: dto.descriptionEn || null,
         priceCents: dto.priceCents,
         categoryId: dto.categoryId,
         collectionId: dto.collectionId || null,
@@ -122,7 +124,9 @@ export class ProductsService {
       data.name = dto.name;
       data.slug = await this.uniqueSlug(dto.name, id);
     }
+    if (dto.nameEn !== undefined) data.nameEn = dto.nameEn || null;
     if (dto.description !== undefined) data.description = dto.description;
+    if (dto.descriptionEn !== undefined) data.descriptionEn = dto.descriptionEn || null;
     if (dto.priceCents !== undefined) data.priceCents = dto.priceCents;
     if (dto.status !== undefined) data.status = dto.status;
     if (dto.featured !== undefined) data.featured = dto.featured;

@@ -60,3 +60,22 @@ services:
       # El API secret NO se versiona: pégalo en el dashboard de Render
       - key: CLOUDINARY_API_SECRET
         sync: false
+      # --- Moneda: colones por 1 USD (debe coincidir con VITE_USD_RATE del storefront) ---
+      - key: USD_RATE
+        value: "510"
+      # --- Stripe (dashboard.stripe.com → Developers → API keys) ---
+      # Si se dejan vacías, el checkout usa solo SINPE (fallback automático).
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      # Webhook secret (whsec_...): crear endpoint .../api/payments/webhook en Stripe,
+      # evento payment_intent.succeeded.
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      # --- Resend (resend.com → API Keys) para correos transaccionales ---
+      # Sin clave, los correos se omiten (no-op). MAIL_FROM debe ser un dominio verificado.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        value: "NMRC <onboarding@resend.dev>"

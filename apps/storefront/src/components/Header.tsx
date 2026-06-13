@@ -6,10 +6,11 @@ import { useAuth } from '../store/auth';
 import { useWishlist } from '../store/wishlist';
 import { useCategories, useProducts } from '../hooks/useCatalog';
 import { usePrice } from '../lib/currency';
-import { useT } from '../i18n';
+import { useT, useLocalize } from '../i18n';
 
 export function Header() {
   const t = useT();
+  const L = useLocalize();
   const price = usePrice();
   const count = useCart((s) => s.count());
   const openCart = useCart((s) => s.open);
@@ -224,7 +225,7 @@ export function Header() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-bone truncate">{p.name}</p>
+                          <p className="text-sm text-bone truncate">{L.name(p)}</p>
                           <p className="text-[10px] uppercase tracking-wide text-stone">
                             {p.category?.name}
                           </p>

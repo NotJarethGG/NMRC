@@ -1,5 +1,6 @@
 import { useLocale } from '../store/locale';
 import { translations, type TKey } from './translations';
+import type { Product } from '../lib/types';
 
 /**
  * Hook de traducción. Uso:
@@ -17,6 +18,21 @@ export function useT() {
       }
     }
     return text;
+  };
+}
+
+/**
+ * Localiza el contenido de un producto según el idioma activo.
+ * Usa los campos EN si existen y el locale es inglés; si no, el original (ES).
+ *   const L = useLocalize();
+ *   L.name(product) / L.description(product)
+ */
+export function useLocalize() {
+  const locale = useLocale((s) => s.locale);
+  const en = locale === 'en';
+  return {
+    name: (p: Product) => (en && p.nameEn ? p.nameEn : p.name),
+    description: (p: Product) => (en && p.descriptionEn ? p.descriptionEn : p.description ?? ''),
   };
 }
 

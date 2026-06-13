@@ -39,8 +39,10 @@ export interface Review {
 export interface Product {
   id: string;
   name: string;
+  nameEn?: string | null;
   slug: string;
   description?: string | null;
+  descriptionEn?: string | null;
   priceCents: number;
   status: ProductStatus;
   featured: boolean;
