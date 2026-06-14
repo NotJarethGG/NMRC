@@ -8,6 +8,7 @@ import { CartDrawer } from './components/CartDrawer';
 import { BackToTop } from './components/BackToTop';
 import { Toaster } from './components/Toaster';
 import { ScrollProgress } from './components/ScrollProgress';
+import { GrainOverlay } from './components/GrainOverlay';
 import { useAuth } from './store/auth';
 import { useLocale } from './store/locale';
 import { Home } from './pages/Home';
@@ -61,6 +62,7 @@ export default function App() {
 
   return (
     <>
+      <GrainOverlay />
       <ScrollToTop />
       <ScrollProgress />
       <AnnouncementBar />

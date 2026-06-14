@@ -5,6 +5,8 @@ import {
   Bar,
   BarChart,
   Cell,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -25,12 +27,58 @@ const STATUS_LABEL: Record<string, string> = {
   FULFILLED: 'Enviados',
   CANCELLED: 'Cancelados',
 };
+const STATUS_BADGE: Record<string, string> = {
+  PENDING: 'bg-clay/15 text-clay',
+  PAID: 'bg-ink text-bone',
+  FULFILLED: 'bg-sand text-ink',
+  CANCELLED: 'bg-red-100 text-red-700',
+};
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Trend({ delta }: { delta: number | null }) {
+  if (delta === null) return null;
+  const up = delta >= 0;
   return (
-    <div className="card p-6">
-      <p className="eyebrow">{label}</p>
+    <span
+      className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
+        up ? 'bg-ink/5 text-ink' : 'bg-red-50 text-red-700'
+      }`}
+    >
+      <svg viewBox="0 0 24 24" className={`w-3 h-3 ${up ? '' : 'rotate-180'}`} fill="none" stroke="currentColor" strokeWidth="2.2">
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </svg>
+      {Math.abs(delta)}%
+    </span>
+  );
+}
+
+function Metric({
+  label,
+  value,
+  delta = null,
+  spark,
+}: {
+  label: string;
+  value: string;
+  delta?: number | null;
+  spark?: number[];
+}) {
+  const data = (spark ?? []).map((v, i) => ({ i, v }));
+  return (
+    <div className="card p-6 relative overflow-hidden">
+      <div className="flex items-start justify-between gap-2">
+        <p className="eyebrow">{label}</p>
+        <Trend delta={delta} />
+      </div>
       <p className="font-display text-4xl mt-2">{value}</p>
+      {data.length > 1 && (
+        <div className="h-10 mt-3 -mx-1">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 4, right: 2, left: 2, bottom: 0 }}>
+              <Line type="monotone" dataKey="v" stroke="#22201C" strokeWidth={1.5} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }
@@ -62,6 +110,19 @@ export function Overview() {
 
   const maxUnits = Math.max(1, ...(best?.map((b) => b.units) ?? [1]));
 
+  // Tendencia de ingresos: últimos 7 días vs los 7 anteriores (sobre revenueByDay de 14 días)
+  const byDay = stats?.revenueByDay ?? [];
+  const revSpark = byDay.map((d) => d.revenueCents / 100);
+  const ordSpark = byDay.map((d) => d.orders);
+  const last7 = byDay.slice(-7).reduce((n, d) => n + d.revenueCents, 0);
+  const prev7 = byDay.slice(-14, -7).reduce((n, d) => n + d.revenueCents, 0);
+  const revDelta =
+    byDay.length >= 14 && prev7 > 0 ? Math.round(((last7 - prev7) / prev7) * 100) : null;
+  const ordLast7 = byDay.slice(-7).reduce((n, d) => n + d.orders, 0);
+  const ordPrev7 = byDay.slice(-14, -7).reduce((n, d) => n + d.orders, 0);
+  const ordDelta =
+    byDay.length >= 14 && ordPrev7 > 0 ? Math.round(((ordLast7 - ordPrev7) / ordPrev7) * 100) : null;
+
   return (
     <div>
       <header className="mb-8">
@@ -70,9 +131,19 @@ export function Overview() {
       </header>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Metric label="Ingresos confirmados" value={formatCRC(stats?.revenueCents ?? 0)} />
+        <Metric
+          label="Ingresos confirmados"
+          value={formatCRC(stats?.revenueCents ?? 0)}
+          delta={revDelta}
+          spark={revSpark}
+        />
         <Metric label="Ticket promedio" value={formatCRC(stats?.avgOrderCents ?? 0)} />
-        <Metric label="Pedidos totales" value={String(stats?.totalOrders ?? 0)} />
+        <Metric
+          label="Pedidos totales"
+          value={String(stats?.totalOrders ?? 0)}
+          delta={ordDelta}
+          spark={ordSpark}
+        />
         <Metric label="Productos" value={String(stats?.totalProducts ?? 0)} />
       </div>
 
@@ -146,19 +217,36 @@ export function Overview() {
 
         {/* LOW STOCK */}
         <div className="card p-6">
-          <p className="eyebrow mb-5">Bajo inventario (≤ 5)</p>
+          <div className="flex items-baseline justify-between mb-5">
+            <p className="eyebrow">Bajo inventario (≤ 5)</p>
+            {lowStock && lowStock.length > 0 && (
+              <span className="text-[11px] text-stone">{lowStock.length} alertas</span>
+            )}
+          </div>
           {lowStock && lowStock.length > 0 ? (
-            <ul className="divide-y divide-line">
-              {lowStock.slice(0, 7).map((row) => (
-                <li key={row.id} className="flex items-center justify-between py-2.5 text-sm">
-                  <span>
-                    {row.product.name} <span className="text-stone">· {row.size}</span>
-                  </span>
-                  <span className={`badge ${row.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-sand text-stone'}`}>
-                    {row.stock} uds
-                  </span>
-                </li>
-              ))}
+            <ul className="space-y-3.5">
+              {lowStock.slice(0, 7).map((row) => {
+                const out = row.stock === 0;
+                const pct = Math.min(100, (row.stock / 5) * 100);
+                return (
+                  <li key={row.id}>
+                    <div className="flex items-center justify-between text-sm mb-1.5">
+                      <span className="truncate">
+                        {row.product.name} <span className="text-stone">· {row.size}</span>
+                      </span>
+                      <span className={`shrink-0 ml-2 font-medium ${out ? 'text-red-700' : 'text-stone'}`}>
+                        {out ? 'Agotado' : `${row.stock} uds`}
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-line rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${out ? 'bg-red-500' : pct <= 40 ? 'bg-clay' : 'bg-ink'}`}
+                        style={{ width: `${out ? 100 : pct}%` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p className="text-sm text-stone">Todo el inventario está saludable.</p>
@@ -221,7 +309,9 @@ export function Overview() {
                 <td className="px-6 py-3">{o.user?.name ?? o.shippingName}</td>
                 <td className="px-6 py-3">{formatCRC(o.totalCents)}</td>
                 <td className="px-6 py-3">
-                  <span className="badge bg-sand text-stone">{STATUS_LABEL[o.status]}</span>
+                  <span className={`badge ${STATUS_BADGE[o.status] ?? 'bg-sand text-stone'}`}>
+                    {STATUS_LABEL[o.status]}
+                  </span>
                 </td>
               </tr>
             ))}

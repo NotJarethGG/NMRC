@@ -49,6 +49,17 @@ const en = {
   'home.pieces': 'pieces',
   'home.shopNow': 'Shop — ',
 
+  // Drop countdown
+  'drop.label': 'Drop 001',
+  'drop.title': 'The first release lands soon',
+  'drop.sub': 'Limited quantities. No restocks. The waitlist gets in first.',
+  'drop.days': 'Days',
+  'drop.hours': 'Hours',
+  'drop.mins': 'Mins',
+  'drop.secs': 'Secs',
+  'drop.live': 'Drop 001 is live',
+  'drop.cta': 'Join the Waitlist',
+
   // Waitlist
   'waitlist.eyebrow': 'First Drop Coming Soon',
   'waitlist.title': 'Be among the first to access NMRC',
@@ -432,6 +443,16 @@ const es: Record<TKey, string> = {
   'home.piece': 'pieza',
   'home.pieces': 'piezas',
   'home.shopNow': 'Comprar — ',
+
+  'drop.label': 'Drop 001',
+  'drop.title': 'El primer lanzamiento llega pronto',
+  'drop.sub': 'Cantidades limitadas. Sin reposiciones. La lista de espera entra primero.',
+  'drop.days': 'Días',
+  'drop.hours': 'Horas',
+  'drop.mins': 'Min',
+  'drop.secs': 'Seg',
+  'drop.live': 'El Drop 001 ya está disponible',
+  'drop.cta': 'Unirme a la lista',
 
   'waitlist.eyebrow': 'Primer drop muy pronto',
   'waitlist.title': 'Sé de los primeros en acceder a NMRC',

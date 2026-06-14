@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_HELLO_EMAIL?: string;
   readonly VITE_SUPPORT_EMAIL?: string;
   readonly VITE_SITE_URL?: string;
+  /** Fecha/hora ISO del Drop 001 para el countdown */
+  readonly VITE_DROP_DATE?: string;
 }
 
 interface ImportMeta {

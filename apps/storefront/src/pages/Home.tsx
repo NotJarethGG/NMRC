@@ -8,6 +8,7 @@ import { CategoryMosaic } from '../components/CategoryMosaic';
 import { Newsletter } from '../components/Newsletter';
 import { RecentlyViewed } from '../components/RecentlyViewed';
 import { Marquee } from '../components/Marquee';
+import { DropCountdown } from '../components/DropCountdown';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useT } from '../i18n';
 import { BRAND_TAGLINE } from '../lib/brand';
@@ -131,6 +132,9 @@ export function Home() {
           </Reveal>
         </div>
       </section>
+
+      {/* COUNTDOWN DROP 001 */}
+      <DropCountdown />
 
       {/* COLECCIÓN DESTACADA */}
       {lead && (
