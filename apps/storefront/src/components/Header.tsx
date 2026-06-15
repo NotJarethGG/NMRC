@@ -30,6 +30,19 @@ export function Header() {
   const { data: allProducts } = useProducts();
   const tile = featured?.[0];
 
+  // Imagen representativa por categoría (primera pieza con foto)
+  const categoryImage = (slug?: string) =>
+    (allProducts ?? []).find((p) => p.category?.slug === slug && p.images[0])?.images[0]?.url;
+  // Categorías con más piezas primero (para el mega-menú y el buscador)
+  const topCategories = (categories ?? [])
+    .map((c) => ({
+      ...c,
+      count: (allProducts ?? []).filter((p) => p.category?.slug === c.slug).length,
+      image: categoryImage(c.slug),
+    }))
+    .sort((a, b) => b.count - a.count);
+  const topFeatured = (featured ?? []).slice(0, 4);
+
   // Sugerencias en vivo (mínimo 2 caracteres)
   const suggestions =
     term.trim().length >= 2
@@ -209,6 +222,55 @@ export function Header() {
               </button>
             </form>
 
+            {/* ESTADO VACÍO: categorías populares + tendencias */}
+            {term.trim().length < 2 && (
+              <div className="max-w-editorial mx-auto px-5 md:px-10 pb-6 border-t border-bone/10 pt-5">
+                <p className="eyebrow mb-3">{t('search.popular')}</p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {topCategories.slice(0, 6).map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => {
+                        setSearchOpen(false);
+                        setTerm('');
+                        navigate(`/shop?category=${c.slug}`);
+                      }}
+                      className="text-[11px] uppercase tracking-wide border border-bone/20 hover:border-bone px-3 py-1.5 text-bone/80 hover:text-bone transition-colors"
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+                {topFeatured.length > 0 && (
+                  <>
+                    <p className="eyebrow mb-3">{t('search.trending')}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {topFeatured.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => goToProduct(p.slug)}
+                          className="text-left group/tr"
+                        >
+                          <div className="aspect-[3/4] bg-graphite overflow-hidden mb-2">
+                            {p.images[0] && (
+                              <img
+                                src={p.images[0].url}
+                                alt={L.name(p)}
+                                loading="lazy"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover/tr:scale-105"
+                              />
+                            )}
+                          </div>
+                          <p className="text-[11px] text-bone/90 truncate">{L.name(p)}</p>
+                          <p className="text-[11px] text-stone">{price(p.priceCents)}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
             {/* SUGERENCIAS EN VIVO */}
             {suggestions.length > 0 && (
               <div className="max-w-editorial mx-auto px-5 md:px-10 pb-5">
@@ -265,44 +327,67 @@ export function Header() {
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="hidden md:block absolute inset-x-0 top-full bg-noir/95 backdrop-blur-md border-b border-bone/10"
           >
-            <div className="max-w-editorial mx-auto px-10 py-10 grid grid-cols-[1fr_1.8fr] gap-12">
-              <div>
-                <p className="eyebrow mb-5">{t('nav.categories')}</p>
-                <ul className="space-y-3">
-                  <li>
-                    <Link to="/shop" className="text-xs uppercase tracking-luxe text-bone/70 hover:text-bone link-underline">
-                      {t('nav.viewAll')}
-                    </Link>
-                  </li>
-                  {categories?.map((c) => (
-                    <li key={c.id}>
-                      <Link
-                        to={`/shop?category=${c.slug}`}
-                        className="text-xs uppercase tracking-luxe text-bone/70 hover:text-bone link-underline"
-                      >
-                        {c.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {tile && (
-                <Link to={`/product/${tile.slug}`} className="group relative block aspect-[16/9] overflow-hidden bg-graphite">
-                  {tile.images[0] && (
-                    <img
-                      src={tile.images[0].url}
-                      alt={tile.name}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-luxe group-hover:scale-105"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-noir/80 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-5">
-                    <span className="eyebrow text-bone/60">{t('nav.featured')}</span>
-                    <p className="font-display text-2xl text-bone mt-1">{tile.name}</p>
-                  </div>
+            <div className="max-w-editorial mx-auto px-10 py-10">
+              <div className="flex items-center justify-between mb-6">
+                <p className="eyebrow">{t('nav.categories')}</p>
+                <Link to="/shop" className="text-[11px] uppercase tracking-luxe text-bone/70 hover:text-bone link-underline">
+                  {t('nav.viewAll')} →
                 </Link>
-              )}
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                {/* Tarjetas de categoría con imagen */}
+                {topCategories.slice(0, 3).map((c) => (
+                  <Link
+                    key={c.id}
+                    to={`/shop?category=${c.slug}`}
+                    className="group/cat relative block aspect-[4/5] overflow-hidden bg-graphite"
+                  >
+                    {c.image && (
+                      <img
+                        src={c.image}
+                        alt={c.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-luxe group-hover/cat:scale-105"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-noir/85 via-noir/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-4">
+                      <p className="font-display text-xl text-bone uppercase leading-tight">{c.name}</p>
+                      <span className="text-[10px] uppercase tracking-luxe text-bone/60">
+                        {c.count} {c.count === 1 ? t('home.piece') : t('home.pieces')}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+
+                {/* Pieza destacada */}
+                {tile && (
+                  <Link
+                    to={`/product/${tile.slug}`}
+                    className="group/feat relative block aspect-[4/5] overflow-hidden bg-graphite"
+                  >
+                    {tile.images[0] && (
+                      <img
+                        src={tile.images[0].url}
+                        alt={L.name(tile)}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-luxe group-hover/feat:scale-105"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-noir/85 via-noir/20 to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-bone text-noir text-[9px] uppercase tracking-luxe px-2.5 py-1">
+                        {t('nav.featured')}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 p-4">
+                      <p className="font-display text-xl text-bone uppercase leading-tight">{L.name(tile)}</p>
+                      <span className="text-[10px] uppercase tracking-luxe text-bone/60">
+                        {price(tile.priceCents)}
+                      </span>
+                    </div>
+                  </Link>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

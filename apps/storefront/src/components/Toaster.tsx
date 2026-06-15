@@ -14,9 +14,10 @@ export function Toaster() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.96 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-bone text-noir text-[12px] uppercase tracking-luxe px-5 py-3 shadow-lg"
+            className="bg-bone text-noir text-[12px] uppercase tracking-luxe shadow-lg flex items-center gap-3 overflow-hidden"
           >
-            {t.message}
+            {t.image && <img src={t.image} alt="" className="w-11 h-12 object-cover shrink-0" />}
+            <span className={t.image ? 'py-3 pr-5' : 'px-5 py-3'}>{t.message}</span>
           </motion.div>
         ))}
       </AnimatePresence>

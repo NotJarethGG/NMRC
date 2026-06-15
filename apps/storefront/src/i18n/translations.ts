@@ -26,6 +26,8 @@ const en = {
   'nav.search': 'Search',
   'nav.searchPlaceholder': 'Search hoodies, tees, oversized…',
   'nav.seeAllResults': 'See all results →',
+  'search.popular': 'Popular categories',
+  'search.trending': 'Trending now',
 
   // Hero
   'hero.tagline': 'Built for those who refuse to settle.',
@@ -208,6 +210,7 @@ const en = {
   'cart.freeShipRemaining2': 'away from free shipping',
   'cart.suggestions': 'You may also like',
   'cart.add': 'Add',
+  'cart.added': 'Added to bag',
 
   // Checkout
   'checkout.oneMore': 'One more step',
@@ -428,6 +431,8 @@ const es: Record<TKey, string> = {
   'nav.search': 'Buscar',
   'nav.searchPlaceholder': 'Buscar hoodies, tees, oversize…',
   'nav.seeAllResults': 'Ver todos los resultados →',
+  'search.popular': 'Categorías populares',
+  'search.trending': 'Lo más buscado',
 
   'hero.tagline': 'Hecho para quienes no se conforman.',
   'hero.sub': 'Drops limitados. Sin reposiciones.',
@@ -595,6 +600,7 @@ const es: Record<TKey, string> = {
   'cart.freeShipRemaining2': 'para envío gratis',
   'cart.suggestions': 'También te puede gustar',
   'cart.add': 'Añadir',
+  'cart.added': 'Añadido a la bolsa',
 
   'checkout.oneMore': 'Un paso más',
   'checkout.signInTitle': 'Inicia sesión para continuar',

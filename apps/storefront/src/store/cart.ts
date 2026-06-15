@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useToast } from './toast';
+import { useLocale } from './locale';
+import { translations } from '../i18n/translations';
 
 export interface CartLine {
   productId: string;
@@ -35,12 +38,11 @@ export const useCart = create<CartState>()(
       open: () => set({ isOpen: true }),
       close: () => set({ isOpen: false }),
 
-      add: (line) =>
+      add: (line) => {
         set((state) => {
           const existing = state.lines.find((l) => l.variantId === line.variantId);
           if (existing) {
             return {
-              isOpen: true,
               lines: state.lines.map((l) =>
                 l.variantId === line.variantId
                   ? { ...l, quantity: Math.min(l.maxStock, l.quantity + line.quantity) }
@@ -48,8 +50,12 @@ export const useCart = create<CartState>()(
               ),
             };
           }
-          return { isOpen: true, lines: [...state.lines, line] };
-        }),
+          return { lines: [...state.lines, line] };
+        });
+        // Confirmación con miniatura (estilo Nike) sin interrumpir el browsing
+        const locale = useLocale.getState().locale;
+        useToast.getState().show(translations[locale]['cart.added'], line.image);
+      },
 
       remove: (variantId) =>
         set((state) => ({ lines: state.lines.filter((l) => l.variantId !== variantId) })),

@@ -102,6 +102,7 @@ export function ProductDetail() {
   const { slug = '' } = useParams();
   const { data: product, isLoading } = useProduct(slug);
   const add = useCart((s) => s.add);
+  const openCart = useCart((s) => s.open);
   const liked = useWishlist((s) => (product ? s.ids.includes(product.id) : false));
   const toggleWish = useWishlist((s) => s.toggle);
   const showToast = useToast((s) => s.show);
@@ -190,6 +191,7 @@ export function ProductDetail() {
       quantity: qty,
       maxStock: variant.stock,
     });
+    openCart();
   };
 
   const onShare = async () => {
