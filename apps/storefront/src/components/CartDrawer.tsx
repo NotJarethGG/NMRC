@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../store/cart';
 import { useConfig, shippingFor } from '../hooks/useConfig';
 import { usePrice } from '../lib/currency';
+import { CartSuggestions } from './CartSuggestions';
 import { useT } from '../i18n';
 
 export function CartDrawer() {
@@ -122,6 +123,7 @@ export function CartDrawer() {
                   ))}
                 </ul>
               )}
+              {lines.length > 0 && <CartSuggestions />}
             </div>
 
             {lines.length > 0 &&

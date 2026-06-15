@@ -109,6 +109,9 @@ const en = {
   'badge.new': 'New',
   'badge.bestseller': 'Bestseller',
   'card.quickAdd': 'Quick Add',
+  'card.quickView': 'Quick View',
+  'qv.viewDetails': 'View full details',
+  'qv.close': 'Close',
 
   // Product page
   'pdp.size': 'Size',
@@ -203,6 +206,8 @@ const en = {
   'cart.freeShipUnlocked': '✓ Free shipping unlocked!',
   'cart.freeShipRemaining1': 'You’re',
   'cart.freeShipRemaining2': 'away from free shipping',
+  'cart.suggestions': 'You may also like',
+  'cart.add': 'Add',
 
   // Checkout
   'checkout.oneMore': 'One more step',
@@ -499,6 +504,9 @@ const es: Record<TKey, string> = {
   'badge.new': 'Nuevo',
   'badge.bestseller': 'Bestseller',
   'card.quickAdd': 'Añadir rápido',
+  'card.quickView': 'Vista rápida',
+  'qv.viewDetails': 'Ver detalle completo',
+  'qv.close': 'Cerrar',
 
   'pdp.size': 'Talla',
   'pdp.sizeGuide': 'Guía de tallas',
@@ -585,6 +593,8 @@ const es: Record<TKey, string> = {
   'cart.freeShipUnlocked': '✓ ¡Envío gratis desbloqueado!',
   'cart.freeShipRemaining1': 'Te faltan',
   'cart.freeShipRemaining2': 'para envío gratis',
+  'cart.suggestions': 'También te puede gustar',
+  'cart.add': 'Añadir',
 
   'checkout.oneMore': 'Un paso más',
   'checkout.signInTitle': 'Inicia sesión para continuar',

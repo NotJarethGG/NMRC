@@ -6,6 +6,7 @@ import { usePrice } from '../lib/currency';
 import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
 import { useToast } from '../store/toast';
+import { useQuickView } from '../store/quickview';
 import { useT, useLocalize } from '../i18n';
 
 export function HeartButton({ productId, className = '' }: { productId: string; className?: string }) {
@@ -48,6 +49,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const price = usePrice();
   const L = useLocalize();
   const add = useCart((s) => s.add);
+  const openQuickView = useQuickView((s) => s.open);
   const [showSizes, setShowSizes] = useState(false);
 
   const name = L.name(product);
@@ -102,8 +104,26 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           )}
         </Link>
 
-        {/* FAVORITO */}
-        <HeartButton productId={product.id} className="absolute top-3 right-3" />
+        {/* FAVORITO + VISTA RÁPIDA */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+          <HeartButton productId={product.id} />
+          {!soldOut && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openQuickView(product);
+              }}
+              aria-label={t('card.quickView')}
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-noir/55 backdrop-blur text-bone transition-all hover:bg-noir/80 md:opacity-0 md:group-hover:opacity-100"
+            >
+              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          )}
+        </div>
 
         {/* BADGES */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">

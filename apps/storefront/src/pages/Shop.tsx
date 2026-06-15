@@ -20,6 +20,19 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+// Chip de filtro activo, removible
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <button
+      onClick={onRemove}
+      className="inline-flex items-center gap-2 text-[11px] uppercase tracking-wide border border-bone/25 hover:border-bone px-3 py-1.5 transition-colors group/chip"
+    >
+      <span>{label}</span>
+      <span className="text-stone group-hover/chip:text-bone">✕</span>
+    </button>
+  );
+}
+
 interface FiltersProps {
   category?: string;
   collection?: string;
@@ -277,6 +290,33 @@ export function Shop() {
                 {t('shop.filters')}{filterCount ? ` (${filterCount})` : ''}
               </button>
             </div>
+
+            {/* CHIPS DE FILTROS ACTIVOS */}
+            {(filterCount > 0 || search) && (
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                {activeCategory && (
+                  <FilterChip label={activeCategory.name} onRemove={() => updateParam('category', undefined)} />
+                )}
+                {collection && (
+                  <FilterChip
+                    label={collections?.find((c) => c.slug === collection)?.name ?? collection}
+                    onRemove={() => updateParam('collection', undefined)}
+                  />
+                )}
+                {sizes.map((s) => (
+                  <FilterChip key={s} label={`${t('shop.size')} ${s}`} onRemove={() => toggleSize(s)} />
+                ))}
+                {search && (
+                  <FilterChip label={`“${search}”`} onRemove={() => updateParam('search', undefined)} />
+                )}
+                <button
+                  onClick={clearAll}
+                  className="text-[11px] uppercase tracking-luxe text-stone hover:text-bone link-underline ml-1"
+                >
+                  {t('shop.clearAll')}
+                </button>
+              </div>
+            )}
 
             {isLoading ? (
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-12">
