@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import {
   Area,
   AreaChart,
@@ -13,6 +15,7 @@ import {
   YAxis,
 } from 'recharts';
 import { api, formatCRC } from '../lib/api';
+import { useAuth } from '../store/auth';
 import type { BestSeller, LowStockRow, Order, Stats } from '../lib/types';
 
 const STATUS_COLOR: Record<string, string> = {
@@ -33,6 +36,47 @@ const STATUS_BADGE: Record<string, string> = {
   FULFILLED: 'bg-sand text-ink',
   CANCELLED: 'bg-red-100 text-red-700',
 };
+
+// Tarjeta accionable del "centro de acciones"
+function ActionCard({
+  icon,
+  count,
+  label,
+  cta,
+  to,
+  tone,
+}: {
+  icon: ReactNode;
+  count: number;
+  label: string;
+  cta: string;
+  to: string;
+  tone: 'urgent' | 'warn' | 'calm';
+}) {
+  const styles = {
+    urgent: 'border-red-200 bg-red-50',
+    warn: 'border-clay/30 bg-clay/5',
+    calm: 'border-line bg-paper',
+  }[tone];
+  const dot = { urgent: 'bg-red-500', warn: 'bg-clay', calm: 'bg-ink/30' }[tone];
+  return (
+    <Link to={to} className={`group rounded border ${styles} p-5 flex items-center gap-4 transition-shadow hover:shadow-sm`}>
+      <span className="w-10 h-10 rounded-full bg-bone border border-line flex items-center justify-center text-ink shrink-0">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-display text-2xl leading-none">{count}</span>
+          {count > 0 && <span className={`w-1.5 h-1.5 rounded-full ${dot} animate-pulse`} />}
+        </div>
+        <p className="text-xs text-stone mt-1 leading-tight">{label}</p>
+      </div>
+      <span className="text-[11px] uppercase tracking-wide text-ink opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        {cta} →
+      </span>
+    </Link>
+  );
+}
 
 function Trend({ delta }: { delta: number | null }) {
   if (delta === null) return null;
@@ -123,12 +167,78 @@ export function Overview() {
   const ordDelta =
     byDay.length >= 14 && ordPrev7 > 0 ? Math.round(((ordLast7 - ordPrev7) / ordPrev7) * 100) : null;
 
+  // Centro de acciones: lo que requiere atención hoy
+  const firstName = useAuth((s) => s.user?.name?.split(' ')[0]);
+  const pendingCount =
+    stats?.ordersByStatus.find((s) => s.status === 'PENDING')?.count ?? 0;
+  const outOfStock = (lowStock ?? []).filter((r) => r.stock === 0).length;
+  const lowCount = (lowStock ?? []).length;
+  const today = new Date().toLocaleDateString('es-CR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
   return (
     <div>
-      <header className="mb-8">
-        <span className="eyebrow">Panel</span>
-        <h1 className="font-display text-4xl mt-1">Resumen</h1>
+      {/* SALUDO + ESTADO */}
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <span className="eyebrow">No Mercy · Panel</span>
+          <h1 className="font-display text-4xl mt-1">
+            {firstName ? `Hola, ${firstName}` : 'Resumen'}
+          </h1>
+          <p className="text-sm text-stone mt-1 capitalize">{today}</p>
+        </div>
+        <Link to="/products" className="btn py-2.5">
+          + Nuevo producto
+        </Link>
       </header>
+
+      {/* CENTRO DE ACCIONES */}
+      <div className="mb-8">
+        <p className="eyebrow mb-3">Requiere tu atención</p>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <ActionCard
+            tone={pendingCount > 0 ? 'urgent' : 'calm'}
+            count={pendingCount}
+            label="Pedidos pendientes de pago por confirmar"
+            cta="Revisar"
+            to="/orders"
+            icon={
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+            }
+          />
+          <ActionCard
+            tone={outOfStock > 0 ? 'warn' : 'calm'}
+            count={outOfStock}
+            label="Tallas agotadas para reponer"
+            cta="Reponer"
+            to="/products"
+            icon={
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M3 7l9-4 9 4-9 4-9-4zM3 7v10l9 4 9-4V7" />
+              </svg>
+            }
+          />
+          <ActionCard
+            tone="calm"
+            count={lowCount}
+            label="Piezas con inventario bajo (≤ 5)"
+            cta="Ver"
+            to="/products"
+            icon={
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+              </svg>
+            }
+          />
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Metric
