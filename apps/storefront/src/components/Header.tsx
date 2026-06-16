@@ -6,6 +6,7 @@ import { useAuth } from '../store/auth';
 import { useWishlist } from '../store/wishlist';
 import { useCategories, useProducts } from '../hooks/useCatalog';
 import { usePrice } from '../lib/currency';
+import { cldUrl } from '../lib/img';
 import { useT, useLocalize } from '../i18n';
 
 export function Header() {
@@ -254,7 +255,7 @@ export function Header() {
                           <div className="aspect-[3/4] bg-graphite overflow-hidden mb-2">
                             {p.images[0] && (
                               <img
-                                src={p.images[0].url}
+                                src={cldUrl(p.images[0].url, 400)}
                                 alt={L.name(p)}
                                 loading="lazy"
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover/tr:scale-105"
@@ -283,7 +284,7 @@ export function Header() {
                       >
                         <div className="w-10 h-12 bg-graphite overflow-hidden shrink-0">
                           {p.images[0] && (
-                            <img src={p.images[0].url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                            <img src={cldUrl(p.images[0].url, 100)} alt="" loading="lazy" className="w-full h-full object-cover" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -344,7 +345,7 @@ export function Header() {
                   >
                     {c.image && (
                       <img
-                        src={c.image}
+                        src={cldUrl(c.image, 500)}
                         alt={c.name}
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 ease-luxe group-hover/cat:scale-105"
@@ -368,7 +369,7 @@ export function Header() {
                   >
                     {tile.images[0] && (
                       <img
-                        src={tile.images[0].url}
+                        src={cldUrl(tile.images[0].url, 500)}
                         alt={L.name(tile)}
                         className="w-full h-full object-cover transition-transform duration-700 ease-luxe group-hover/feat:scale-105"
                       />

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCollections } from '../hooks/useCatalog';
 import { Reveal } from '../components/Reveal';
+import { cldUrl } from '../lib/img';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useT } from '../i18n';
 
@@ -27,7 +28,7 @@ export function Collections() {
             >
               {c.heroImage && (
                 <img
-                  src={c.heroImage}
+                  src={cldUrl(c.heroImage, 1400)}
                   alt={c.name}
                   loading="lazy"
                   decoding="async"

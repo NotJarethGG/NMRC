@@ -7,6 +7,7 @@ import { useWishlist } from '../store/wishlist';
 import { useToast } from '../store/toast';
 import { useRecentlyViewed } from '../store/recentlyViewed';
 import { usePrice, CURRENCIES } from '../lib/currency';
+import { cldUrl } from '../lib/img';
 import { useConfig } from '../hooks/useConfig';
 import { ProductCard } from '../components/ProductCard';
 import { Reveal } from '../components/Reveal';
@@ -236,7 +237,7 @@ export function ProductDetail() {
             >
               <motion.img
                 key={activeImg}
-                src={product.images[activeImg]?.url}
+                src={cldUrl(product.images[activeImg]?.url, 900)}
                 alt={name}
                 decoding="async"
                 style={{ transformOrigin: zoomOrigin }}
@@ -258,7 +259,7 @@ export function ProductDetail() {
                       activeImg === i ? 'opacity-100 ring-1 ring-bone' : 'opacity-50 hover:opacity-100'
                     }`}
                   >
-                    <img src={img.url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                    <img src={cldUrl(img.url, 120)} alt="" loading="lazy" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

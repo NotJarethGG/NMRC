@@ -2,6 +2,7 @@ import { useProducts } from '../hooks/useCatalog';
 import { useCart } from '../store/cart';
 import { useQuickView } from '../store/quickview';
 import { usePrice } from '../lib/currency';
+import { cldUrl } from '../lib/img';
 import { useT, useLocalize } from '../i18n';
 
 // Cross-sell dentro del carrito: sugiere piezas que no están en la bolsa
@@ -33,7 +34,7 @@ export function CartSuggestions() {
             <div className="aspect-[3/4] bg-graphite overflow-hidden mb-2">
               {p.images[0] && (
                 <img
-                  src={p.images[0].url}
+                  src={cldUrl(p.images[0].url, 220)}
                   alt={L.name(p)}
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover/sug:scale-105"

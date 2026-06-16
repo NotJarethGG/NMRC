@@ -6,6 +6,7 @@ import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
 import { useToast } from '../store/toast';
 import { usePrice } from '../lib/currency';
+import { cldUrl } from '../lib/img';
 import { useT, useLocalize } from '../i18n';
 
 export function QuickView() {
@@ -96,7 +97,7 @@ export function QuickView() {
                 {product.images[activeImg] && (
                   <motion.img
                     key={activeImg}
-                    src={product.images[activeImg].url}
+                    src={cldUrl(product.images[activeImg].url, 800)}
                     alt={name}
                     className="w-full h-full object-cover"
                     initial={{ opacity: 0 }}
@@ -115,7 +116,7 @@ export function QuickView() {
                         activeImg === i ? 'opacity-100 ring-1 ring-bone' : 'opacity-50 hover:opacity-100'
                       }`}
                     >
-                      <img src={img.url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      <img src={cldUrl(img.url, 120)} alt="" loading="lazy" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>

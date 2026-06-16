@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Product } from '../lib/types';
 import { usePrice } from '../lib/currency';
+import { cldUrl } from '../lib/img';
 import { useCart } from '../store/cart';
 import { useWishlist } from '../store/wishlist';
 import { useToast } from '../store/toast';
@@ -53,8 +54,8 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const [showSizes, setShowSizes] = useState(false);
 
   const name = L.name(product);
-  const primary = product.images[0]?.url;
-  const secondary = product.images[1]?.url ?? primary;
+  const primary = cldUrl(product.images[0]?.url, 600);
+  const secondary = cldUrl(product.images[1]?.url ?? product.images[0]?.url, 600);
   const soldOut = product.variants.every((v) => v.stock <= 0);
   const isNew = isRecent(product.createdAt);
 

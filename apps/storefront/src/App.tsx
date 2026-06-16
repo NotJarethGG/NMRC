@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AnnouncementBar } from './components/AnnouncementBar';
@@ -12,21 +12,36 @@ import { GrainOverlay } from './components/GrainOverlay';
 import { QuickView } from './components/QuickView';
 import { useAuth } from './store/auth';
 import { useLocale } from './store/locale';
-import { Home } from './pages/Home';
-import { Shop } from './pages/Shop';
-import { ProductDetail } from './pages/ProductDetail';
-import { Collections } from './pages/Collections';
-import { About } from './pages/About';
-import { Checkout } from './pages/Checkout';
-import { OrderConfirmation } from './pages/OrderConfirmation';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { Account } from './pages/Account';
-import { Wishlist } from './pages/Wishlist';
-import { AuthCallback } from './pages/AuthCallback';
-import { Shipping, Privacy, Terms } from './pages/Legal';
+import { Home } from './pages/Home'; // eager: es el landing principal
 import { WhatsAppFloat } from './components/WhatsAppFloat';
-import { NotFound } from './pages/NotFound';
+
+// El resto de páginas se cargan bajo demanda (code-splitting → carga inicial menor).
+const Shop = lazy(() => import('./pages/Shop').then((m) => ({ default: m.Shop })));
+const ProductDetail = lazy(() => import('./pages/ProductDetail').then((m) => ({ default: m.ProductDetail })));
+const Collections = lazy(() => import('./pages/Collections').then((m) => ({ default: m.Collections })));
+const About = lazy(() => import('./pages/About').then((m) => ({ default: m.About })));
+const Checkout = lazy(() => import('./pages/Checkout').then((m) => ({ default: m.Checkout })));
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation').then((m) => ({ default: m.OrderConfirmation })));
+const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })));
+const Register = lazy(() => import('./pages/Register').then((m) => ({ default: m.Register })));
+const Account = lazy(() => import('./pages/Account').then((m) => ({ default: m.Account })));
+const Wishlist = lazy(() => import('./pages/Wishlist').then((m) => ({ default: m.Wishlist })));
+const AuthCallback = lazy(() => import('./pages/AuthCallback').then((m) => ({ default: m.AuthCallback })));
+const Shipping = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Shipping })));
+const Privacy = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Privacy })));
+const Terms = lazy(() => import('./pages/Legal').then((m) => ({ default: m.Terms })));
+const NotFound = lazy(() => import('./pages/NotFound').then((m) => ({ default: m.NotFound })));
+
+// Fallback de carga (branded, mínimo)
+function PageFallback() {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <span className="font-varsity text-2xl uppercase tracking-[0.3em] text-bone/30 animate-pulse">
+        NMRC
+      </span>
+    </div>
+  );
+}
 
 function Page({ children }: { children: React.ReactNode }) {
   return (
@@ -36,7 +51,7 @@ function Page({ children }: { children: React.ReactNode }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      {children}
+      <Suspense fallback={<PageFallback />}>{children}</Suspense>
     </motion.main>
   );
 }

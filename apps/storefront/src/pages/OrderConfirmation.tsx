@@ -1,13 +1,19 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api, formatCRC } from '../lib/api';
 import { usePrice } from '../lib/currency';
 import { useConfig } from '../hooks/useConfig';
-import { StripeCheckout } from '../components/StripeCheckout';
-import { PayPalCheckout } from '../components/PayPalCheckout';
 import { useT } from '../i18n';
 import type { Order } from '../lib/types';
+
+// Los SDKs de pago se descargan solo cuando hay una pasarela activa
+const StripeCheckout = lazy(() =>
+  import('../components/StripeCheckout').then((m) => ({ default: m.StripeCheckout })),
+);
+const PayPalCheckout = lazy(() =>
+  import('../components/PayPalCheckout').then((m) => ({ default: m.PayPalCheckout })),
+);
 
 export function OrderConfirmation() {
   const t = useT();
@@ -85,12 +91,14 @@ export function OrderConfirmation() {
         {/* PAGO CON TARJETA (Stripe) — internacional */}
         {showStripe && (
           <div className="mt-10">
-            <StripeCheckout
-              orderId={order.id}
-              publishableKey={config.stripePublishableKey!}
-              amountLabel={price(order.totalCents)}
-              onPaid={refetch}
-            />
+            <Suspense fallback={<div className="h-40 bg-coal border border-bone/10 animate-pulse" />}>
+              <StripeCheckout
+                orderId={order.id}
+                publishableKey={config.stripePublishableKey!}
+                amountLabel={price(order.totalCents)}
+                onPaid={refetch}
+              />
+            </Suspense>
           </div>
         )}
 
@@ -104,7 +112,9 @@ export function OrderConfirmation() {
                 <span className="flex-1 h-px bg-bone/10" />
               </div>
             )}
-            <PayPalCheckout orderId={order.id} clientId={config.paypalClientId!} onPaid={refetch} />
+            <Suspense fallback={<div className="h-32 bg-coal border border-bone/10 animate-pulse" />}>
+              <PayPalCheckout orderId={order.id} clientId={config.paypalClientId!} onPaid={refetch} />
+            </Suspense>
           </div>
         )}
 

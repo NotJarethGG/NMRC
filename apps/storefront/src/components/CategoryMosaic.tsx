@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useProducts } from '../hooks/useCatalog';
 import { Reveal } from './Reveal';
+import { cldUrl } from '../lib/img';
 import { useT } from '../i18n';
 
 interface Tile {
@@ -60,7 +61,7 @@ export function CategoryMosaic() {
             >
               {tile.image && (
                 <img
-                  src={tile.image}
+                  src={cldUrl(tile.image, 700)}
                   alt={tile.name}
                   loading="lazy"
                   decoding="async"
