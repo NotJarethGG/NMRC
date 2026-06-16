@@ -297,6 +297,8 @@ const en = {
   'account.step.pending': 'Pending',
   'account.step.paid': 'Paid',
   'account.step.shipped': 'Shipped',
+  'account.tracking': 'Tracking',
+  'account.trackPackage': 'Track package →',
 
   // Auth
   'auth.welcomeBack': 'Welcome back',
@@ -683,6 +685,8 @@ const es: Record<TKey, string> = {
   'account.step.pending': 'Pendiente',
   'account.step.paid': 'Pagado',
   'account.step.shipped': 'Enviado',
+  'account.tracking': 'Seguimiento',
+  'account.trackPackage': 'Rastrear envío →',
 
   'auth.welcomeBack': 'Bienvenido de vuelta',
   'auth.signIn': 'Acceder',

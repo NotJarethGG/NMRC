@@ -26,13 +26,16 @@ export function Orders() {
   const [selected, setSelected] = useState<Order | null>(null);
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [tracking, setTracking] = useState({ carrier: '', code: '' });
 
   // Abre el detalle trayendo la orden completa desde la API (autoritativa)
   const openOrder = async (order: Order) => {
     setSelected(order);
+    setTracking({ carrier: order.trackingCarrier ?? '', code: order.trackingCode ?? '' });
     try {
       const { data } = await api.get<Order>(`/orders/${order.id}`);
       setSelected(data);
+      setTracking({ carrier: data.trackingCarrier ?? '', code: data.trackingCode ?? '' });
     } catch {
       /* se mantiene el dato de la lista */
     }
@@ -41,11 +44,32 @@ export function Orders() {
   const changeStatus = async (order: Order, status: OrderStatus) => {
     setBusy(true);
     try {
-      const { data } = await api.patch<Order>(`/orders/${order.id}/status`, { status });
+      const { data } = await api.patch<Order>(`/orders/${order.id}/status`, {
+        status,
+        trackingCode: tracking.code.trim() || undefined,
+        trackingCarrier: tracking.carrier.trim() || undefined,
+      });
       setSelected(data);
       qc.invalidateQueries({ queryKey: ['admin-orders'] });
       qc.invalidateQueries({ queryKey: ['stats'] });
       qc.invalidateQueries({ queryKey: ['low-stock'] });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Guarda la guía sin cambiar el estado del pedido
+  const saveTracking = async () => {
+    if (!selected) return;
+    setBusy(true);
+    try {
+      const { data } = await api.patch<Order>(`/orders/${selected.id}/status`, {
+        status: selected.status,
+        trackingCode: tracking.code.trim() || undefined,
+        trackingCarrier: tracking.carrier.trim() || undefined,
+      });
+      setSelected(data);
+      qc.invalidateQueries({ queryKey: ['admin-orders'] });
     } finally {
       setBusy(false);
     }
@@ -246,6 +270,33 @@ export function Orders() {
                 </div>
                 <p className="text-[11px] text-stone mt-3">
                   Al confirmar el pago se descuenta el inventario automáticamente.
+                </p>
+              </div>
+
+              {/* GUÍA DE ENVÍO (tracking) */}
+              <div className="border-t border-line pt-5">
+                <p className="eyebrow mb-3">Guía de envío</p>
+                <div className="space-y-3">
+                  <input
+                    className="field"
+                    placeholder="Courier (Correos de CR, DHL…)"
+                    value={tracking.carrier}
+                    onChange={(e) => setTracking({ ...tracking, carrier: e.target.value })}
+                  />
+                  <div className="flex gap-3">
+                    <input
+                      className="field flex-1"
+                      placeholder="Número de seguimiento"
+                      value={tracking.code}
+                      onChange={(e) => setTracking({ ...tracking, code: e.target.value })}
+                    />
+                    <button onClick={saveTracking} disabled={busy} className="btn-ghost px-5 shrink-0">
+                      Guardar
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[11px] text-stone mt-2">
+                  El cliente verá la guía en su pedido. Se incluye también al “Marcar enviado”.
                 </p>
               </div>
             </div>

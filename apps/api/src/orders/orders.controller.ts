@@ -69,6 +69,10 @@ export class OrdersController {
   @Roles('ADMIN', 'STAFF')
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
-    return this.orders.updateStatus(id, dto.status, dto.sinpeRef);
+    return this.orders.updateStatus(id, dto.status, {
+      sinpeRef: dto.sinpeRef,
+      trackingCode: dto.trackingCode,
+      trackingCarrier: dto.trackingCarrier,
+    });
   }
 }

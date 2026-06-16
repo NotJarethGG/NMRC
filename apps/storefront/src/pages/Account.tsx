@@ -147,6 +147,27 @@ export function Account() {
                     );
                   })()}
 
+                {/* GUÍA DE ENVÍO */}
+                {o.trackingCode && (
+                  <div className="mt-4 border border-bone/10 px-4 py-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-luxe text-stone">
+                        {t('account.tracking')}
+                        {o.trackingCarrier ? ` · ${o.trackingCarrier}` : ''}
+                      </p>
+                      <p className="text-sm text-bone truncate">{o.trackingCode}</p>
+                    </div>
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(`${o.trackingCarrier ?? 'tracking'} ${o.trackingCode}`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] uppercase tracking-luxe link-underline shrink-0"
+                    >
+                      {t('account.trackPackage')}
+                    </a>
+                  </div>
+                )}
+
                 {o.status === 'PENDING' && (
                   <div className="flex items-center gap-6 mt-4">
                     <Link

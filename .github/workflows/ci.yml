@@ -1,0 +1,41 @@
+name: CI
+
+# Red de seguridad: en cada push/PR valida que todo compile antes de que
+# Vercel/Render desplieguen. No necesita secretos (no toca la base de datos).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # npm ci dispara el postinstall de la API (prisma generate)
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck (storefront)
+        run: npx tsc --noEmit
+        working-directory: apps/storefront
+
+      - name: Typecheck (admin)
+        run: npx tsc --noEmit
+        working-directory: apps/admin
+
+      - name: Build API
+        run: npm run build:api
+
+      - name: Build storefront
+        run: npm run build:store
+
+      - name: Build admin
+        run: npm run build:admin

@@ -69,6 +69,8 @@ export interface Order {
   shippingAddress: string;
   notes?: string | null;
   sinpeRef?: string | null;
+  trackingCode?: string | null;
+  trackingCarrier?: string | null;
   items: OrderItem[];
   createdAt: string;
   user?: { id: string; name: string; email: string; phone?: string | null };

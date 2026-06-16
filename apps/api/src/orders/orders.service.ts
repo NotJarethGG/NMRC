@@ -164,9 +164,21 @@ export class OrdersService {
     return order;
   }
 
-  async updateStatus(id: string, status: OrderStatus, sinpeRef?: string) {
+  async updateStatus(
+    id: string,
+    status: OrderStatus,
+    extra?: { sinpeRef?: string; trackingCode?: string; trackingCarrier?: string },
+  ) {
     const order = await this.prisma.order.findUnique({ where: { id }, include: { items: true } });
     if (!order) throw new NotFoundException('Pedido no encontrado');
+
+    // Campos de pago/envío que se persisten en cualquier transición
+    const meta = {
+      sinpeRef: extra?.sinpeRef ?? order.sinpeRef,
+      trackingCode: extra?.trackingCode === undefined ? order.trackingCode : extra.trackingCode || null,
+      trackingCarrier:
+        extra?.trackingCarrier === undefined ? order.trackingCarrier : extra.trackingCarrier || null,
+    };
 
     // Descontar stock al confirmar el pago (PENDING -> PAID)
     if (status === OrderStatus.PAID && order.status === OrderStatus.PENDING) {
@@ -177,10 +189,7 @@ export class OrdersService {
             data: { stock: { decrement: item.quantity } },
           });
         }
-        await tx.order.update({
-          where: { id },
-          data: { status, sinpeRef: sinpeRef ?? order.sinpeRef },
-        });
+        await tx.order.update({ where: { id }, data: { status, ...meta } });
       });
     } else if (status === OrderStatus.CANCELLED && order.status === OrderStatus.PAID) {
       // Reponer stock si se cancela un pedido ya pagado
@@ -191,13 +200,10 @@ export class OrdersService {
             data: { stock: { increment: item.quantity } },
           });
         }
-        await tx.order.update({ where: { id }, data: { status } });
+        await tx.order.update({ where: { id }, data: { status, ...meta } });
       });
     } else {
-      await this.prisma.order.update({
-        where: { id },
-        data: { status, sinpeRef: sinpeRef ?? order.sinpeRef },
-      });
+      await this.prisma.order.update({ where: { id }, data: { status, ...meta } });
     }
 
     return this.findOne(id);

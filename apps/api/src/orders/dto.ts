@@ -59,4 +59,12 @@ export class UpdateOrderStatusDto {
   @IsOptional()
   @IsString()
   sinpeRef?: string;
+
+  @IsOptional()
+  @IsString()
+  trackingCode?: string;
+
+  @IsOptional()
+  @IsString()
+  trackingCarrier?: string;
 }

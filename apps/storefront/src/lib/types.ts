@@ -97,6 +97,8 @@ export interface Order {
   shippingPhone: string;
   shippingAddress: string;
   notes?: string | null;
+  trackingCode?: string | null;
+  trackingCarrier?: string | null;
   sinpeRef?: string | null;
   items: OrderItem[];
   createdAt: string;
