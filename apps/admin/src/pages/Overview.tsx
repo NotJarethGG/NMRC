@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Area,
   AreaChart,
@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { api, formatCRC } from '../lib/api';
 import { useAuth } from '../store/auth';
-import type { BestSeller, LowStockRow, Order, Stats } from '../lib/types';
+import type { BestSeller, LowStockRow, Order, Product, Stats } from '../lib/types';
 
 const STATUS_COLOR: Record<string, string> = {
   PENDING: '#C9C1B4',
@@ -144,6 +144,10 @@ export function Overview() {
     queryKey: ['recent-orders'],
     queryFn: async () => (await api.get<Order[]>('/orders')).data,
   });
+  const { data: products } = useQuery({
+    queryKey: ['overview-products'],
+    queryFn: async () => (await api.get<Product[]>('/products?includeAll=true')).data,
+  });
 
   const chartData =
     stats?.ordersByStatus.map((s) => ({
@@ -179,6 +183,47 @@ export function Overview() {
     month: 'long',
     year: 'numeric',
   });
+
+  // Pulso Hoy / Semana / Mes (sobre pedidos confirmados o enviados)
+  const startToday = new Date();
+  startToday.setHours(0, 0, 0, 0);
+  const startWeek = new Date(startToday);
+  startWeek.setDate(startToday.getDate() - 6);
+  const startMonth = new Date();
+  startMonth.setDate(1);
+  startMonth.setHours(0, 0, 0, 0);
+  const paidOrders = (recent ?? []).filter((o) => o.status === 'PAID' || o.status === 'FULFILLED');
+  const since = (from: Date) => paidOrders.filter((o) => new Date(o.createdAt) >= from);
+  const sumRev = (arr: Order[]) => arr.reduce((n, o) => n + o.totalCents, 0);
+  const todayOrders = since(startToday);
+  const weekOrders = since(startWeek);
+  const monthRev = sumRev(since(startMonth));
+
+  // Meta de ventas del mes (editable, persistida en el navegador)
+  const [goalCents, setGoalCents] = useState<number>(
+    () => Number(localStorage.getItem('nmrc_month_goal')) || 50000000, // ₡500.000
+  );
+  const [editingGoal, setEditingGoal] = useState(false);
+  const goalPct = goalCents > 0 ? Math.min(100, Math.round((monthRev / goalCents) * 100)) : 0;
+  const saveGoal = (colones: number) => {
+    const cents = Math.max(0, Math.round(colones * 100));
+    setGoalCents(cents);
+    localStorage.setItem('nmrc_month_goal', String(cents));
+    setEditingGoal(false);
+  };
+
+  // Ventas por categoría (cruza best-sellers con la categoría de cada producto)
+  const prodCat = new Map((products ?? []).map((p) => [p.id, p.category?.name ?? '—']));
+  const catRev = new Map<string, { rev: number; units: number }>();
+  (best ?? []).forEach((b) => {
+    const name = prodCat.get(b.productId) ?? '—';
+    const cur = catRev.get(name) ?? { rev: 0, units: 0 };
+    catRev.set(name, { rev: cur.rev + b.revenueCents, units: cur.units + b.units });
+  });
+  const categoriesRanked = [...catRev.entries()]
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => b.rev - a.rev);
+  const maxCatRev = Math.max(1, ...categoriesRanked.map((c) => c.rev));
 
   return (
     <div>
@@ -237,6 +282,72 @@ export function Overview() {
               </svg>
             }
           />
+        </div>
+      </div>
+
+      {/* PULSO HOY / SEMANA + META DEL MES */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="card p-5">
+          <p className="eyebrow">Hoy</p>
+          <p className="font-display text-3xl mt-2">{formatCRC(sumRev(todayOrders))}</p>
+          <p className="text-xs text-stone mt-1">
+            {todayOrders.length} {todayOrders.length === 1 ? 'pedido' : 'pedidos'} confirmados
+          </p>
+        </div>
+        <div className="card p-5">
+          <p className="eyebrow">Esta semana</p>
+          <p className="font-display text-3xl mt-2">{formatCRC(sumRev(weekOrders))}</p>
+          <p className="text-xs text-stone mt-1">
+            {weekOrders.length} {weekOrders.length === 1 ? 'pedido' : 'pedidos'} · 7 días
+          </p>
+        </div>
+        {/* META DEL MES */}
+        <div className="card p-5 sm:col-span-2 flex flex-col">
+          <div className="flex items-baseline justify-between">
+            <p className="eyebrow">Meta del mes</p>
+            {!editingGoal ? (
+              <button
+                onClick={() => setEditingGoal(true)}
+                className="text-[11px] uppercase tracking-wide text-stone hover:text-ink"
+              >
+                Editar
+              </button>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const v = Number((e.currentTarget.elements.namedItem('g') as HTMLInputElement).value);
+                  if (!Number.isNaN(v)) saveGoal(v);
+                }}
+                className="flex items-center gap-2"
+              >
+                <span className="text-stone text-xs">₡</span>
+                <input
+                  name="g"
+                  type="number"
+                  autoFocus
+                  defaultValue={Math.round(goalCents / 100)}
+                  className="field py-1 w-28 text-sm"
+                />
+                <button className="text-[11px] uppercase tracking-wide text-ink hover:underline">OK</button>
+              </form>
+            )}
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <p className="font-display text-3xl">{formatCRC(monthRev)}</p>
+            <span className="text-sm text-stone">/ {formatCRC(goalCents)}</span>
+          </div>
+          <div className="mt-auto pt-4">
+            <div className="h-2 bg-line rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${goalPct >= 100 ? 'bg-ink' : 'bg-clay'}`}
+                style={{ width: `${goalPct}%` }}
+              />
+            </div>
+            <p className="text-xs text-stone mt-2">
+              {goalPct}% de la meta {goalPct >= 100 ? '· ¡cumplida! 🔥' : ''}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -364,8 +475,9 @@ export function Overview() {
         </div>
       </div>
 
+      <div className="grid lg:grid-cols-2 gap-6 mb-6">
       {/* BEST SELLERS */}
-      <div className="card p-6 mb-6">
+      <div className="card p-6">
         <p className="eyebrow mb-5">Productos más vendidos</p>
         {best && best.length > 0 ? (
           <ul className="space-y-4">
@@ -396,6 +508,36 @@ export function Overview() {
             Aún no hay ventas confirmadas. Marca pedidos como pagados para ver el ranking.
           </p>
         )}
+      </div>
+
+      {/* VENTAS POR CATEGORÍA */}
+      <div className="card p-6">
+        <p className="eyebrow mb-5">Ventas por categoría</p>
+        {categoriesRanked.length > 0 ? (
+          <ul className="space-y-4">
+            {categoriesRanked.map((c) => (
+              <li key={c.name}>
+                <div className="flex items-center justify-between text-sm mb-1.5">
+                  <span className="font-medium uppercase tracking-wide">{c.name}</span>
+                  <span className="text-stone">
+                    {formatCRC(c.rev)} <span className="text-stone/60">· {c.units} uds</span>
+                  </span>
+                </div>
+                <div className="h-1.5 bg-line rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-ink rounded-full transition-all"
+                    style={{ width: `${(c.rev / maxCatRev) * 100}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-stone">
+            Sin datos todavía. Aparecerá cuando haya ventas confirmadas.
+          </p>
+        )}
+      </div>
       </div>
 
       {/* RECENT ORDERS */}
