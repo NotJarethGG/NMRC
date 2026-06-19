@@ -30,11 +30,11 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
-      # --- Pago SINPE / WhatsApp (ajusta a tus datos reales) ---
+      # --- Pago SINPE / WhatsApp (datos reales NMRC) ---
       - key: SINPE_NUMBER
-        value: "8888-8888"
+        value: "8576-3191"
       - key: WHATSAPP_NUMBER
-        value: "50688888888"
+        value: "50685763191"
       # --- Dominios del frontend en Vercel (separados por coma), p.ej.:
       # https://nmrc-storefront.vercel.app,https://nmrc-admin.vercel.app
       - key: CORS_ORIGINS

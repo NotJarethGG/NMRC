@@ -20,7 +20,7 @@ export function Footer() {
             {/* REDES */}
             <div className="flex items-center gap-3 mt-6">
               <a
-                href="https://instagram.com"
+                href="https://instagram.com/nmrc.cr"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
@@ -33,18 +33,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="https://tiktok.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="TikTok"
-                className="w-9 h-9 border border-bone/15 flex items-center justify-center text-bone/60 hover:text-bone hover:border-bone/50 transition-colors"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M9 12a4 4 0 1 0 4 4V4c.8 2.4 2.6 4 5 4.4" />
-                </svg>
-              </a>
-              <a
-                href="https://wa.me/50688888888"
+                href="https://wa.me/50685763191"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="WhatsApp"
