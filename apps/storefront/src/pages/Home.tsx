@@ -39,7 +39,9 @@ export function Home() {
           animate={{ scale: 1 }}
           transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-noir/75 via-noir/45 to-noir/85" />
+        <div className="absolute inset-0 bg-gradient-to-b from-noir/80 via-noir/55 to-noir/90" />
+        {/* Scrim central para que el texto siempre tenga contraste (sobre todo en móvil) */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(11,11,10,0.55),transparent_72%)]" />
         <div className="relative h-full flex flex-col items-center justify-center text-center text-bone px-6">
           <motion.h1
             className="font-varsity text-7xl md:text-9xl leading-[0.85] uppercase"

@@ -1,11 +1,17 @@
+import { useLocation } from 'react-router-dom';
 import { useConfig } from '../hooks/useConfig';
 import { useT } from '../i18n';
+
+// Rutas donde el botón flotante taparía un CTA principal (lo ocultamos ahí)
+const HIDDEN_ON = ['/checkout', '/order/', '/login', '/register', '/auth'];
 
 // Botón flotante de contacto (canal principal de la tienda)
 export function WhatsAppFloat() {
   const t = useT();
   const config = useConfig();
+  const { pathname } = useLocation();
   if (!config.whatsappNumber) return null;
+  if (HIDDEN_ON.some((p) => pathname.startsWith(p))) return null;
 
   const msg = encodeURIComponent('Hi NMRC, I have a question about a piece.');
   return (
