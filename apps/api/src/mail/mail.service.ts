@@ -90,4 +90,14 @@ export class MailService {
       <p style="font-family:Georgia,serif;font-size:16px;letter-spacing:2px;margin-top:24px">No Excuses. No Limits. No Mercy.</p>`;
     await this.send(to, 'You’re on the NMRC list', this.shell('Welcome to NMRC', body));
   }
+
+  async sendPasswordReset(to: string, name: string, resetUrl: string) {
+    const body = `
+      <p style="color:#C9C2B5;line-height:1.6">Hi ${name.split(' ')[0]}, we received a request to reset your NMRC password.</p>
+      <p style="margin:28px 0">
+        <a href="${resetUrl}" style="display:inline-block;background:#EDE8DD;color:#0B0B0A;text-decoration:none;padding:14px 28px;font-size:12px;letter-spacing:2px;text-transform:uppercase">Reset password</a>
+      </p>
+      <p style="color:#8A8174;line-height:1.6;font-size:13px">This link expires in 1 hour. If you didn't request it, you can ignore this email — your password won't change.</p>`;
+    await this.send(to, 'Reset your NMRC password', this.shell('Password reset', body));
+  }
 }

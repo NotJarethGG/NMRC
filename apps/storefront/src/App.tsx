@@ -24,6 +24,8 @@ const Checkout = lazy(() => import('./pages/Checkout').then((m) => ({ default: m
 const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation').then((m) => ({ default: m.OrderConfirmation })));
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/Register').then((m) => ({ default: m.Register })));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then((m) => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import('./pages/ResetPassword').then((m) => ({ default: m.ResetPassword })));
 const Account = lazy(() => import('./pages/Account').then((m) => ({ default: m.Account })));
 const Wishlist = lazy(() => import('./pages/Wishlist').then((m) => ({ default: m.Wishlist })));
 const AuthCallback = lazy(() => import('./pages/AuthCallback').then((m) => ({ default: m.AuthCallback })));
@@ -95,6 +97,8 @@ export default function App() {
           <Route path="/order/:id" element={<Page><OrderConfirmation /></Page>} />
           <Route path="/login" element={<Page><Login /></Page>} />
           <Route path="/register" element={<Page><Register /></Page>} />
+          <Route path="/forgot-password" element={<Page><ForgotPassword /></Page>} />
+          <Route path="/reset-password" element={<Page><ResetPassword /></Page>} />
           <Route path="/account" element={<Page><Account /></Page>} />
           <Route path="/wishlist" element={<Page><Wishlist /></Page>} />
           <Route path="/auth/callback" element={<Page><AuthCallback /></Page>} />

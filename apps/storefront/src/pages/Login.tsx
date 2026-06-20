@@ -52,7 +52,15 @@ export function Login() {
             />
           </div>
           <div>
-            <label className="eyebrow block mb-2">{t('auth.password')}</label>
+            <div className="flex items-baseline justify-between mb-2">
+              <label className="eyebrow">{t('auth.password')}</label>
+              <Link
+                to="/forgot-password"
+                className="text-[11px] uppercase tracking-luxe text-stone hover:text-bone link-underline"
+              >
+                {t('auth.forgot')}
+              </Link>
+            </div>
             <input
               type="password"
               required

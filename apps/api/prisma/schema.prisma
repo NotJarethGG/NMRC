@@ -28,11 +28,13 @@ enum OrderStatus {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  googleId     String?  @unique
-  name         String
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  googleId      String?   @unique
+  resetToken    String?   @unique
+  resetTokenExp DateTime?
+  name          String
   phone        String?
   address      String?  @db.Text
   role         Role     @default(CUSTOMER)

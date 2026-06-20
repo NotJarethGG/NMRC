@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { ChangePasswordDto, LoginDto, RegisterDto } from './dto';
 import { GoogleProfile } from './google.strategy';
 
@@ -14,6 +15,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private mail: MailService,
   ) {}
 
   // Correos que deben tener rol ADMIN al entrar con Google (env ADMIN_EMAILS)
@@ -94,6 +96,38 @@ export class AuthService {
     if (!ok) throw new UnauthorizedException('Credenciales inválidas');
 
     return this.sign(user);
+  }
+
+  // Genera un token de reseteo (1h) y envía el enlace por correo.
+  // Responde igual exista o no el correo (no revela qué emails están registrados).
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
+    if (user) {
+      const token = randomUUID();
+      const exp = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { resetToken: token, resetTokenExp: exp },
+      });
+      const front = this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
+      const resetUrl = `${front}/reset-password?token=${token}`;
+      void this.mail.sendPasswordReset(user.email, user.name, resetUrl);
+    }
+    return { ok: true };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { resetToken: token, resetTokenExp: { gt: new Date() } },
+    });
+    if (!user) throw new UnauthorizedException('El enlace no es válido o ya expiró');
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash, resetToken: null, resetTokenExp: null },
+    });
+    return { ok: true };
   }
 
   async changePassword(userId: string, dto: ChangePasswordDto) {
