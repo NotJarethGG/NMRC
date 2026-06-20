@@ -46,6 +46,12 @@ services:
       # --- URL del storefront (destino del redirect OAuth) ---
       - key: FRONTEND_URL
         value: https://nmrc-storefront.vercel.app
+      # --- URL del panel admin (destino del redirect OAuth cuando state=admin) ---
+      - key: ADMIN_URL
+        value: https://nmrc-admin.vercel.app
+      # --- Correos que entran como ADMIN al usar Google (separados por coma) ---
+      - key: ADMIN_EMAILS
+        value: nmrcwear@gmail.com
       # --- OAuth Google: credenciales de console.cloud.google.com ---
       # Redirect URI autorizada: https://nmrc-api.onrender.com/api/auth/google/callback
       - key: GOOGLE_CLIENT_ID

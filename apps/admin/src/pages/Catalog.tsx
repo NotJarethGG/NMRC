@@ -103,10 +103,32 @@ export function Catalog() {
       <div className="grid lg:grid-cols-2 gap-8 items-start">
         {/* CATEGORÍAS */}
         <div className="card p-6">
-          <p className="eyebrow mb-5">Categorías</p>
-          <ul className="space-y-2 mb-5">
+          <div className="flex items-baseline justify-between mb-4">
+            <p className="eyebrow">Categorías</p>
+            <span className="text-[11px] text-stone">{categories?.length ?? 0}</span>
+          </div>
+
+          {/* Añadir (siempre arriba, accesible) */}
+          <div className="flex gap-3 mb-4">
+            <input
+              className="field"
+              placeholder="Nueva categoría"
+              value={catName}
+              onChange={(e) => setCatName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addCategory()}
+            />
+            <button onClick={addCategory} disabled={!catName.trim()} className="btn shrink-0">
+              Añadir
+            </button>
+          </div>
+
+          {/* Lista con altura fija + scroll interno (escala con muchas) */}
+          <ul className="max-h-[420px] overflow-y-auto divide-y divide-line border-t border-line">
+            {categories?.length === 0 && (
+              <li className="py-6 text-center text-sm text-stone">Aún no hay categorías.</li>
+            )}
             {categories?.map((c) => (
-              <li key={c.id} className="flex items-center justify-between gap-3 py-2 border-b border-line text-sm">
+              <li key={c.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                 {editCat?.id === c.id ? (
                   <>
                     <input
@@ -123,8 +145,8 @@ export function Catalog() {
                   </>
                 ) : (
                   <>
-                    <span>{c.name}</span>
-                    <div className="flex gap-3 shrink-0">
+                    <span className="truncate">{c.name}</span>
+                    <div className="flex gap-3 shrink-0 opacity-70 hover:opacity-100">
                       <button onClick={() => setEditCat({ id: c.id, name: c.name })} className="text-ink text-xs hover:underline">
                         Editar
                       </button>
@@ -137,43 +159,44 @@ export function Catalog() {
               </li>
             ))}
           </ul>
-          <div className="flex gap-3">
-            <input
-              className="field"
-              placeholder="Nueva categoría"
-              value={catName}
-              onChange={(e) => setCatName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addCategory()}
-            />
-            <button onClick={addCategory} className="btn shrink-0">
-              Añadir
-            </button>
-          </div>
         </div>
 
         {/* COLECCIONES */}
         <div className="card p-6">
-          <p className="eyebrow mb-5">Colecciones</p>
-          <ul className="space-y-2 mb-6">
-            {collections?.map((c) => (
-              <li key={c.id} className="flex items-center justify-between gap-3 py-2 border-b border-line text-sm">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-12 bg-sand overflow-hidden shrink-0">
+          <div className="flex items-baseline justify-between mb-4">
+            <p className="eyebrow">Colecciones</p>
+            <span className="text-[11px] text-stone">{collections?.length ?? 0}</span>
+          </div>
+
+          {/* Grid de tarjetas con scroll (escala mejor que una lista vertical) */}
+          {collections && collections.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto pr-1 mb-6">
+              {collections.map((c) => (
+                <div
+                  key={c.id}
+                  className={`relative group border overflow-hidden ${col.id === c.id ? 'border-ink' : 'border-line'}`}
+                >
+                  <div className="aspect-[4/5] bg-sand">
                     {c.heroImage && <img src={c.heroImage} alt="" className="w-full h-full object-cover" />}
                   </div>
-                  <span className="truncate">{c.name}</span>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent p-2 pt-6">
+                    <p className="text-[11px] text-bone truncate">{c.name}</p>
+                  </div>
+                  {/* Acciones al hover */}
+                  <div className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <button onClick={() => editCollection(c)} className="text-bone text-[11px] uppercase tracking-wide hover:underline">
+                      Editar
+                    </button>
+                    <button onClick={() => delCollection(c.id)} className="text-red-300 text-[11px] uppercase tracking-wide hover:underline">
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-3 shrink-0">
-                  <button onClick={() => editCollection(c)} className="text-ink text-xs hover:underline">
-                    Editar
-                  </button>
-                  <button onClick={() => delCollection(c.id)} className="text-red-700 text-xs hover:underline">
-                    Eliminar
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </div>
+          ) : (
+            <p className="py-4 text-sm text-stone mb-2">Aún no hay colecciones.</p>
+          )}
 
           {/* EDITOR DE COLECCIÓN (crear / editar) */}
           <div className="border-t border-line pt-5 space-y-3">

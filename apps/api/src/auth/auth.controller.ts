@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto, LoginDto, RegisterDto } from './dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { GoogleOAuthGuard } from './google-oauth.guard';
 import { CurrentUser, AuthUser } from './current-user.decorator';
 import { GoogleProfile } from './google.strategy';
 
@@ -42,22 +42,30 @@ export class AuthController {
   }
 
   // --- OAuth Google ---
+  // ?state=admin para iniciar desde el panel; cualquier otro valor = storefront
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleOAuthGuard)
   google() {
     /* passport redirige a Google */
   }
 
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleCallback(@Req() req: { user: GoogleProfile }, @Res() res: Response) {
-    const front = this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
+  @UseGuards(GoogleOAuthGuard)
+  async googleCallback(
+    @Req() req: { user: GoogleProfile },
+    @Query('state') state: string | undefined,
+    @Res() res: Response,
+  ) {
+    const base =
+      state === 'admin'
+        ? this.config.get<string>('ADMIN_URL') ?? 'http://localhost:5174'
+        : this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:5173';
     try {
       const { token } = await this.auth.loginWithGoogle(req.user);
       // Token por fragmento (#): no llega al servidor del frontend ni a logs
-      res.redirect(`${front}/auth/callback#token=${token}`);
+      res.redirect(`${base}/auth/callback#token=${token}`);
     } catch {
-      res.redirect(`${front}/auth/callback#error=oauth`);
+      res.redirect(`${base}/auth/callback#error=oauth`);
     }
   }
 }

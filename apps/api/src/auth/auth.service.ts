@@ -1,5 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -11,7 +13,17 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private config: ConfigService,
   ) {}
+
+  // Correos que deben tener rol ADMIN al entrar con Google (env ADMIN_EMAILS)
+  private isAdminEmail(email: string) {
+    return (this.config.get<string>('ADMIN_EMAILS') ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean)
+      .includes(email.toLowerCase());
+  }
 
   private async sign(user: { id: string; email: string; role: string; name: string }) {
     const token = await this.jwt.signAsync({ sub: user.id, role: user.role });
@@ -43,16 +55,19 @@ export class AuthService {
   async loginWithGoogle(profile: GoogleProfile) {
     if (!profile.email) throw new UnauthorizedException('Google no devolvió un correo');
 
+    const shouldBeAdmin = this.isAdminEmail(profile.email);
+
     let user = await this.prisma.user.findFirst({
       where: { OR: [{ googleId: profile.googleId }, { email: profile.email }] },
     });
 
     if (user) {
-      if (!user.googleId) {
-        user = await this.prisma.user.update({
-          where: { id: user.id },
-          data: { googleId: profile.googleId },
-        });
+      // Vincular googleId y/o promover a ADMIN si el correo está autorizado
+      const data: Prisma.UserUpdateInput = {};
+      if (!user.googleId) data.googleId = profile.googleId;
+      if (shouldBeAdmin && user.role === 'CUSTOMER') data.role = 'ADMIN';
+      if (Object.keys(data).length) {
+        user = await this.prisma.user.update({ where: { id: user.id }, data });
       }
     } else {
       // Cuenta nueva vía Google: password aleatorio (solo entra por OAuth)
@@ -63,7 +78,7 @@ export class AuthService {
           name: profile.name,
           passwordHash,
           googleId: profile.googleId,
-          role: 'CUSTOMER',
+          role: shouldBeAdmin ? 'ADMIN' : 'CUSTOMER',
         },
       });
     }

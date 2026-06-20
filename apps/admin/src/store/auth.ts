@@ -7,6 +7,7 @@ interface AuthState {
   loading: boolean;
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  applyToken: (token: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -41,6 +42,25 @@ export const useAuth = create<AuthState>((set) => ({
     }
     setToken(data.token);
     set({ user: data.user });
+  },
+
+  // Aplica un token de OAuth (Google). Solo entra si el rol es ADMIN/STAFF.
+  applyToken: async (token) => {
+    setToken(token);
+    try {
+      const { data } = await api.get<User>('/auth/me');
+      if (!isStaff(data.role)) {
+        setToken(null);
+        set({ user: null });
+        return false;
+      }
+      set({ user: data });
+      return true;
+    } catch {
+      setToken(null);
+      set({ user: null });
+      return false;
+    }
   },
 
   logout: () => {

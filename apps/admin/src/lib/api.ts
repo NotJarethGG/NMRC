@@ -4,6 +4,7 @@ const baseURL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? 'https://nmrc-api.onrender.com/api' : 'http://localhost:3000/api');
 export const api = axios.create({ baseURL });
+export const apiBaseURL = baseURL;
 
 const TOKEN_KEY = 'gosth_admin_token';
 

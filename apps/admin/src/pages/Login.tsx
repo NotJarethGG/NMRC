@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../store/auth';
+import { apiBaseURL } from '../lib/api';
 
 export function Login() {
   const login = useAuth((s) => s.login);
@@ -73,6 +74,24 @@ export function Login() {
             </button>
           </div>
 
+          {/* Acceso rápido con Google (solo correos autorizados como ADMIN/STAFF) */}
+          <div className="flex items-center gap-4 my-6">
+            <span className="flex-1 h-px bg-line" />
+            <span className="text-[10px] uppercase tracking-luxe text-stone">o</span>
+            <span className="flex-1 h-px bg-line" />
+          </div>
+          <a
+            href={`${apiBaseURL}/auth/google?state=admin`}
+            className="btn-ghost w-full py-3 flex items-center justify-center gap-3"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden>
+              <path fill="#4285F4" d="M22 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.6a4.8 4.8 0 0 1-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.5z" />
+              <path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.4-2.6c-.9.6-2 1-3.2 1-2.5 0-4.6-1.7-5.3-4H3.2v2.6A10 10 0 0 0 12 22z" />
+              <path fill="#FBBC05" d="M6.7 13.9a6 6 0 0 1 0-3.8V7.5H3.2a10 10 0 0 0 0 9z" />
+              <path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.2 7.5l3.5 2.6C7.4 7.8 9.5 6 12 6z" />
+            </svg>
+            Continuar con Google
+          </a>
         </form>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './store/auth';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
+import { AuthCallback } from './pages/AuthCallback';
 import { Overview } from './pages/Overview';
 import { Products } from './pages/Products';
 import { Orders } from './pages/Orders';
@@ -33,6 +34,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/" element={<Protected><Overview /></Protected>} />
       <Route path="/products" element={<Protected><Products /></Protected>} />
       <Route path="/orders" element={<Protected><Orders /></Protected>} />
