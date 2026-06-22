@@ -51,6 +51,11 @@ export class CreateProductDto {
   @Min(0)
   priceCents: number;
 
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  compareAtPriceCents?: number | null;
+
   @IsString()
   categoryId: string;
 
@@ -100,6 +105,11 @@ export class UpdateProductDto {
   @IsInt()
   @Min(0)
   priceCents?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  compareAtPriceCents?: number | null;
 
   @IsOptional()
   @IsString()

@@ -274,7 +274,19 @@ export function ProductDetail() {
                 {name}
               </h1>
               <div className="flex items-center gap-4 mt-4">
-                <p className="text-xl">{price(product.priceCents)}</p>
+                {product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents ? (
+                  <p className="flex items-center gap-3">
+                    <span className="text-xl text-clay">{price(product.priceCents)}</span>
+                    <span className="text-base text-stone line-through">
+                      {price(product.compareAtPriceCents)}
+                    </span>
+                    <span className="bg-clay text-noir text-[11px] uppercase tracking-wide px-2 py-0.5">
+                      −{Math.round((1 - product.priceCents / product.compareAtPriceCents) * 100)}%
+                    </span>
+                  </p>
+                ) : (
+                  <p className="text-xl">{price(product.priceCents)}</p>
+                )}
                 {(() => {
                   const s = ratingSummary(product);
                   if (!s) return null;
@@ -482,7 +494,14 @@ export function ProductDetail() {
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-coal/95 backdrop-blur border-t border-bone/10 px-4 py-3 flex items-center gap-3">
         <div className="min-w-0 shrink">
           <p className="text-[11px] uppercase tracking-wide truncate">{name}</p>
-          <p className="text-sm">{price(product.priceCents)}</p>
+          <p className="text-sm flex items-center gap-2">
+            <span className={product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents ? 'text-clay' : ''}>
+              {price(product.priceCents)}
+            </span>
+            {product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents && (
+              <span className="text-[11px] text-stone line-through">{price(product.compareAtPriceCents)}</span>
+            )}
+          </p>
         </div>
         <button
           onClick={selected ? (canAdd ? handleAdd : undefined) : scrollToSizes}

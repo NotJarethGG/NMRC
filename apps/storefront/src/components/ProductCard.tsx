@@ -58,6 +58,10 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const secondary = cldUrl(product.images[1]?.url ?? product.images[0]?.url, 600);
   const soldOut = product.variants.every((v) => v.stock <= 0);
   const isNew = isRecent(product.createdAt);
+  const onSale = !!product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
+  const discountPct = onSale
+    ? Math.round((1 - product.priceCents / (product.compareAtPriceCents as number)) * 100)
+    : 0;
 
   const quickAdd = (variantId: string, size: string, stock: number) => {
     add({
@@ -134,12 +138,17 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             </span>
           ) : (
             <>
+              {onSale && (
+                <span className="bg-clay text-noir text-[10px] uppercase tracking-luxe px-3 py-1 font-medium">
+                  −{discountPct}%
+                </span>
+              )}
               {isNew && (
                 <span className="bg-bone text-noir text-[10px] uppercase tracking-luxe px-3 py-1">
                   {t('badge.new')}
                 </span>
               )}
-              {product.featured && (
+              {product.featured && !onSale && (
                 <span className="bg-noir/85 text-bone text-[10px] uppercase tracking-luxe px-3 py-1 border border-bone/20">
                   {t('badge.bestseller')}
                 </span>
@@ -201,7 +210,16 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             <h3 className="text-sm font-medium leading-snug">{name}</h3>
             <p className="text-xs text-stone mt-1 uppercase tracking-wide">{product.category?.name}</p>
           </div>
-          <span className="text-sm whitespace-nowrap">{price(product.priceCents)}</span>
+          {onSale ? (
+            <span className="flex flex-col items-end leading-tight">
+              <span className="text-sm whitespace-nowrap text-clay">{price(product.priceCents)}</span>
+              <span className="text-[11px] whitespace-nowrap text-stone line-through">
+                {price(product.compareAtPriceCents as number)}
+              </span>
+            </span>
+          ) : (
+            <span className="text-sm whitespace-nowrap">{price(product.priceCents)}</span>
+          )}
         </div>
       </Link>
     </motion.div>

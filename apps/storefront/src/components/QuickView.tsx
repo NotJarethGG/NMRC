@@ -127,7 +127,17 @@ export function QuickView() {
             <div className="p-6 md:p-8 flex flex-col">
               <span className="eyebrow">{product.category?.name}</span>
               <h2 className="font-display text-2xl md:text-3xl mt-2 uppercase leading-tight">{name}</h2>
-              <p className="text-lg mt-3">{price(product.priceCents)}</p>
+              {product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents ? (
+                <p className="mt-3 flex items-center gap-2">
+                  <span className="text-lg text-clay">{price(product.priceCents)}</span>
+                  <span className="text-sm text-stone line-through">{price(product.compareAtPriceCents)}</span>
+                  <span className="bg-clay text-noir text-[10px] uppercase tracking-wide px-2 py-0.5">
+                    −{Math.round((1 - product.priceCents / product.compareAtPriceCents) * 100)}%
+                  </span>
+                </p>
+              ) : (
+                <p className="text-lg mt-3">{price(product.priceCents)}</p>
+              )}
               <p className="text-sm text-stone leading-relaxed mt-4 line-clamp-4">
                 {L.description(product)}
               </p>

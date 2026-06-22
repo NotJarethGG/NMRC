@@ -111,6 +111,7 @@ model Product {
   description  String?          @db.Text
   descriptionEn String?         @db.Text
   priceCents   Int
+  compareAtPriceCents Int?
   status       ProductStatus    @default(DRAFT)
   featured     Boolean          @default(false)
   category     Category         @relation(fields: [categoryId], references: [id])

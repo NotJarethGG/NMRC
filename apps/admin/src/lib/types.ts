@@ -32,6 +32,7 @@ export interface Product {
   description?: string | null;
   descriptionEn?: string | null;
   priceCents: number;
+  compareAtPriceCents?: number | null;
   status: ProductStatus;
   featured: boolean;
   categoryId: string;

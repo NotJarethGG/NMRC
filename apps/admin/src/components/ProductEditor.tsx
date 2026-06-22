@@ -26,6 +26,7 @@ export function ProductEditor({ product, onClose }: Props) {
   const [description, setDescription] = useState('');
   const [descriptionEn, setDescriptionEn] = useState('');
   const [priceColones, setPriceColones] = useState<number>(0);
+  const [compareColones, setCompareColones] = useState<number>(0);
   const [categoryId, setCategoryId] = useState('');
   const [collectionId, setCollectionId] = useState('');
   const [status, setStatus] = useState<ProductStatus>('ACTIVE');
@@ -45,6 +46,7 @@ export function ProductEditor({ product, onClose }: Props) {
       setDescription(product.description ?? '');
       setDescriptionEn(product.descriptionEn ?? '');
       setPriceColones(product.priceCents / 100);
+      setCompareColones(product.compareAtPriceCents ? product.compareAtPriceCents / 100 : 0);
       setCategoryId(product.categoryId);
       setCollectionId(product.collectionId ?? '');
       setStatus(product.status);
@@ -89,6 +91,7 @@ export function ProductEditor({ product, onClose }: Props) {
       description,
       descriptionEn: descriptionEn.trim() || null,
       priceCents: fromCRC(priceColones),
+      compareAtPriceCents: compareColones > 0 ? fromCRC(compareColones) : null,
       categoryId,
       collectionId: collectionId || null,
       status,
@@ -161,7 +164,7 @@ export function ProductEditor({ product, onClose }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="label">Precio (₡)</label>
               <input
@@ -170,6 +173,17 @@ export function ProductEditor({ product, onClose }: Props) {
                 value={priceColones}
                 onChange={(e) => setPriceColones(Number(e.target.value))}
               />
+            </div>
+            <div>
+              <label className="label">Precio anterior (₡)</label>
+              <input
+                type="number"
+                className="field"
+                placeholder="Opcional"
+                value={compareColones || ''}
+                onChange={(e) => setCompareColones(Number(e.target.value))}
+              />
+              <p className="text-[10px] text-stone mt-1">Si es mayor al precio, se muestra tachado (rebaja).</p>
             </div>
             <div>
               <label className="label">Estado</label>

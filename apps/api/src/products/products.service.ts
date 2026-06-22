@@ -100,6 +100,7 @@ export class ProductsService {
         description: dto.description,
         descriptionEn: dto.descriptionEn || null,
         priceCents: dto.priceCents,
+        compareAtPriceCents: dto.compareAtPriceCents || null,
         categoryId: dto.categoryId,
         collectionId: dto.collectionId || null,
         status: dto.status ?? ProductStatus.DRAFT,
@@ -128,6 +129,7 @@ export class ProductsService {
     if (dto.description !== undefined) data.description = dto.description;
     if (dto.descriptionEn !== undefined) data.descriptionEn = dto.descriptionEn || null;
     if (dto.priceCents !== undefined) data.priceCents = dto.priceCents;
+    if (dto.compareAtPriceCents !== undefined) data.compareAtPriceCents = dto.compareAtPriceCents || null;
     if (dto.status !== undefined) data.status = dto.status;
     if (dto.featured !== undefined) data.featured = dto.featured;
     if (dto.categoryId !== undefined) data.category = { connect: { id: dto.categoryId } };
