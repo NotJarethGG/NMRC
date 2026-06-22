@@ -45,7 +45,15 @@ function isRecent(createdAt?: string) {
   return days <= 21;
 }
 
-export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
+export function ProductCard({
+  product,
+  index = 0,
+  rank,
+}: {
+  product: Product;
+  index?: number;
+  rank?: number;
+}) {
   const t = useT();
   const price = usePrice();
   const L = useLocalize();
@@ -132,6 +140,11 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
 
         {/* BADGES */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 pointer-events-none">
+          {rank !== undefined && (
+            <span className="bg-noir text-bone text-[11px] font-display w-7 h-7 flex items-center justify-center">
+              {rank}
+            </span>
+          )}
           {soldOut ? (
             <span className="bg-noir/85 text-bone text-[10px] uppercase tracking-luxe px-3 py-1">
               {t('badge.soldOut')}

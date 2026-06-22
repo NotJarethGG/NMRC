@@ -256,11 +256,8 @@ export function Shop() {
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-5 px-5 md:mx-0 md:px-0 snap-x">
               {featured.map((p, i) => (
-                <div key={p.id} className="relative w-44 md:w-56 shrink-0 snap-start">
-                  <span className="absolute top-2 left-2 z-10 bg-bone text-noir text-[11px] font-medium w-7 h-7 flex items-center justify-center">
-                    {i + 1}
-                  </span>
-                  <ProductCard product={p} index={i} />
+                <div key={p.id} className="w-44 md:w-56 shrink-0 snap-start">
+                  <ProductCard product={p} index={i} rank={i + 1} />
                 </div>
               ))}
             </div>
