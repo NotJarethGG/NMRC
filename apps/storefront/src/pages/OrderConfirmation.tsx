@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api, formatCRC } from '../lib/api';
@@ -23,9 +23,27 @@ export function OrderConfirmation() {
   const location = useLocation();
   const passed = (location.state as { order?: Order } | null)?.order;
   const [order, setOrder] = useState<Order | null>(passed ?? null);
+  const [uploadingProof, setUploadingProof] = useState(false);
+  const [proofError, setProofError] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const refetch = () => {
     if (id) api.get<Order>(`/orders/mine/${id}`).then(({ data }) => setOrder(data)).catch(() => undefined);
+  };
+
+  const uploadProof = async (file: File) => {
+    setUploadingProof(true);
+    setProofError(false);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const { data } = await api.post<Order>(`/orders/mine/${id}/proof`, fd);
+      setOrder(data);
+    } catch {
+      setProofError(true);
+    } finally {
+      setUploadingProof(false);
+    }
   };
 
   useEffect(() => {
@@ -157,6 +175,60 @@ export function OrderConfirmation() {
             >
               {t('order.whatsapp')}
             </a>
+          )}
+
+          {/* SUBIR COMPROBANTE — alternativa directa a WhatsApp */}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void uploadProof(f);
+              e.target.value = '';
+            }}
+          />
+          {order.sinpeProofUrl ? (
+            <div className="mt-4 flex items-center gap-3 bg-bone/5 border border-bone/10 p-3">
+              <a href={order.sinpeProofUrl} target="_blank" rel="noreferrer" className="shrink-0">
+                <img src={order.sinpeProofUrl} alt="" className="w-12 h-12 object-cover" />
+              </a>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-bone/80">{t('order.proofReceived')}</p>
+                <div className="flex gap-4 mt-1">
+                  <a
+                    href={order.sinpeProofUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] uppercase tracking-luxe text-bone/50 hover:text-bone link-underline"
+                  >
+                    {t('order.proofView')}
+                  </a>
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploadingProof}
+                    className="text-[11px] uppercase tracking-luxe text-bone/50 hover:text-bone link-underline disabled:opacity-40"
+                  >
+                    {uploadingProof ? t('order.proofUploading') : t('order.proofReplace')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => fileRef.current?.click()}
+                disabled={uploadingProof}
+                className="w-full mt-4 border border-bone/30 text-bone text-[11px] uppercase tracking-luxe py-3.5 hover:bg-bone hover:text-ink transition-colors disabled:opacity-40"
+              >
+                {uploadingProof ? t('order.proofUploading') : t('order.uploadProof')}
+              </button>
+              <p className="text-[11px] text-bone/40 mt-2 text-center">{t('order.uploadProofHint')}</p>
+            </>
+          )}
+          {proofError && (
+            <p className="text-[11px] text-red-400 mt-2 text-center">{t('order.proofError')}</p>
           )}
         </div>
         )}

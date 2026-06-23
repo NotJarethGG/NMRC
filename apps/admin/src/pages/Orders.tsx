@@ -231,6 +231,33 @@ export function Orders() {
                 </div>
               )}
 
+              {/* COMPROBANTE SINPE subido por el cliente */}
+              {selected.sinpeProofUrl && (
+                <div>
+                  <p className="eyebrow mb-3">Comprobante SINPE</p>
+                  <a
+                    href={selected.sinpeProofUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block border border-line overflow-hidden hover:opacity-90"
+                  >
+                    <img
+                      src={selected.sinpeProofUrl}
+                      alt="Comprobante SINPE"
+                      className="w-full max-h-72 object-contain bg-paper"
+                    />
+                  </a>
+                  <a
+                    href={selected.sinpeProofUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] uppercase tracking-wide text-stone hover:text-ink mt-2 inline-block"
+                  >
+                    Abrir original ↗
+                  </a>
+                </div>
+              )}
+
               {selected.user?.phone && (
                 <a
                   href={`https://wa.me/${selected.user.phone.replace(/\D/g, '')}`}

@@ -1,4 +1,20 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { randomUUID } from 'crypto';
 import { OrderStatus } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -34,6 +50,33 @@ export class OrdersController {
   @Patch('mine/:id/cancel')
   cancelMine(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.orders.cancelMine(user.id, id);
+  }
+
+  // El cliente sube el comprobante del pago SINPE (imagen) a su pedido pendiente
+  @UseGuards(JwtAuthGuard)
+  @Post('mine/:id/proof')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: join(__dirname, '..', '..', 'uploads'),
+        filename: (_req, file, cb) => {
+          const ext = extname(file.originalname).toLowerCase();
+          cb(null, `${randomUUID()}${ext}`);
+        },
+      }),
+      limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
+      fileFilter: (_req, file, cb) => {
+        const ok = /image\/(jpe?g|png|webp|avif|gif)/.test(file.mimetype);
+        cb(ok ? null : new BadRequestException('Solo se permiten imágenes'), ok);
+      },
+    }),
+  )
+  uploadProof(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.orders.attachProof(user.id, id, file);
   }
 
   // --- Admin / Staff ---

@@ -125,6 +125,7 @@ export function ProductDetail() {
   useDocumentTitle(
     product ? product.nameEn || product.name : undefined,
     (product?.descriptionEn || product?.description) ?? undefined,
+    { image: product?.images[0] ? cldUrl(product.images[0].url, 1200) : undefined, type: 'product' },
   );
   useProductSchema(product);
 

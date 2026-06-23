@@ -10,28 +10,20 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
-import { unlink } from 'fs/promises';
 import { ConfigService } from '@nestjs/config';
-import { v2 as cloudinary } from 'cloudinary';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CloudinaryService } from './cloudinary.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'STAFF')
 @Controller('upload')
 export class UploadController {
-  private readonly cloudinaryReady: boolean;
-
-  constructor(private config: ConfigService) {
-    const cloudName = config.get<string>('CLOUDINARY_CLOUD_NAME');
-    const apiKey = config.get<string>('CLOUDINARY_API_KEY');
-    const apiSecret = config.get<string>('CLOUDINARY_API_SECRET');
-    this.cloudinaryReady = Boolean(cloudName && apiKey && apiSecret);
-    if (this.cloudinaryReady) {
-      cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret });
-    }
-  }
+  constructor(
+    private config: ConfigService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   @Post()
   @UseInterceptors(
@@ -54,17 +46,9 @@ export class UploadController {
     if (!file) throw new BadRequestException('No se recibió ningún archivo');
 
     // Con Cloudinary configurado: sube a la nube (persistente) y limpia el disco
-    if (this.cloudinaryReady) {
-      try {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: 'nmrc',
-          resource_type: 'image',
-        });
-        await unlink(file.path).catch(() => undefined);
-        return { url: result.secure_url, filename: result.public_id };
-      } catch {
-        // Si Cloudinary falla, conservamos el archivo local como respaldo
-      }
+    const uploaded = await this.cloudinary.uploadImage(file.path);
+    if (uploaded) {
+      return { url: uploaded.url, filename: uploaded.publicId };
     }
 
     // Fallback: filesystem local (efímero en Render)

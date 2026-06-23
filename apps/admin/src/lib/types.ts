@@ -70,6 +70,7 @@ export interface Order {
   shippingAddress: string;
   notes?: string | null;
   sinpeRef?: string | null;
+  sinpeProofUrl?: string | null;
   trackingCode?: string | null;
   trackingCarrier?: string | null;
   items: OrderItem[];

@@ -167,6 +167,7 @@ model Order {
   shippingAddress String      @db.Text
   notes           String?     @db.Text
   sinpeRef        String?
+  sinpeProofUrl   String?
   paidVia         String?
   stripePaymentId String?
   trackingCode    String?

@@ -101,6 +101,7 @@ export interface Order {
   trackingCode?: string | null;
   trackingCarrier?: string | null;
   sinpeRef?: string | null;
+  sinpeProofUrl?: string | null;
   items: OrderItem[];
   createdAt: string;
   payment?: PaymentInfo;

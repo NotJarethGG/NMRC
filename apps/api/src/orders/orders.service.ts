@@ -3,6 +3,7 @@ import { OrderStatus, Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
+import { CloudinaryService } from '../upload/cloudinary.service';
 import { shippingConfig, shippingFor } from '../common/shipping';
 import { findValidDiscount } from '../discounts/discounts.util';
 import { CreateOrderDto } from './dto';
@@ -18,6 +19,7 @@ export class OrdersService {
     private prisma: PrismaService,
     private config: ConfigService,
     private mail: MailService,
+    private cloudinary: CloudinaryService,
   ) {}
 
   async create(userId: string, dto: CreateOrderDto) {
@@ -147,6 +149,24 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Pedido no encontrado');
     return { ...order, payment: this.paymentInfo(order.id, order.totalCents) };
+  }
+
+  // El cliente adjunta el comprobante del pago SINPE mientras el pedido está pendiente
+  async attachProof(userId: string, id: string, file?: Express.Multer.File) {
+    if (!file) throw new BadRequestException('No se recibió ningún archivo');
+    const order = await this.prisma.order.findFirst({ where: { id, userId } });
+    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException('Este pedido ya no está pendiente de pago');
+    }
+
+    // Cloudinary si está configurado; si no, archivo local (efímero en Render)
+    const uploaded = await this.cloudinary.uploadImage(file.path, 'nmrc/comprobantes');
+    const base = this.config.get<string>('PUBLIC_URL') ?? 'http://localhost:3000';
+    const url = uploaded ? uploaded.url : `${base}/uploads/${file.filename}`;
+
+    await this.prisma.order.update({ where: { id }, data: { sinpeProofUrl: url } });
+    return this.findOneForUser(userId, id);
   }
 
   // --- Admin ---
